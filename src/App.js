@@ -1,25 +1,45 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState } from 'react';
+import Box from '@mui/material/Box';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import SquaresBoard from './SquaresBoard';
+import LandingPage from './LandingPage';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const theme = createTheme({
+	typography: {
+		h1: {
+			fontSize: '4.5rem',
+		},
+	},
+});
+
+export default function App() {
+	const [boardData, setBoardData] = useState(null);
+
+	const handleBoardLoaded = (data) => {
+		setBoardData(data);
+	};
+
+	const handleBoardUpdate = (gridData) => {
+		setBoardData({ ...boardData, gridData });
+	};
+
+	return (
+		<ThemeProvider theme={theme}>
+			<Box sx={{ flexGrow: 1, margin: '1em' }}>
+				{boardData ? (
+					<SquaresBoard boardData={boardData} onUpdate={handleBoardUpdate} />
+				) : (
+					<LandingPage onBoardLoaded={handleBoardLoaded} />
+				)}
+			</Box>
+		</ThemeProvider>
+	);
 }
 
-export default App;
+const SquaresBoardModel = {
+	gridData: [],
+	name: '',
+	adminCode: '',
+	userCode: '',
+	limit: 100,
+};
