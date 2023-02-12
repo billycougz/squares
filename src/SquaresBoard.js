@@ -41,8 +41,7 @@ export default function SquaresBoard({ boardData, onUpdate, isAdmin }) {
 	};
 
 	const handleSquareClick = ([row, col]) => {
-		gridData[row][col] = initials;
-		onUpdate([...gridData]);
+		onUpdate({ boardName: boardData.boardName, row, col, value: initials });
 	};
 
 	const getCellColor = (row, col) => {

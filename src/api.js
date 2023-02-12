@@ -15,14 +15,10 @@ export const createBoard = async (boardData) => {
 	}
 };
 
-export const updateBoard = async (boardData) => {
+export const updateBoard = async ({ boardName, row, col, value }) => {
 	try {
-		const body = {
-			TableName: 'SquaresTable',
-			Item: boardData,
-		};
-		const { data } = await axios.put(BASE_URL, body);
-		return boardData;
+		const { data } = await axios.put(BASE_URL, { boardName, row, col, value });
+		return data;
 	} catch (e) {
 		return { error: 'Error' };
 	}
