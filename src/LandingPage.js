@@ -29,7 +29,7 @@ export default function LandingPage({ onBoardLoaded }) {
 		};
 		const boardData = await createBoard({ gridData: initializeGrid(), ...formData });
 		if (!boardData.error) {
-			onBoardLoaded({ boardData, isAdmin });
+			onBoardLoaded({ boardData, isAdmin: true });
 		} else {
 			alert(boardData.error);
 		}
