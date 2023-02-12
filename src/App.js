@@ -3,6 +3,7 @@ import Box from '@mui/material/Box';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import SquaresBoard from './SquaresBoard';
 import LandingPage from './LandingPage';
+import { updateBoard } from './api';
 
 const theme = createTheme({
 	typography: {
@@ -14,20 +15,24 @@ const theme = createTheme({
 
 export default function App() {
 	const [boardData, setBoardData] = useState(null);
+	const [isAdmin, setIsAdmin] = useState(false);
 
-	const handleBoardLoaded = (data) => {
-		setBoardData(data);
+	const handleBoardLoaded = ({ boardData, isAdmin }) => {
+		setBoardData(boardData);
+		setIsAdmin(isAdmin);
 	};
 
-	const handleBoardUpdate = (gridData) => {
-		setBoardData({ ...boardData, gridData });
+	const handleBoardUpdate = async (gridData) => {
+		const updateData = { ...boardData, gridData };
+		const response = await updateBoard(updateData);
+		setBoardData(updateData);
 	};
 
 	return (
 		<ThemeProvider theme={theme}>
 			<Box sx={{ flexGrow: 1, margin: '1em' }}>
 				{boardData ? (
-					<SquaresBoard boardData={boardData} onUpdate={handleBoardUpdate} />
+					<SquaresBoard boardData={boardData} onUpdate={handleBoardUpdate} isAdmin={isAdmin} />
 				) : (
 					<LandingPage onBoardLoaded={handleBoardLoaded} />
 				)}

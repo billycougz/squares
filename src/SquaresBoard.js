@@ -4,9 +4,9 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 import Cell from './Cell';
 import TextField from '@mui/material/TextField';
-import { FormControl, FormLabel } from '@mui/material';
+import { Button, FormControl, FormLabel, Paper } from '@mui/material';
 
-export default function SquaresBoard({ boardData, onUpdate }) {
+export default function SquaresBoard({ boardData, onUpdate, isAdmin }) {
 	const [teamSides, setTeamSides] = useState({ horizontal: 0, vertical: 1 });
 	const [initials, setInitials] = useState('');
 
@@ -56,56 +56,39 @@ export default function SquaresBoard({ boardData, onUpdate }) {
 
 	return (
 		<Box sx={{ flexGrow: 1, margin: '1em' }}>
-			<FormControl>
-				<FormLabel>Enter your initials then select your squares</FormLabel>
-				<TextField
-					label='Initials'
-					variant='outlined'
-					value={initials}
-					onChange={(e) => setInitials(e.target.value)}
-					sx={{ width: '300px', margin: '1em 0' }}
-				/>
-			</FormControl>
+			<Paper sx={{ padding: '1em', width: 'fit-content' }}>
+				<FormControl>
+					<FormLabel>Enter your initials then select your squares</FormLabel>
+					<TextField
+						label='Initials'
+						variant='outlined'
+						value={initials}
+						onChange={(e) => setInitials(e.target.value)}
+						sx={{ width: '300px', margin: '1em 0' }}
+					/>
+				</FormControl>
 
+				{!isLocked && isAdmin && (
+					<div>
+						<Button onClick={setNumbers}>Set Numbers</Button>
+						<Button onClick={handleSwapTeams}>Swap Teams</Button>
+					</div>
+				)}
+			</Paper>
 			<br />
-			<hr />
-			{!isLocked && (
-				<>
-					<button onClick={setNumbers}>Set Numbers</button>
-					<button onClick={handleSwapTeams}>Swap Teams</button>
-				</>
-			)}
-
-			<Grid xs='12' sx={{ textAlign: 'center', marginLeft: '10%' }}>
-				<Typography variant='h1' color={teams[teamSides.horizontal].color}>
-					{teams[teamSides.horizontal].name}
-				</Typography>
-			</Grid>
-			<Grid xs='12' sx={{ display: 'flex' }}>
-				<Grid xs='1' sx={{ marginRight: '15px' }}>
-					<Typography
-						variant='h1'
-						color={teams[teamSides.vertical].color}
-						sx={{ transform: 'rotate(270deg)', position: 'relative', top: '50%' }}
-					>
-						{teams[teamSides.vertical].name}
-					</Typography>
-				</Grid>
-
-				<Grid xs='11' container>
-					{gridData.map((values, rowIndex) => (
-						<Grid xs>
-							{values.map((value, colIndex) => (
-								<Cell
-									value={value}
-									location={[rowIndex, colIndex]}
-									backgroundColor={getCellColor(rowIndex, colIndex)}
-									onClick={handleSquareClick}
-								/>
-							))}
-						</Grid>
-					))}
-				</Grid>
+			<Grid container>
+				{gridData.map((values, rowIndex) => (
+					<Grid xs>
+						{values.map((value, colIndex) => (
+							<Cell
+								value={value}
+								location={[rowIndex, colIndex]}
+								backgroundColor={getCellColor(rowIndex, colIndex)}
+								onClick={handleSquareClick}
+							/>
+						))}
+					</Grid>
+				))}
 			</Grid>
 		</Box>
 	);
