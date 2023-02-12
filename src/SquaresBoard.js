@@ -20,18 +20,7 @@ export default function SquaresBoard({ boardData, onUpdate, isAdmin }) {
 	const setNumbers = () => {
 		const doContinue = window.confirm('Set the numbers? This can only be done once.');
 		if (doContinue) {
-			const ordered = Array.from(Array(10).keys());
-			const horizontal = [undefined, ...ordered.sort((a, b) => 0.5 - Math.random())];
-			const vertical = [undefined, ...ordered.sort((a, b) => 0.5 - Math.random())];
-			const updatedData = gridData.map((row, rowIndex) => {
-				if (rowIndex) {
-					const verticalValue = vertical[rowIndex];
-					row.shift();
-					return [verticalValue, ...row];
-				}
-				return horizontal;
-			});
-			onUpdate(updatedData);
+			onUpdate({ boardName: boardData.boardName, numbers: true });
 		}
 	};
 

@@ -22,8 +22,8 @@ export default function App() {
 		setIsAdmin(isAdmin);
 	};
 
-	const handleBoardUpdate = async ({ boardName, row, col, value }) => {
-		const { Item } = await updateBoard({ boardName, row, col, value });
+	const handleBoardUpdate = async ({ boardName, row, col, value, numbers }) => {
+		const { Item } = await updateBoard({ boardName, row, col, value, numbers });
 		setBoardData(Item);
 	};
 
