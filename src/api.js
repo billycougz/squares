@@ -38,7 +38,7 @@ export const loadBoard = async ({ boardName, adminCode, userCode }) => {
 			url += `&adminCode=${adminCode}`;
 		}
 		const { data } = await axios.get(url);
-		return data.Item;
+		return data.error ? data : data.Item;
 	} catch (e) {
 		return { error: 'Error' };
 	}

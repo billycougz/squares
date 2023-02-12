@@ -37,7 +37,11 @@ export default function LandingPage({ onBoardLoaded }) {
 
 	const handleLoad = async () => {
 		const boardData = await loadBoard(formData);
-		onBoardLoaded({ boardData, isAdmin });
+		if (boardData.error) {
+			alert(boardData.error);
+		} else {
+			onBoardLoaded({ boardData, isAdmin });
+		}
 	};
 
 	return (
@@ -55,9 +59,9 @@ export default function LandingPage({ onBoardLoaded }) {
 					<TextField
 						label='Name'
 						value={formData.boardName}
-						helperText='The name participants use to access the Squares board'
+						helperText='The name participants use to access Squares'
 						onChange={(e) => setFormData({ ...formData, boardName: e.target.value })}
-						sx={{ width: '408px' }}
+						fullWidth
 					/>
 					<br />
 					<br />
@@ -75,9 +79,15 @@ export default function LandingPage({ onBoardLoaded }) {
 							<TextField
 								label='User Code'
 								value={formData.userCode}
-								helperText='The code participants use to access the Squares board'
-								onChange={(e) => setFormData({ ...formData, userCode: e.target.value })}
-								sx={{ width: '408px' }}
+								helperText='The code participants use to access Squares'
+								onChange={(e) =>
+									setFormData({
+										...formData,
+										userCode: e.target.value,
+										adminCode: view === 'Load' ? '' : formData.adminCode,
+									})
+								}
+								fullWidth
 							/>
 							<br />
 							<br />
@@ -88,15 +98,22 @@ export default function LandingPage({ onBoardLoaded }) {
 							<TextField
 								label='Admin Code'
 								value={formData.adminCode}
-								helperText='The code you use to administer the Squares board'
-								onChange={(e) => setFormData({ ...formData, adminCode: e.target.value })}
-								sx={{ width: '408px' }}
+								helperText='The code you use to administer Squares'
+								onChange={(e) =>
+									setFormData({
+										...formData,
+										adminCode: e.target.value,
+										userCode: view === 'Load' ? '' : formData.userCode,
+									})
+								}
+								fullWidth
 							/>
 							<br />
 							<br />
 						</>
 					)}
 					<Button
+						fullWidth
 						disabled={
 							!formData.boardName ||
 							(view === 'Create' && (!formData.adminCode || !formData.userCode)) ||

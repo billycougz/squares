@@ -4,7 +4,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 import Cell from './Cell';
 import TextField from '@mui/material/TextField';
-import { Button, FormControl, FormLabel, Paper } from '@mui/material';
+import { Alert, Button, FormControl, FormLabel, Paper } from '@mui/material';
 
 export default function SquaresBoard({ boardData, onUpdate, isAdmin }) {
 	const [teamSides, setTeamSides] = useState({ horizontal: 0, vertical: 1 });
@@ -64,19 +64,25 @@ export default function SquaresBoard({ boardData, onUpdate, isAdmin }) {
 						variant='outlined'
 						value={initials}
 						onChange={(e) => setInitials(e.target.value)}
-						sx={{ width: '300px', margin: '1em 0' }}
+						sx={{ margin: '1em 0' }}
+						fullWidth
 					/>
 				</FormControl>
 
 				{!isLocked && isAdmin && (
 					<div>
-						<Button onClick={setNumbers}>Set Numbers</Button>
-						<Button onClick={handleSwapTeams}>Swap Teams</Button>
+						<Button onClick={setNumbers} variant='contained'>
+							Set Numbers
+						</Button>
+						{/* Disabling until fully handled - <Button onClick={handleSwapTeams}>Swap Teams</Button> */}
 					</div>
 				)}
+				<Alert variant='outlined' severity='warning' sx={{ marginTop: '1em', display: { xs: 'flex', sm: 'none' } }}>
+					Squares on mobile is easiest to use in landscape mode.
+				</Alert>
 			</Paper>
 			<br />
-			<Grid container>
+			<Grid container sx={{ paddingBottom: '2em' }}>
 				{gridData.map((values, rowIndex) => (
 					<Grid xs>
 						{values.map((value, colIndex) => (
