@@ -16,8 +16,16 @@ const theme = createTheme({
 export default function App() {
 	const [boardData, setBoardData] = useState(null);
 	const [isAdmin, setIsAdmin] = useState(false);
+	const recentSquares = JSON.parse(localStorage.getItem('recent-squares') || '[]');
+
+	const updateRecentSquares = (squaresData) => {
+		const updatedSquares = recentSquares.filter((squares) => squares.boardName !== squaresData.boardName);
+		updatedSquares.push(squaresData);
+		localStorage.setItem('recent-squares', JSON.stringify(updatedSquares));
+	};
 
 	const handleBoardLoaded = ({ boardData, isAdmin }) => {
+		updateRecentSquares(boardData);
 		setBoardData(boardData);
 		setIsAdmin(isAdmin);
 	};

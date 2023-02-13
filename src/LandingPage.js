@@ -3,7 +3,10 @@ import {
 	Checkbox,
 	FormControl,
 	FormLabel,
+	InputLabel,
+	MenuItem,
 	Paper,
+	Select,
 	ToggleButton,
 	ToggleButtonGroup,
 	Typography,
@@ -16,6 +19,8 @@ export default function LandingPage({ onBoardLoaded }) {
 	const [view, setView] = useState('select');
 	const [formData, setFormData] = useState({});
 	const [isAdmin, setIsAdmin] = useState(false);
+
+	const recentSquares = JSON.parse(localStorage.getItem('recent-squares') || '[]');
 
 	const handleViewChange = (e) => {
 		const { value } = e.target;
@@ -35,8 +40,8 @@ export default function LandingPage({ onBoardLoaded }) {
 		}
 	};
 
-	const handleLoad = async () => {
-		const boardData = await loadBoard(formData);
+	const handleLoad = async (squaresData) => {
+		const boardData = await loadBoard(squaresData || formData);
 		if (boardData.error) {
 			alert(boardData.error);
 		} else {
@@ -47,12 +52,27 @@ export default function LandingPage({ onBoardLoaded }) {
 	return (
 		<Paper sx={{ padding: '1em', width: 'fit-content', textAlign: 'center', margin: 'auto' }}>
 			<Typography variant='h1'>Super Bowl LVII</Typography>
+			{recentSquares.length ? (
+				<FormControl fullWidth sx={{ margin: '1em 0' }} size='small'>
+					<InputLabel>Recent Squares</InputLabel>
+					<Select value={null} label='Recent Squares'>
+						{recentSquares.map((squaresData) => (
+							<MenuItem value={squaresData.boardName} onClick={() => handleLoad(squaresData)}>
+								{squaresData.boardName}
+							</MenuItem>
+						))}
+					</Select>
+				</FormControl>
+			) : (
+				''
+			)}
 			<br />
 			<ToggleButtonGroup color='primary' value={view} exclusive onChange={handleViewChange} aria-label='Platform'>
 				<ToggleButton value='Create'>Create New Squares</ToggleButton>
 				<ToggleButton value='Load'>Load Existing Squares</ToggleButton>
 			</ToggleButtonGroup>
 			<br />
+
 			<br />
 			{view !== 'select' && (
 				<div>

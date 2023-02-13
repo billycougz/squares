@@ -4,7 +4,18 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 import Cell from './Cell';
 import TextField from '@mui/material/TextField';
-import { Alert, Button, FormControl, FormLabel, Paper } from '@mui/material';
+import {
+	Accordion,
+	AccordionDetails,
+	AccordionSummary,
+	Alert,
+	Button,
+	FormControl,
+	FormLabel,
+	modalClasses,
+	Paper,
+} from '@mui/material';
+import { ExpandMoreOutlined } from '@mui/icons-material';
 
 export default function SquaresBoard({ boardData, onUpdate, isAdmin }) {
 	const [teamSides, setTeamSides] = useState({ horizontal: 0, vertical: 1 });
@@ -42,6 +53,19 @@ export default function SquaresBoard({ boardData, onUpdate, isAdmin }) {
 
 	const isLocked = gridData[0].some((value) => value);
 
+	const squareMap = gridData.reduce((map, row, rowIndex) => {
+		if (!rowIndex) {
+			return map;
+		}
+		row.forEach((value, colIndex) => {
+			if (!colIndex) {
+				return map;
+			}
+			map[value] = map[value] ? map[value] + 1 : 1;
+		});
+		return map;
+	}, {});
+
 	return (
 		<Box sx={{ flexGrow: 1, margin: '1em' }}>
 			<Paper sx={{ padding: '1em', width: 'fit-content' }}>
@@ -65,11 +89,32 @@ export default function SquaresBoard({ boardData, onUpdate, isAdmin }) {
 						{/* Disabling until fully handled - <Button onClick={handleSwapTeams}>Swap Teams</Button> */}
 					</div>
 				)}
+
 				<Alert variant='outlined' severity='warning' sx={{ marginTop: '1em', display: { xs: 'flex', sm: 'none' } }}>
 					Squares on mobile is easiest to use in landscape mode.
 				</Alert>
 			</Paper>
-			<br />
+			{Object.keys(squareMap).length && (
+				<>
+					<br />
+					<Accordion sx={{ borderRadius: '5px' }}>
+						<AccordionSummary expandIcon={<ExpandMoreOutlined />}>
+							<Typography>Square Counts</Typography>
+						</AccordionSummary>
+						<AccordionDetails>
+							{Object.keys(squareMap).map((key) => (
+								<div>
+									<Typography>
+										<strong>{key}</strong>: {squareMap[key]}
+									</Typography>
+								</div>
+							))}
+						</AccordionDetails>
+					</Accordion>
+					<br />
+				</>
+			)}
+
 			<Grid container sx={{ paddingBottom: '2em' }}>
 				{gridData.map((values, rowIndex) => (
 					<Grid xs>
