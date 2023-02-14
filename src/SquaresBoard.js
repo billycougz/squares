@@ -37,6 +37,8 @@ export default function SquaresBoard({ boardData, onUpdate, isAdmin }) {
 	const [resultQuarterIndex, setResultQuarterIndex] = useState(0);
 	const [adminMode, setAdminMode] = useState('select');
 
+	const highlightColor = '#1876d1';
+
 	const teams = {
 		horizontal: { name: 'Eagles', color: '#004d56' },
 		vertical: { name: 'Chiefs', color: '#ca243e' },
@@ -69,6 +71,9 @@ export default function SquaresBoard({ boardData, onUpdate, isAdmin }) {
 			return vertical.color;
 		} else if (!col && row) {
 			return horizontal.color;
+		}
+		if (gridData[row][col] === initials) {
+			return highlightColor;
 		}
 		return '';
 	};
@@ -181,8 +186,8 @@ export default function SquaresBoard({ boardData, onUpdate, isAdmin }) {
 										.filter((key) => key !== '_remaining')
 										.map((key) => (
 											<TableRow key={key}>
-												<TableCell>{key}</TableCell>
-												<TableCell>{squareMap[key]}</TableCell>
+												<TableCell sx={{ color: initials === key ? highlightColor : '' }}>{key}</TableCell>
+												<TableCell sx={{ color: initials === key ? highlightColor : '' }}>{squareMap[key]}</TableCell>
 											</TableRow>
 										))}
 								</TableBody>
@@ -210,12 +215,12 @@ export default function SquaresBoard({ boardData, onUpdate, isAdmin }) {
 							</TableHead>
 
 							<TableBody>
-								{results.map((result) => (
-									<TableRow key={result.quarter}>
-										<TableCell>{result.quarter}</TableCell>
-										<TableCell>{result.horizontal}</TableCell>
-										<TableCell>{result.vertical}</TableCell>
-										<TableCell>{result.winner}</TableCell>
+								{results.map(({ quarter, horizontal, vertical, winner }) => (
+									<TableRow key={quarter}>
+										<TableCell sx={{ color: initials === winner ? highlightColor : '' }}>{quarter}</TableCell>
+										<TableCell sx={{ color: initials === winner ? highlightColor : '' }}>{horizontal}</TableCell>
+										<TableCell sx={{ color: initials === winner ? highlightColor : '' }}>{vertical}</TableCell>
+										<TableCell sx={{ color: initials === winner ? highlightColor : '' }}>{winner}</TableCell>
 									</TableRow>
 								))}
 							</TableBody>
