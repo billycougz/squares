@@ -9,7 +9,7 @@ export const createBoard = async (boardData) => {
 			Item: boardData,
 		};
 		const { data } = await axios.post(BASE_URL, body);
-		return data.error ? data : boardData;
+		return data;
 	} catch (e) {
 		return { error: 'Error' };
 	}

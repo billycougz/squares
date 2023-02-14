@@ -45,7 +45,7 @@ export default function LandingPage({ onBoardLoaded }) {
 		if (boardData.error) {
 			alert(boardData.error);
 		} else {
-			onBoardLoaded({ boardData, isAdmin });
+			onBoardLoaded({ boardData, isAdmin: squaresData ? squaresData.isAdmin : isAdmin });
 		}
 	};
 

@@ -24,7 +24,7 @@ export default function App() {
 	};
 
 	const handleBoardLoaded = ({ boardData, isAdmin }) => {
-		updateRecentSquares(boardData);
+		updateRecentSquares({ ...boardData, isAdmin });
 		setBoardData(boardData);
 		setIsAdmin(isAdmin);
 	};
