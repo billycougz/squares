@@ -15,9 +15,9 @@ export const createBoard = async (boardData) => {
 	}
 };
 
-export const updateBoard = async ({ boardName, row, col, value, numbers }) => {
+export const updateBoard = async (updateData) => {
 	try {
-		const { data } = await axios.put(BASE_URL, { boardName, row, col, value, numbers });
+		const { data } = await axios.put(BASE_URL, updateData);
 		return data;
 	} catch (e) {
 		return { error: 'Error' };

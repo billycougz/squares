@@ -27,11 +27,9 @@ export default function Cell({ value = '', location: [row, col], backgroundColor
 	};
 
 	const handleClick = () => {
-		if (disabled || value) {
-			return;
-		}
 		onClick([row, col]);
 	};
+
 	return (
 		<Grid xs>
 			<Item onClick={handleClick}>
