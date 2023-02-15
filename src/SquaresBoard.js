@@ -22,7 +22,7 @@ import {
 	ToggleButton,
 	ToggleButtonGroup,
 } from '@mui/material';
-import { ExpandMoreOutlined } from '@mui/icons-material';
+import { AccountCircle, ExpandMoreOutlined } from '@mui/icons-material';
 import { updateBoard } from './api';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -33,7 +33,7 @@ import TableRow from '@mui/material/TableRow';
 
 export default function SquaresBoard({ boardData, onUpdate, isAdmin }) {
 	const { gridData, boardName, results } = boardData;
-	const [initials, setInitials] = useState('');
+	const [initials, setInitials] = useState(localStorage.getItem('squares-initials') || '');
 	const [resultQuarterIndex, setResultQuarterIndex] = useState(0);
 	const [adminMode, setAdminMode] = useState('select');
 
@@ -99,70 +99,96 @@ export default function SquaresBoard({ boardData, onUpdate, isAdmin }) {
 		{ _remaining: 0 }
 	);
 
+	const handleInitialsChange = (e) => {
+		const { value } = e.target;
+		localStorage.setItem('squares-initials', value);
+		setInitials(value);
+	};
+
 	return (
 		<Box sx={{ flexGrow: 1, margin: '1em' }}>
-			<Paper sx={{ padding: '1em', width: { sm: 'fit-content' } }}>
-				<FormControl>
-					<FormLabel>Enter your initials then select your squares</FormLabel>
-					<TextField
-						label='Initials'
-						variant='outlined'
-						value={initials}
-						onChange={(e) => setInitials(e.target.value)}
-						sx={{ margin: '1em 0' }}
-						fullWidth
-					/>
-				</FormControl>
-
-				{!isLocked && isAdmin && (
-					<div>
-						<Button onClick={setNumbers} variant='contained'>
-							Set Numbers
-						</Button>
-						{/* Disabling until fully handled - <Button onClick={handleSwapTeams}>Swap Teams</Button> */}
-					</div>
-				)}
+			<Grid container spacing={2}>
+				<Grid xs={12} sm={6}>
+					<Box sx={{ display: 'flex', alignItems: 'flex-end' }} id='initial-box'>
+						<AccountCircle sx={{ color: 'action.active', ml: '12px', my: '12px' }} />
+						<TextField
+							autoFocus={!initials}
+							placeholder='Enter your initials...'
+							fullWidth
+							variant='outlined'
+							value={initials}
+							onChange={handleInitialsChange}
+						/>
+					</Box>
+				</Grid>
 
 				{isAdmin && (
-					<FormControl size='small' sx={{ display: 'flex' }}>
-						<FormLabel id='demo-row-radio-buttons-group-label'>Admin Mode</FormLabel>
-						<ToggleButtonGroup
-							color='primary'
-							size='small'
-							value={adminMode}
-							exclusive
-							onChange={(e) => setAdminMode(e.target.value)}
-						>
-							<ToggleButton value='select'>Select</ToggleButton>
-							<ToggleButton value='remove'>Remove</ToggleButton>
-							<ToggleButton value='result'>Result</ToggleButton>
-						</ToggleButtonGroup>
-					</FormControl>
-				)}
+					<Grid xs={12} sm={6}>
+						<Accordion sx={{ borderRadius: '5px' }}>
+							<AccordionSummary expandIcon={<ExpandMoreOutlined />}>
+								<Typography>Admin Controls</Typography>
+							</AccordionSummary>
 
-				{adminMode === 'result' && (
-					<div>
-						<br />
-						<FormControl size='small'>
-							<FormLabel id='demo-row-radio-buttons-group-label'>Result Quarter</FormLabel>
-							<RadioGroup
-								row
-								name='row-radio-buttons-group'
-								value={resultQuarterIndex}
-								onChange={(e) => setResultQuarterIndex(e.target.value)}
-							>
-								{['Q1', 'Q2', 'Q3', 'Q4'].map((quarter, index) => (
-									<FormControlLabel value={index} control={<Radio />} label={quarter} />
-								))}
-							</RadioGroup>
-						</FormControl>
-					</div>
-				)}
+							<AccordionDetails>
+								<FormControl sx={{ display: 'flex', marginTop: '-20px' }}>
+									<FormLabel>Admin Click Mode</FormLabel>
+									<ToggleButtonGroup
+										color='primary'
+										value={adminMode}
+										exclusive
+										size='small'
+										onChange={(e) => setAdminMode(e.target.value)}
+									>
+										<ToggleButton value='select'>Select</ToggleButton>
+										<ToggleButton value='remove'>Remove</ToggleButton>
+										<ToggleButton value='result'>Result</ToggleButton>
 
-				<Alert variant='outlined' severity='warning' sx={{ marginTop: '1em', display: { xs: 'flex', sm: 'none' } }}>
-					Flip to landscape for roomier squares.
-				</Alert>
-			</Paper>
+										{/* Disabling until fully handled - <Button onClick={handleSwapTeams}>Swap Teams</Button> */}
+									</ToggleButtonGroup>
+								</FormControl>
+
+								{adminMode === 'result' && (
+									<div>
+										<br />
+										<FormControl size='small'>
+											<FormLabel id='demo-row-radio-buttons-group-label'>Result Quarter</FormLabel>
+											<RadioGroup
+												row
+												name='row-radio-buttons-group'
+												value={resultQuarterIndex}
+												onChange={(e) => setResultQuarterIndex(e.target.value)}
+											>
+												{['Q1', 'Q2', 'Q3', 'Q4'].map((quarter, index) => (
+													<FormControlLabel value={index} control={<Radio />} label={quarter} />
+												))}
+											</RadioGroup>
+										</FormControl>
+									</div>
+								)}
+
+								{!isLocked && (
+									<div>
+										<br />
+										<FormControl>
+											<FormLabel>Admin Actions</FormLabel>
+											<Button
+												sx={{ marginTop: '1em', width: 'fit-content', margin: 0 }}
+												variant='contained'
+												value={null}
+												size='small'
+												onClick={setNumbers}
+											>
+												Set Numbers
+											</Button>
+										</FormControl>
+									</div>
+								)}
+							</AccordionDetails>
+						</Accordion>
+					</Grid>
+				)}
+			</Grid>
+
 			{Object.keys(squareMap).length && (
 				<>
 					<br />
@@ -197,7 +223,6 @@ export default function SquaresBoard({ boardData, onUpdate, isAdmin }) {
 					<br />
 				</>
 			)}
-
 			<div>
 				<Accordion sx={{ borderRadius: '5px' }}>
 					<AccordionSummary expandIcon={<ExpandMoreOutlined />}>
@@ -227,10 +252,15 @@ export default function SquaresBoard({ boardData, onUpdate, isAdmin }) {
 						</Table>
 					</AccordionDetails>
 				</Accordion>
-				<br />
 			</div>
-
-			<Grid container sx={{ paddingBottom: '2em' }}>
+			<Alert
+				variant='outlined'
+				severity='warning'
+				sx={{ marginTop: '1em', background: 'white', display: { xs: 'flex', sm: 'none' } }}
+			>
+				Flip to landscape for roomier squares.
+			</Alert>
+			<Grid container sx={{ paddingBottom: '2em', marginTop: '1em' }}>
 				{gridData.map((values, rowIndex) => (
 					<Grid xs>
 						{values.map((value, colIndex) => (

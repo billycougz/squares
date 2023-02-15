@@ -8,6 +8,29 @@ body {
   right: 0;
 }
 
+#initial-box {
+  background: white;
+  padding: 0px 0 0px 2px;
+  border-radius: 5px;
+  height: 48px;
+}
+
+#initial-box input {
+  padding: 12px;
+}
+
+#initial-box .MuiFormLabel-root {
+  display: none;
+}
+
+#initial-box .MuiOutlinedInput-notchedOutline {
+  border-color: transparent;
+}
+
 .MuiTableCell-head {
   font-weight: bolder !important;
+}
+
+.MuiFormLabel-root {
+  margin-bottom: 5px;
 }
