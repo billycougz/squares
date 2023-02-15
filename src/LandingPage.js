@@ -12,13 +12,24 @@ import {
 	Typography,
 } from '@mui/material';
 import TextField from '@mui/material/TextField';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createBoard, loadBoard } from './api';
+import Loader from './Loader';
 
 export default function LandingPage({ onBoardLoaded }) {
 	const [view, setView] = useState('select');
 	const [formData, setFormData] = useState({});
 	const [isAdmin, setIsAdmin] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+
+	useEffect(() => {
+		document.title = `Squares`;
+		const { searchParams } = new URL(document.location.href);
+		if (searchParams.get('boardName') && searchParams.get('userCode')) {
+			handleLoad({ boardName: searchParams.get('boardName'), userCode: searchParams.get('userCode') });
+			window.history.replaceState({}, document.title, '/');
+		}
+	}, []);
 
 	const recentSquares = JSON.parse(localStorage.getItem('recent-squares') || '[]');
 
@@ -41,16 +52,19 @@ export default function LandingPage({ onBoardLoaded }) {
 	};
 
 	const handleLoad = async (squaresData) => {
+		setIsLoading(true);
 		const boardData = await loadBoard(squaresData || formData);
 		if (boardData.error) {
 			alert(boardData.error);
 		} else {
 			onBoardLoaded({ boardData, isAdmin: squaresData ? squaresData.isAdmin : isAdmin });
 		}
+		setIsLoading(false);
 	};
 
 	return (
-		<Paper sx={{ padding: '1em', width: 'fit-content', textAlign: 'center', margin: 'auto' }}>
+		<Paper sx={{ padding: '1em', width: 'fit-content', textAlign: 'center', margin: { xs: 'auto 5px', sm: 'auto' } }}>
+			<Loader open={isLoading} />
 			<Typography variant='h1'>Super Bowl LVII</Typography>
 			{recentSquares.length ? (
 				<FormControl fullWidth sx={{ margin: '1em 0' }} size='small'>

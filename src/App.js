@@ -3,6 +3,8 @@ import Box from '@mui/material/Box';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import SquaresBoard from './SquaresBoard';
 import LandingPage from './LandingPage';
+import { AppBar, IconButton, Toolbar, Typography } from '@mui/material';
+import SelectAllIcon from '@mui/icons-material/SelectAll';
 
 const theme = createTheme({
 	typography: {
@@ -33,9 +35,33 @@ export default function App() {
 		setBoardData(updatedBoard);
 	};
 
+	const handleHomeClick = () => {
+		setIsAdmin(false);
+		setBoardData(null);
+	};
+
 	return (
 		<ThemeProvider theme={theme}>
-			<Box sx={{ flexGrow: 1, margin: { sm: '1em' } }}>
+			<AppBar position='static'>
+				<Toolbar variant='dense'>
+					<IconButton
+						size='large'
+						edge='start'
+						color='inherit'
+						aria-label='Home'
+						sx={{ mr: 2 }}
+						onClick={handleHomeClick}
+					>
+						<SelectAllIcon />
+					</IconButton>
+					<Typography variant='h6' component='div' sx={{ flexGrow: 1 }}>
+						{boardData ? `${boardData.boardName} | Squares` : 'Squares'}
+					</Typography>
+					<IconButton></IconButton>
+				</Toolbar>
+			</AppBar>
+
+			<Box sx={{ flexGrow: 1, margin: '10px 0' }}>
 				{boardData ? (
 					<SquaresBoard boardData={boardData} onUpdate={handleBoardUpdate} isAdmin={isAdmin} />
 				) : (

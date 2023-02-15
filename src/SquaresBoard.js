@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
@@ -19,6 +19,7 @@ import {
 	Paper,
 	Radio,
 	RadioGroup,
+	Snackbar,
 	ToggleButton,
 	ToggleButtonGroup,
 } from '@mui/material';
@@ -32,10 +33,15 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 
 export default function SquaresBoard({ boardData, onUpdate, isAdmin }) {
-	const { gridData, boardName, results } = boardData;
+	const { gridData, boardName, results, userCode } = boardData;
 	const [initials, setInitials] = useState(localStorage.getItem('squares-initials') || '');
 	const [resultQuarterIndex, setResultQuarterIndex] = useState(0);
 	const [adminMode, setAdminMode] = useState('select');
+	const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
+
+	useEffect(() => {
+		document.title = `${boardName} | Squares`;
+	}, []);
 
 	const highlightColor = '#1876d1';
 
@@ -78,6 +84,13 @@ export default function SquaresBoard({ boardData, onUpdate, isAdmin }) {
 		return '';
 	};
 
+	const handleCopyShareLink = () => {
+		const { origin } = document.location;
+		const link = `${origin}/?boardName=${boardName}&userCode=${userCode}`;
+		navigator.clipboard.writeText(link);
+		setIsSnackbarOpen(true);
+	};
+
 	const isLocked = gridData[0].some((value) => value);
 
 	const squareMap = gridData.reduce(
@@ -101,8 +114,13 @@ export default function SquaresBoard({ boardData, onUpdate, isAdmin }) {
 
 	const handleInitialsChange = (e) => {
 		const { value } = e.target;
-		localStorage.setItem('squares-initials', value);
-		setInitials(value);
+		const upperCase = value.toUpperCase();
+		localStorage.setItem('squares-initials', upperCase);
+		setInitials(upperCase);
+	};
+
+	const toggleSnackbar = () => {
+		setIsSnackbarOpen(!isSnackbarOpen);
 	};
 
 	return (
@@ -166,7 +184,7 @@ export default function SquaresBoard({ boardData, onUpdate, isAdmin }) {
 									</div>
 								)}
 
-								{!isLocked && (
+								{
 									<div>
 										<br />
 										<FormControl>
@@ -174,15 +192,31 @@ export default function SquaresBoard({ boardData, onUpdate, isAdmin }) {
 											<Button
 												sx={{ marginTop: '1em', width: 'fit-content', margin: 0 }}
 												variant='contained'
-												value={null}
 												size='small'
-												onClick={setNumbers}
+												onClick={handleCopyShareLink}
 											>
-												Set Numbers
+												Share
 											</Button>
+											<Snackbar
+												open={isSnackbarOpen}
+												autoHideDuration={3000}
+												anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+												onClose={toggleSnackbar}
+												message='Share link copied to clipboard'
+											/>
+											{!isLocked && (
+												<Button
+													sx={{ marginTop: '1em', width: 'fit-content', margin: 0 }}
+													variant='contained'
+													size='small'
+													onClick={setNumbers}
+												>
+													Set Numbers
+												</Button>
+											)}
 										</FormControl>
 									</div>
-								)}
+								}
 							</AccordionDetails>
 						</Accordion>
 					</Grid>
@@ -209,6 +243,7 @@ export default function SquaresBoard({ boardData, onUpdate, isAdmin }) {
 
 								<TableBody>
 									{Object.keys(squareMap)
+										.sort()
 										.filter((key) => key !== '_remaining')
 										.map((key) => (
 											<TableRow key={key}>
