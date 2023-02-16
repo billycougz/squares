@@ -12,7 +12,7 @@ const Item = styled(Paper)(({ theme }) => ({
 	color: theme.palette.text.secondary,
 }));
 
-export default function Cell({ value = '', location: [row, col], backgroundColor, onClick }) {
+export default function Square({ value = '', location: [row, col], backgroundColor, onClick }) {
 	const theme = useTheme();
 	const isMedium = useMediaQuery(theme.breakpoints.up('md'));
 	const disabled = !row || !col;

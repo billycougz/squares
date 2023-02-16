@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import {
 	Button,
 	Checkbox,
@@ -10,57 +11,57 @@ import {
 	ToggleButton,
 	ToggleButtonGroup,
 	Typography,
+	TextField,
 } from '@mui/material';
-import TextField from '@mui/material/TextField';
-import { useEffect, useState } from 'react';
-import { createBoard, loadBoard } from './api';
-import Loader from './Loader';
+import { useDocumentTitle } from 'usehooks-ts';
+import { createBoard, loadBoard } from '../api';
+import Loader from '../components/Loader';
 
-export default function LandingPage({ onBoardLoaded }) {
+export default function LandingPage({ onBoardLoaded, recentSquares }) {
 	const [view, setView] = useState('select');
 	const [formData, setFormData] = useState({});
-	const [isAdmin, setIsAdmin] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 
+	useDocumentTitle('Squares');
+
 	useEffect(() => {
-		document.title = `Squares`;
-		const { searchParams } = new URL(document.location.href);
-		if (searchParams.get('boardName') && searchParams.get('userCode')) {
-			handleLoad({ boardName: searchParams.get('boardName'), userCode: searchParams.get('userCode') });
-			window.history.replaceState({}, document.title, '/');
-		}
+		const handleUrlParams = () => {
+			const { searchParams } = new URL(document.location.href);
+			if (searchParams.get('boardName') && searchParams.get('userCode')) {
+				handleLoad({ boardName: searchParams.get('boardName'), userCode: searchParams.get('userCode') });
+				window.history.replaceState({}, document.title, '/');
+			}
+		};
+		handleUrlParams();
 	}, []);
 
-	const recentSquares = JSON.parse(localStorage.getItem('recent-squares') || '[]');
-
-	const handleViewChange = (e) => {
-		const { value } = e.target;
-		setView(value);
-	};
-
 	const handleCreate = async () => {
-		const initializeGrid = () => {
-			const emptyValues = Array.from({ length: 11 });
-			return emptyValues.map(() => [...emptyValues]);
-		};
-		const boardData = await createBoard({ gridData: initializeGrid(), ...formData });
-		if (!boardData.error) {
-			onBoardLoaded({ boardData, isAdmin: true });
-		} else {
-			alert(boardData.error);
-		}
-	};
-
-	const handleLoad = async (squaresData) => {
 		setIsLoading(true);
-		const boardData = await loadBoard(squaresData || formData);
-		if (boardData.error) {
-			alert(boardData.error);
+		delete formData.isAdmin;
+		const boardData = await createBoard(formData);
+		if (!boardData.error) {
+			onBoardLoaded({ ...boardData, isAdmin: true });
 		} else {
-			onBoardLoaded({ boardData, isAdmin: squaresData ? squaresData.isAdmin : isAdmin });
+			alert(boardData.error);
 		}
 		setIsLoading(false);
 	};
+
+	const handleLoad = async (requestData) => {
+		setIsLoading(true);
+		const boardData = await loadBoard(requestData);
+		if (boardData.error) {
+			alert(boardData.error);
+		} else {
+			onBoardLoaded({ ...boardData, isAdmin: requestData.isAdmin });
+		}
+		setIsLoading(false);
+	};
+
+	const isSubmitDisabled =
+		!formData.boardName ||
+		(view === 'Create' && (!formData.adminCode || !formData.userCode)) ||
+		(view === 'Load' && !formData.adminCode && !formData.userCode);
 
 	return (
 		<Paper sx={{ padding: '1em', width: 'fit-content', textAlign: 'center', margin: { xs: 'auto 5px', sm: 'auto' } }}>
@@ -81,7 +82,7 @@ export default function LandingPage({ onBoardLoaded }) {
 				''
 			)}
 			<br />
-			<ToggleButtonGroup color='primary' value={view} exclusive onChange={handleViewChange} aria-label='Platform'>
+			<ToggleButtonGroup color='primary' value={view} exclusive onChange={(e) => setView(e.target.value)}>
 				<ToggleButton value='Create'>Create New Squares</ToggleButton>
 				<ToggleButton value='Load'>Load Existing Squares</ToggleButton>
 			</ToggleButtonGroup>
@@ -103,12 +104,15 @@ export default function LandingPage({ onBoardLoaded }) {
 						<>
 							<FormControl sx={{ flexDirection: 'row', alignItems: 'center', marginTop: '-1em' }}>
 								<FormLabel>I am the admin</FormLabel>
-								<Checkbox onChange={(e) => setIsAdmin(!isAdmin)} />
+								<Checkbox
+									value={!!formData.isAdmin}
+									onChange={(e) => setFormData({ ...formData, isAdmin: e.target.value })}
+								/>
 							</FormControl>
 							<br />
 						</>
 					)}
-					{(view === 'Create' || !isAdmin) && (
+					{(view === 'Create' || !formData.isAdmin) && (
 						<>
 							<TextField
 								label='User Code'
@@ -127,7 +131,7 @@ export default function LandingPage({ onBoardLoaded }) {
 							<br />
 						</>
 					)}
-					{(view === 'Create' || isAdmin) && (
+					{(view === 'Create' || formData.isAdmin) && (
 						<>
 							<TextField
 								label='Admin Code'
@@ -148,13 +152,9 @@ export default function LandingPage({ onBoardLoaded }) {
 					)}
 					<Button
 						fullWidth
-						disabled={
-							!formData.boardName ||
-							(view === 'Create' && (!formData.adminCode || !formData.userCode)) ||
-							(view === 'Load' && !formData.adminCode && !formData.userCode)
-						}
+						disabled={isSubmitDisabled}
 						variant='contained'
-						onClick={() => (view === 'Create' ? handleCreate() : handleLoad())}
+						onClick={() => (view === 'Create' ? handleCreate() : handleLoad(formData))}
 					>
 						{view}
 					</Button>
