@@ -8,7 +8,7 @@ import TableRow from '@mui/material/TableRow';
 export default function CustomTable({ headers, rows, initials, highlightProperty }) {
 	const getColor = (row) => (row[highlightProperty] === initials ? '#1876d1' : '');
 	return (
-		<Table>
+		<Table size='small'>
 			<TableHead>
 				<TableRow>
 					{headers.map((header) => (

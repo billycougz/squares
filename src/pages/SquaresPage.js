@@ -113,7 +113,7 @@ export default function SquaresPage({ boardData, onUpdate }) {
 	return (
 		<Box sx={{ flexGrow: 1, margin: '1em' }}>
 			<Grid container spacing={2}>
-				<Grid xs={12} sm={6}>
+				<Grid xs={12} sm={isAdmin ? 5 : 6}>
 					<Box sx={{ display: 'flex', alignItems: 'flex-end' }} id='initial-box'>
 						<AccountCircle sx={{ color: 'action.active', ml: '12px', my: '12px' }} />
 						<TextField
@@ -128,7 +128,7 @@ export default function SquaresPage({ boardData, onUpdate }) {
 				</Grid>
 
 				{isAdmin && (
-					<Grid xs={12} sm={6}>
+					<Grid xs={12} sm={7}>
 						<CustomAccordion title='Admin Controls'>
 							<FormControl sx={{ display: 'flex', marginTop: '-20px' }}>
 								<FormLabel>Admin Click Mode</FormLabel>
@@ -194,41 +194,39 @@ export default function SquaresPage({ boardData, onUpdate }) {
 						</CustomAccordion>
 					</Grid>
 				)}
-			</Grid>
 
-			{Object.keys(squareMap).length && (
-				<>
-					<br />
-					<CustomAccordion title='Square Counts'>
-						<Chip avatar={<Avatar>{squareMap['_remaining']}</Avatar>} label='Remaining Squares' />
+				{Object.keys(squareMap).length && (
+					<Grid xs={12} sm={isAdmin ? 5 : 6}>
+						<CustomAccordion title='Square Counts'>
+							<Chip avatar={<Avatar>{squareMap['_remaining']}</Avatar>} label='Remaining Squares' />
+							<CustomTable
+								initials={initials}
+								highlightProperty='Initials'
+								headers={['Initials', 'Squares']}
+								rows={Object.keys(squareMap)
+									.sort()
+									.filter((key) => key !== '_remaining')
+									.map((key) => ({ Initials: key, Squares: squareMap[key] }))}
+							/>
+						</CustomAccordion>
+					</Grid>
+				)}
+				<Grid xs={12} sm={isAdmin ? 7 : 12} md={isAdmin ? 7 : 6}>
+					<CustomAccordion title='Results'>
 						<CustomTable
 							initials={initials}
-							highlightProperty='Initials'
-							headers={['Initials', 'Squares']}
-							rows={Object.keys(squareMap)
-								.sort()
-								.filter((key) => key !== '_remaining')
-								.map((key) => ({ Initials: key, Squares: squareMap[key] }))}
+							highlightProperty='Winner'
+							headers={['Quarter', teams.horizontal.name, teams.vertical.name, 'Winner']}
+							rows={results.map(({ quarter, horizontal, vertical, winner }) => ({
+								Quarter: quarter,
+								Winner: winner,
+								[teams.horizontal.name]: horizontal,
+								[teams.vertical.name]: vertical,
+							}))}
 						/>
 					</CustomAccordion>
-					<br />
-				</>
-			)}
-			<div>
-				<CustomAccordion title='Results'>
-					<CustomTable
-						initials={initials}
-						highlightProperty='Winner'
-						headers={['Quarter', teams.horizontal.name, teams.vertical.name, 'Winner']}
-						rows={results.map(({ quarter, horizontal, vertical, winner }) => ({
-							Quarter: quarter,
-							Winner: winner,
-							[teams.horizontal.name]: horizontal,
-							[teams.vertical.name]: vertical,
-						}))}
-					/>
-				</CustomAccordion>
-			</div>
+				</Grid>
+			</Grid>
 			<Alert
 				variant='outlined'
 				severity='warning'
