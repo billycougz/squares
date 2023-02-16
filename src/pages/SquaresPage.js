@@ -76,7 +76,7 @@ export default function SquaresPage({ boardData, onUpdate }) {
 	const handleCopyShareLink = () => {
 		const { origin } = document.location;
 		const link = `${origin}/?boardName=${boardName}&userCode=${userCode}`;
-		navigator.clipboard.writeText(link);
+		navigator.clipboard.writeText(encodeURI(link));
 		setIsSnackbarOpen(true);
 	};
 
