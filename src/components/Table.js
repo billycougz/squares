@@ -18,10 +18,10 @@ export default function CustomTable({ headers, rows, initials, highlightProperty
 			</TableHead>
 
 			<TableBody>
-				{rows.map((row) => (
-					<TableRow key={JSON.stringify(row)}>
+				{rows.map((row, index) => (
+					<TableRow key={`${row[headers[0]]}-${index}`}>
 						{headers.map((header) => (
-							<TableCell key={`${JSON.stringify(row)}-${row[header]}`} sx={{ color: getColor(row) }}>
+							<TableCell key={`${header}-${row[header]}`} sx={{ color: getColor(row) }}>
 								{row[header]}
 							</TableCell>
 						))}
