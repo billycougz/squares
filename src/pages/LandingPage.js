@@ -92,9 +92,9 @@ export default function LandingPage({ onBoardLoaded, recentSquares }) {
 			{view !== 'select' && (
 				<div>
 					<TextField
-						label='Name'
+						label='Squares Name'
 						value={formData.boardName}
-						helperText='The name participants use to access Squares'
+						helperText={view === 'Create' ? 'Create a name for your Squares board' : 'The name of your Squares board'}
 						onChange={(e) => setFormData({ ...formData, boardName: e.target.value })}
 						fullWidth
 					/>
@@ -106,7 +106,7 @@ export default function LandingPage({ onBoardLoaded, recentSquares }) {
 								<FormLabel>I am the admin</FormLabel>
 								<Checkbox
 									value={!!formData.isAdmin}
-									onChange={(e) => setFormData({ ...formData, isAdmin: e.target.value })}
+									onChange={(e) => setFormData({ ...formData, isAdmin: e.target.checked })}
 								/>
 							</FormControl>
 							<br />
@@ -117,7 +117,11 @@ export default function LandingPage({ onBoardLoaded, recentSquares }) {
 							<TextField
 								label='User Code'
 								value={formData.userCode}
-								helperText='The code participants use to access Squares'
+								helperText={
+									view === 'Create'
+										? 'Create a code to share with your participants'
+										: 'The code required to access your Squares'
+								}
 								onChange={(e) =>
 									setFormData({
 										...formData,
@@ -136,7 +140,11 @@ export default function LandingPage({ onBoardLoaded, recentSquares }) {
 							<TextField
 								label='Admin Code'
 								value={formData.adminCode}
-								helperText='The code you use to administer Squares'
+								helperText={
+									view === 'Create'
+										? 'Create a code that you will use as the admin'
+										: 'The code required to administer your Squares'
+								}
 								onChange={(e) =>
 									setFormData({
 										...formData,
