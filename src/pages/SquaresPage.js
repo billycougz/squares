@@ -11,8 +11,10 @@ import {
 	FormControl,
 	FormControlLabel,
 	FormLabel,
+	InputAdornment,
 	Radio,
 	RadioGroup,
+	Slider,
 	Snackbar,
 	ToggleButton,
 	ToggleButtonGroup,
@@ -22,9 +24,19 @@ import { updateBoard } from '../api';
 import CustomAccordion from '../components/Accordion';
 import CustomTable from '../components/Table';
 import { useLocalStorage, useDocumentTitle } from 'usehooks-ts';
+import PaidIcon from '@mui/icons-material/Paid';
+import PortraitIcon from '@mui/icons-material/Portrait';
 
 export default function SquaresPage({ boardData, onUpdate }) {
-	const { gridData, boardName, results, userCode, isAdmin } = boardData;
+	const {
+		gridData,
+		boardName,
+		results,
+		userCode,
+		isAdmin,
+		squarePrice = 5,
+		payoutSliderValues = [25, 50, 75, 100],
+	} = boardData;
 	const [initials, setInitials] = useLocalStorage('squares-initials', '');
 	const [resultQuarterIndex, setResultQuarterIndex] = useState(0);
 	const [clickMode, setClickMode] = useState('select');
@@ -110,6 +122,35 @@ export default function SquaresPage({ boardData, onUpdate }) {
 		setIsSnackbarOpen(!isSnackbarOpen);
 	};
 
+	const handleSquarePriceChange = async (e) => {
+		const { value } = e.target;
+		const { Item } = await updateBoard({ boardName, operation: 'squarePrice', value });
+		onUpdate({ ...Item, isAdmin });
+	};
+
+	const handlePayoutSliderChange = async (e) => {
+		const { value } = e.target;
+		// Force Q4 to remain at 100
+		if (value[3] === 100) {
+			const { Item } = await updateBoard({ boardName, operation: 'payoutSlider', value });
+			onUpdate({ ...Item, isAdmin });
+		}
+	};
+
+	const getSliderLabel = (value, index) => {
+		const previousValue = index ? payoutSliderValues[index - 1] : 0;
+		const difference = value - previousValue;
+		const amount = squarePrice * difference;
+		return `Q${index + 1} • ${difference}% • $${amount}`;
+	};
+
+	const getPayoutValue = (quarterIndex) => {
+		const previousValue = quarterIndex ? payoutSliderValues[quarterIndex - 1] : 0;
+		const currentValue = payoutSliderValues[quarterIndex];
+		const difference = currentValue - previousValue;
+		return `$${squarePrice * difference}`;
+	};
+
 	return (
 		<Box sx={{ flexGrow: 1, margin: '1em' }}>
 			<Grid container spacing={2}>
@@ -130,8 +171,84 @@ export default function SquaresPage({ boardData, onUpdate }) {
 				{isAdmin && (
 					<Grid xs={12} sm={7}>
 						<CustomAccordion title='Admin Controls'>
-							<FormControl sx={{ display: 'flex', marginTop: '-20px' }}>
-								<FormLabel>Admin Click Mode</FormLabel>
+							<Box
+								component='form'
+								sx={{
+									'& .MuiTextField-root': { m: 1, width: { xs: '142px', md: 'auto' } },
+								}}
+							>
+								<FormControl sx={{ display: 'flex', marginTop: '-20px' }}>
+									<FormLabel>Square Finances</FormLabel>
+								</FormControl>
+								<TextField
+									sx={{ ml: '0 !important' }}
+									size='small'
+									id='outlined-number'
+									label='Square Price'
+									type='number'
+									value={squarePrice}
+									onChange={handleSquarePriceChange}
+									InputProps={{
+										startAdornment: (
+											<InputAdornment position='start'>
+												<PaidIcon />
+											</InputAdornment>
+										),
+									}}
+								/>
+								<Chip
+									sx={{
+										margin: '1em 0 0em 0',
+									}}
+									avatar={
+										<Avatar
+											sx={{
+												width: 'auto',
+												borderRadius: 'inherit',
+												padding: '0 10px',
+												fontWeight: 'bold',
+											}}
+										>
+											{`$${100 * squarePrice}`}
+										</Avatar>
+									}
+									label='Total Pot'
+								/>
+								{false && (
+									<TextField
+										size='small'
+										id='outlined-number'
+										label='Max Squares Per Person'
+										type='number'
+										InputProps={{
+											startAdornment: (
+												<InputAdornment position='start'>
+													<PortraitIcon />
+												</InputAdornment>
+											),
+										}}
+									/>
+								)}
+								{!squarePrice ? (
+									''
+								) : (
+									<FormControl sx={{ display: 'flex', mr: '2em' }}>
+										<FormLabel>Quarterly Payouts</FormLabel>
+										<Slider
+											getAriaLabel={() => 'Temperature range'}
+											value={payoutSliderValues}
+											onChange={handlePayoutSliderChange}
+											valueLabelDisplay='auto'
+											valueLabelFormat={getSliderLabel}
+											step={5}
+											marks
+										/>
+									</FormControl>
+								)}
+							</Box>
+
+							<FormControl sx={{ display: 'flex' }}>
+								<FormLabel>Click Mode</FormLabel>
 								<ToggleButtonGroup
 									color='primary'
 									value={clickMode}
@@ -167,29 +284,26 @@ export default function SquaresPage({ boardData, onUpdate }) {
 							)}
 
 							{
-								<div>
-									<br />
-									<FormControl>
-										<FormLabel>Admin Actions</FormLabel>
-										<div>
-											<Button variant='contained' size='small' onClick={handleCopyShareLink}>
-												Share
+								<FormControl sx={{ mt: '5px' }}>
+									<FormLabel>Actions</FormLabel>
+									<div>
+										<Button variant='contained' size='small' onClick={handleCopyShareLink}>
+											Share
+										</Button>
+										<Snackbar
+											open={isSnackbarOpen}
+											autoHideDuration={3000}
+											anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+											onClose={toggleSnackbar}
+											message='Share link copied to clipboard.'
+										/>
+										{!areNumbersSet && (
+											<Button variant='contained' size='small' onClick={setNumbers} sx={{ ml: '1em' }}>
+												Set Numbers
 											</Button>
-											<Snackbar
-												open={isSnackbarOpen}
-												autoHideDuration={3000}
-												anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-												onClose={toggleSnackbar}
-												message='Share link copied to clipboard.'
-											/>
-											{!areNumbersSet && (
-												<Button variant='contained' size='small' onClick={setNumbers} sx={{ ml: '1em' }}>
-													Set Numbers
-												</Button>
-											)}
-										</div>
-									</FormControl>
-								</div>
+										)}
+									</div>
+								</FormControl>
 							}
 						</CustomAccordion>
 					</Grid>
@@ -198,15 +312,42 @@ export default function SquaresPage({ boardData, onUpdate }) {
 				{Object.keys(squareMap).length && (
 					<Grid xs={12} sm={isAdmin ? 5 : 6}>
 						<CustomAccordion title='Square Counts'>
-							<Chip avatar={<Avatar>{squareMap['_remaining']}</Avatar>} label='Remaining Squares' />
+							<Chip
+								sx={{
+									margin: '0 1em 1em 0',
+								}}
+								avatar={<Avatar sx={{ fontWeight: 'bold' }}>{squareMap['_remaining']}</Avatar>}
+								label='Remaining Squares'
+							/>
+							{!squarePrice ? (
+								''
+							) : (
+								<Chip
+									sx={{
+										margin: '0 0 1em 0',
+									}}
+									avatar={
+										<Avatar
+											sx={{
+												width: 'auto',
+												borderRadius: 'inherit',
+												padding: '0 10px',
+												fontWeight: 'bold',
+											}}
+										>{`$${(100 - squareMap['_remaining']) * squarePrice}`}</Avatar>
+									}
+									label='Current Pot'
+								/>
+							)}
+
 							<CustomTable
 								initials={initials}
 								highlightProperty='Initials'
-								headers={['Initials', 'Squares']}
+								headers={['Initials', 'Squares', squarePrice && 'Owed']}
 								rows={Object.keys(squareMap)
 									.sort()
 									.filter((key) => key !== '_remaining')
-									.map((key) => ({ Initials: key, Squares: squareMap[key] }))}
+									.map((key) => ({ Initials: key, Squares: squareMap[key], Owed: `$${squareMap[key] * squarePrice}` }))}
 							/>
 						</CustomAccordion>
 					</Grid>
@@ -216,12 +357,13 @@ export default function SquaresPage({ boardData, onUpdate }) {
 						<CustomTable
 							initials={initials}
 							highlightProperty='Winner'
-							headers={['Quarter', teams.horizontal.name, teams.vertical.name, 'Winner']}
-							rows={results.map(({ quarter, horizontal, vertical, winner }) => ({
+							headers={['Quarter', teams.horizontal.name, teams.vertical.name, 'Winner', squarePrice && 'Amount']}
+							rows={results.map(({ quarter, horizontal, vertical, winner }, index) => ({
 								Quarter: quarter,
 								Winner: winner,
 								[teams.horizontal.name]: horizontal,
 								[teams.vertical.name]: vertical,
+								Amount: getPayoutValue(index),
 							}))}
 						/>
 					</CustomAccordion>
