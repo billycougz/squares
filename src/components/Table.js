@@ -1,3 +1,4 @@
+import { TableContainer } from '@mui/material';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -9,26 +10,28 @@ export default function CustomTable({ headers, rows, initials, highlightProperty
 	// The parent component can prevent a conditional attribute from rendering by passing a falsy header value
 	const headerValues = headers.filter((header) => header);
 	return (
-		<Table size='small'>
-			<TableHead>
-				<TableRow>
-					{headerValues.map((header) => (
-						<TableCell>{header}</TableCell>
-					))}
-				</TableRow>
-			</TableHead>
-
-			<TableBody>
-				{rows.map((row, index) => (
-					<TableRow key={`${row[headers[0]]}-${index}`}>
+		<TableContainer>
+			<Table size='small'>
+				<TableHead>
+					<TableRow>
 						{headerValues.map((header) => (
-							<TableCell key={`${header}-${row[header]}`} sx={{ color: getColor(row) }}>
-								{row[header]}
-							</TableCell>
+							<TableCell>{header}</TableCell>
 						))}
 					</TableRow>
-				))}
-			</TableBody>
-		</Table>
+				</TableHead>
+
+				<TableBody>
+					{rows.map((row, index) => (
+						<TableRow key={`${row[headers[0]]}-${index}`}>
+							{headerValues.map((header) => (
+								<TableCell key={`${header}-${row[header]}`} sx={{ color: getColor(row) }}>
+									{row[header]}
+								</TableCell>
+							))}
+						</TableRow>
+					))}
+				</TableBody>
+			</Table>
+		</TableContainer>
 	);
 }
