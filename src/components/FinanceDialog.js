@@ -47,6 +47,7 @@ export default function FinanceDialog({ open, onClose, onSave, children, boardDa
 					InputProps={{
 						inputProps: {
 							min: '0',
+							inputMode: 'numeric',
 						},
 
 						startAdornment: (
