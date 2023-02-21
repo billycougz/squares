@@ -329,7 +329,19 @@ export default function SquaresPage({ boardData, onUpdate }) {
 					</Grid>
 				)}
 				<Grid xs={12} sm={isAdmin ? 7 : 12} md={isAdmin ? 7 : 6}>
-					<CustomAccordion title='Results'>
+					<CustomAccordion title='Results & Payouts'>
+						{!squarePrice ? (
+							''
+						) : (
+							<Alert
+								variant='outlined'
+								severity='warning'
+								size='small'
+								sx={{ margin: '-1em 0 1em 0', display: { xs: 'flex', sm: 'none' } }}
+							>
+								Scroll horizontally or flip to landscape to see payout amounts.
+							</Alert>
+						)}
 						<CustomTable
 							initials={initials}
 							highlightProperty='Winner'
