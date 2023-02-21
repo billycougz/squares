@@ -14,7 +14,6 @@ import {
 	InputAdornment,
 	Radio,
 	RadioGroup,
-	Slider,
 	Snackbar,
 	ToggleButton,
 	ToggleButtonGroup,
@@ -24,23 +23,17 @@ import { updateBoard } from '../api';
 import CustomAccordion from '../components/Accordion';
 import CustomTable from '../components/Table';
 import { useLocalStorage, useDocumentTitle } from 'usehooks-ts';
-import PaidIcon from '@mui/icons-material/Paid';
 import PortraitIcon from '@mui/icons-material/Portrait';
+import FinanceDialog from '../components/FinanceDialog';
+import EditIcon from '@mui/icons-material/Edit';
 
 export default function SquaresPage({ boardData, onUpdate }) {
-	const {
-		gridData,
-		boardName,
-		results,
-		userCode,
-		isAdmin,
-		squarePrice = 5,
-		payoutSliderValues = [25, 50, 75, 100],
-	} = boardData;
+	const { gridData, boardName, results, userCode, isAdmin, squarePrice, payoutSliderValues } = boardData;
 	const [initials, setInitials] = useLocalStorage('squares-initials', '');
 	const [resultQuarterIndex, setResultQuarterIndex] = useState(0);
 	const [clickMode, setClickMode] = useState('select');
 	const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
+	const [isFinanceDialogOpen, setIsFinanceDialogOpen] = useState(false);
 
 	useDocumentTitle(`${boardName} | Squares`);
 
@@ -122,29 +115,16 @@ export default function SquaresPage({ boardData, onUpdate }) {
 		setIsSnackbarOpen(!isSnackbarOpen);
 	};
 
-	const handleSquarePriceChange = async (e) => {
-		const { value } = e.target;
-		const { Item } = await updateBoard({ boardName, operation: 'squarePrice', value });
+	const handleFinanceSave = async (value) => {
+		const { Item } = await updateBoard({ boardName, operation: 'finances', value });
 		onUpdate({ ...Item, isAdmin });
-	};
-
-	const handlePayoutSliderChange = async (e) => {
-		const { value } = e.target;
-		// Force Q4 to remain at 100
-		if (value[3] === 100) {
-			const { Item } = await updateBoard({ boardName, operation: 'payoutSlider', value });
-			onUpdate({ ...Item, isAdmin });
-		}
-	};
-
-	const getSliderLabel = (value, index) => {
-		const previousValue = index ? payoutSliderValues[index - 1] : 0;
-		const difference = value - previousValue;
-		const amount = squarePrice * difference;
-		return `Q${index + 1} • ${difference}% • $${amount}`;
+		setIsFinanceDialogOpen(false);
 	};
 
 	const getPayoutValue = (quarterIndex) => {
+		if (!squarePrice) {
+			return null;
+		}
 		const previousValue = quarterIndex ? payoutSliderValues[quarterIndex - 1] : 0;
 		const currentValue = payoutSliderValues[quarterIndex];
 		const difference = currentValue - previousValue;
@@ -178,43 +158,24 @@ export default function SquaresPage({ boardData, onUpdate }) {
 								}}
 							>
 								<FormControl sx={{ display: 'flex', marginTop: '-20px' }}>
-									<FormLabel>Square Finances</FormLabel>
+									<FormLabel>
+										<Button size='small' variant='text' onClick={() => setIsFinanceDialogOpen(true)}>
+											Edit Square Finances
+											<EditIcon fontSize='small' sx={{ ml: '5px' }} />
+										</Button>
+									</FormLabel>
 								</FormControl>
-								<TextField
-									sx={{ ml: '0 !important' }}
-									size='small'
-									id='outlined-number'
-									label='Square Price'
-									type='number'
-									value={squarePrice}
-									onChange={handleSquarePriceChange}
-									InputProps={{
-										startAdornment: (
-											<InputAdornment position='start'>
-												<PaidIcon />
-											</InputAdornment>
-										),
-									}}
-								/>
-								<Chip
-									sx={{
-										margin: '1em 0 0em 0',
-									}}
-									avatar={
-										<Avatar
-											sx={{
-												width: 'auto',
-												borderRadius: 'inherit',
-												padding: '0 10px',
-												fontWeight: 'bold',
-											}}
-										>
-											{`$${100 * squarePrice}`}
-										</Avatar>
-									}
-									label='Total Pot'
-								/>
+								{isFinanceDialogOpen && (
+									<FinanceDialog
+										open={isFinanceDialogOpen}
+										onSave={handleFinanceSave}
+										onClose={() => setIsFinanceDialogOpen(false)}
+										boardData={boardData}
+									/>
+								)}
+
 								{false && (
+									// Disabling this feature
 									<TextField
 										size='small'
 										id='outlined-number'
@@ -228,22 +189,6 @@ export default function SquaresPage({ boardData, onUpdate }) {
 											),
 										}}
 									/>
-								)}
-								{!squarePrice ? (
-									''
-								) : (
-									<FormControl sx={{ display: 'flex', mr: '2em' }}>
-										<FormLabel>Quarterly Payouts</FormLabel>
-										<Slider
-											getAriaLabel={() => 'Temperature range'}
-											value={payoutSliderValues}
-											onChange={handlePayoutSliderChange}
-											valueLabelDisplay='auto'
-											valueLabelFormat={getSliderLabel}
-											step={5}
-											marks
-										/>
-									</FormControl>
 								)}
 							</Box>
 
@@ -311,33 +256,64 @@ export default function SquaresPage({ boardData, onUpdate }) {
 
 				{Object.keys(squareMap).length && (
 					<Grid xs={12} sm={isAdmin ? 5 : 6}>
-						<CustomAccordion title='Square Counts'>
+						<CustomAccordion title='Square Summary'>
 							<Chip
 								sx={{
 									margin: '0 1em 1em 0',
 								}}
-								avatar={<Avatar sx={{ fontWeight: 'bold' }}>{squareMap['_remaining']}</Avatar>}
+								avatar={
+									<Avatar
+										sx={{
+											width: 'auto',
+											borderRadius: 'inherit',
+											padding: '0 10px',
+											fontWeight: 'bold',
+										}}
+									>
+										{squareMap['_remaining']}
+									</Avatar>
+								}
 								label='Remaining Squares'
 							/>
 							{!squarePrice ? (
 								''
 							) : (
-								<Chip
-									sx={{
-										margin: '0 0 1em 0',
-									}}
-									avatar={
-										<Avatar
-											sx={{
-												width: 'auto',
-												borderRadius: 'inherit',
-												padding: '0 10px',
-												fontWeight: 'bold',
-											}}
-										>{`$${(100 - squareMap['_remaining']) * squarePrice}`}</Avatar>
-									}
-									label='Current Pot'
-								/>
+								<>
+									<Chip
+										sx={{
+											margin: '0 1em 1em 0',
+										}}
+										avatar={
+											<Avatar
+												sx={{
+													width: 'auto',
+													borderRadius: 'inherit',
+													padding: '0 10px',
+													fontWeight: 'bold',
+												}}
+											>
+												{`$${squarePrice}`}
+											</Avatar>
+										}
+										label='Square Price'
+									/>
+									<Chip
+										sx={{
+											margin: '0 0 1em 0',
+										}}
+										avatar={
+											<Avatar
+												sx={{
+													width: 'auto',
+													borderRadius: 'inherit',
+													padding: '0 10px',
+													fontWeight: 'bold',
+												}}
+											>{`$${(100 - squareMap['_remaining']) * squarePrice}`}</Avatar>
+										}
+										label='Current Pot'
+									/>
+								</>
 							)}
 
 							<CustomTable
