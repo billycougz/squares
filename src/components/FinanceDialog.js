@@ -32,12 +32,11 @@ export default function FinanceDialog({ open, onClose, onSave, children, boardDa
 		JSON.stringify(payoutSliderValues) !== JSON.stringify(boardData.payoutSliderValues);
 
 	return (
-		<Dialog open={open} onClose={onClose}>
+		<Dialog open={open} onClose={onClose} fullWidth>
 			<DialogTitle>Square Finances</DialogTitle>
 			<DialogContent>
-				<DialogContentText>{children}</DialogContentText>
 				<TextField
-					sx={{ margin: 1, ml: '0 !important' }}
+					sx={{ margin: 1, ml: '0 !important', width: '120px' }}
 					size='small'
 					id='outlined-number'
 					label='Square Price'
@@ -49,7 +48,6 @@ export default function FinanceDialog({ open, onClose, onSave, children, boardDa
 							min: '0',
 							inputMode: 'numeric',
 						},
-
 						startAdornment: (
 							<InputAdornment position='start'>
 								<PaidIcon />
@@ -71,7 +69,7 @@ export default function FinanceDialog({ open, onClose, onSave, children, boardDa
 								fontWeight: 'bold',
 							}}
 						>
-							{`$${100 * squarePrice}`}
+							{`$${squarePrice ? 100 * squarePrice : 0}`}
 						</Avatar>
 					}
 					label='Total Pot'
@@ -79,7 +77,7 @@ export default function FinanceDialog({ open, onClose, onSave, children, boardDa
 				{!squarePrice ? (
 					''
 				) : (
-					<FormControl sx={{ display: 'flex', mr: '2em' }}>
+					<FormControl sx={{ display: 'flex', mt: '1em', mr: '2em' }}>
 						<FormLabel>Quarterly Payouts</FormLabel>
 						<Slider
 							getAriaLabel={() => 'Temperature range'}
