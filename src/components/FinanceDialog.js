@@ -7,6 +7,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import PaidIcon from '@mui/icons-material/Paid';
 import { Avatar, Button, Chip, FormControl, FormLabel, InputAdornment, Slider } from '@mui/material';
+import CustomTable from './Table';
 
 export default function FinanceDialog({ open, onClose, onSave, children, boardData }) {
 	const [squarePrice, setSquarePrice] = useState(boardData.squarePrice);
@@ -30,6 +31,19 @@ export default function FinanceDialog({ open, onClose, onSave, children, boardDa
 	const hasValueChanged =
 		squarePrice !== boardData.squarePrice ||
 		JSON.stringify(payoutSliderValues) !== JSON.stringify(boardData.payoutSliderValues);
+
+	const { amountRow, percentRow } = payoutSliderValues.reduce(
+		(rows, value, index) => {
+			const quarter = `Q${index + 1}`;
+			const previousValue = index ? payoutSliderValues[index - 1] : 0;
+			const difference = value - previousValue;
+			const amount = squarePrice * difference;
+			rows.amountRow[quarter] = `$${amount}`;
+			rows.percentRow[quarter] = `${difference}%`;
+			return rows;
+		},
+		{ amountRow: {}, percentRow: {} }
+	);
 
 	return (
 		<Dialog open={open} onClose={onClose} fullWidth>
@@ -77,18 +91,21 @@ export default function FinanceDialog({ open, onClose, onSave, children, boardDa
 				{!squarePrice ? (
 					''
 				) : (
-					<FormControl sx={{ display: 'flex', mt: '1em', mr: '2em' }}>
-						<FormLabel>Quarterly Payouts</FormLabel>
-						<Slider
-							getAriaLabel={() => 'Temperature range'}
-							value={payoutSliderValues}
-							onChange={handlePayoutSliderChange}
-							valueLabelDisplay='auto'
-							valueLabelFormat={getSliderLabel}
-							step={5}
-							marks
-						/>
-					</FormControl>
+					<>
+						<FormControl sx={{ display: 'flex', mt: '1em' }}>
+							<FormLabel>Quarterly Payouts</FormLabel>
+							<Slider
+								getAriaLabel={() => 'Temperature range'}
+								value={payoutSliderValues}
+								onChange={handlePayoutSliderChange}
+								valueLabelDisplay='auto'
+								valueLabelFormat={getSliderLabel}
+								step={5}
+								marks
+							/>
+						</FormControl>
+						<CustomTable headers={['Q1', 'Q2', 'Q3', 'Q4']} rows={[percentRow, amountRow]} />
+					</>
 				)}
 			</DialogContent>
 			<DialogActions>
