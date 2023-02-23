@@ -219,42 +219,33 @@ export default function SquaresPage({ boardData, onUpdate }) {
 								</div>
 							)}
 
-							{
-								<FormControl sx={{ mt: '5px' }}>
-									<FormLabel>Actions</FormLabel>
-									<Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-										<Button size='small' variant='contained' onClick={() => setIsFinanceDialogOpen(true)}>
-											<EditIcon sx={{ pr: 1 }} fontSize='small' />
-											Edit Square Finances
-										</Button>
-										{isFinanceDialogOpen && (
-											<FinanceDialog
-												open={isFinanceDialogOpen}
-												onSave={handleFinanceSave}
-												onClose={() => setIsFinanceDialogOpen(false)}
-												boardData={boardData}
-											/>
-										)}
-										<Button variant='contained' size='small' onClick={handleCopyShareLink}>
-											<IosShareIcon sx={{ pr: 1 }} fontSize='small' />
-											Share
-										</Button>
-										<Snackbar
-											open={snackbarMessage}
-											autoHideDuration={3000}
-											anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-											onClose={() => setSnackbarMessage('')}
-											message={snackbarMessage}
+							<FormControl sx={{ mt: '5px' }}>
+								<FormLabel>Actions</FormLabel>
+								<Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+									<Button size='small' variant='contained' onClick={() => setIsFinanceDialogOpen(true)}>
+										<EditIcon sx={{ pr: 1 }} fontSize='small' />
+										Edit Finances
+									</Button>
+									{isFinanceDialogOpen && (
+										<FinanceDialog
+											open={isFinanceDialogOpen}
+											onSave={handleFinanceSave}
+											onClose={() => setIsFinanceDialogOpen(false)}
+											boardData={boardData}
 										/>
-										{!areNumbersSet && (
-											<Button variant='contained' size='small' onClick={setNumbers}>
-												<BorderStyleIcon sx={{ pr: 1 }} fontSize='small' />
-												Set Numbers
-											</Button>
-										)}
-									</Box>
-								</FormControl>
-							}
+									)}
+									<Button variant='contained' size='small' onClick={handleCopyShareLink}>
+										<IosShareIcon sx={{ pr: 1 }} fontSize='small' />
+										Share
+									</Button>
+									{!areNumbersSet && (
+										<Button variant='contained' size='small' onClick={setNumbers}>
+											<BorderStyleIcon sx={{ pr: 1 }} fontSize='small' />
+											Set Numbers
+										</Button>
+									)}
+								</Box>
+							</FormControl>
 						</CustomAccordion>
 					</Grid>
 				)}
@@ -369,6 +360,13 @@ export default function SquaresPage({ boardData, onUpdate }) {
 			>
 				Flip to landscape for roomier squares.
 			</Alert>
+			<Snackbar
+				open={!!snackbarMessage}
+				autoHideDuration={3000}
+				anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+				onClose={() => setSnackbarMessage('')}
+				message={snackbarMessage}
+			/>
 			<Grid container sx={{ paddingBottom: '2em', marginTop: '1em' }}>
 				{gridData.map((values, rowIndex) => (
 					<Grid xs>
