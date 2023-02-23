@@ -13,7 +13,6 @@ import {
 	FormControlLabel,
 	FormLabel,
 	IconButton,
-	InputAdornment,
 	Radio,
 	RadioGroup,
 	Snackbar,
@@ -25,18 +24,19 @@ import { subscribeNumberToBoard, updateBoard } from '../api';
 import CustomAccordion from '../components/Accordion';
 import CustomTable from '../components/Table';
 import { useLocalStorage, useDocumentTitle } from 'usehooks-ts';
-import PortraitIcon from '@mui/icons-material/Portrait';
 import FinanceDialog from '../components/FinanceDialog';
 import EditIcon from '@mui/icons-material/Edit';
 import SmsIcon from '@mui/icons-material/Sms';
 import SmsDialog from '../components/SmsDialog';
+import IosShareIcon from '@mui/icons-material/IosShare';
+import BorderStyleIcon from '@mui/icons-material/BorderStyle';
 
 export default function SquaresPage({ boardData, onUpdate }) {
 	const { gridData, boardName, results, userCode, isAdmin, squarePrice, payoutSliderValues } = boardData;
 	const [initials, setInitials] = useLocalStorage('squares-initials', '');
 	const [resultQuarterIndex, setResultQuarterIndex] = useState(0);
 	const [clickMode, setClickMode] = useState('select');
-	const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
+	const [snackbarMessage, setSnackbarMessage] = useState('');
 	const [isFinanceDialogOpen, setIsFinanceDialogOpen] = useState(false);
 	const [isSmsDialogOpen, setIsSmsDialogOpen] = useState(false);
 
@@ -57,16 +57,27 @@ export default function SquaresPage({ boardData, onUpdate }) {
 		}
 	};
 
-	const handleSwapTeams = () => {
-		// ToDo
-	};
-
 	const handleSquareClick = async ([row, col]) => {
-		if (!row || !col || (clickMode === 'select' && gridData[row][col])) {
+		if (!row || !col) {
+			// Numbers row or column
+			return;
+		}
+		if (clickMode === 'select' && gridData[row][col]) {
+			// Already selected square
+			return;
+		}
+		if (clickMode === 'select' && !initials) {
+			setSnackbarMessage('Please enter your initials before selecting a square.');
 			return;
 		}
 		const value = clickMode === 'remove' ? null : clickMode === 'result' ? resultQuarterIndex : initials;
 		const { Item } = await updateBoard({ boardName, row, col, operation: clickMode, value });
+		if (clickMode === 'result') {
+			setSnackbarMessage(`Q${Number(resultQuarterIndex) + 1} results saved.`);
+		}
+		if (clickMode === 'select' && Item.gridData[row][col] !== initials) {
+			setSnackbarMessage('This square was taken by another player.');
+		}
 		onUpdate({ ...Item, isAdmin });
 	};
 
@@ -87,7 +98,7 @@ export default function SquaresPage({ boardData, onUpdate }) {
 		const { origin } = document.location;
 		const link = `${origin}/?boardName=${boardName}&userCode=${userCode}`;
 		navigator.clipboard.writeText(encodeURI(link));
-		setIsSnackbarOpen(true);
+		setSnackbarMessage('Share link copied to clipboard.');
 	};
 
 	const areNumbersSet = gridData[0].some((value) => value);
@@ -114,10 +125,6 @@ export default function SquaresPage({ boardData, onUpdate }) {
 	const handleInitialsChange = (e) => {
 		const { value } = e.target;
 		setInitials(value.toUpperCase());
-	};
-
-	const toggleSnackbar = () => {
-		setIsSnackbarOpen(!isSnackbarOpen);
 	};
 
 	const handleFinanceSave = async (value) => {
@@ -178,48 +185,7 @@ export default function SquaresPage({ boardData, onUpdate }) {
 				{isAdmin && (
 					<Grid xs={12} sm={7}>
 						<CustomAccordion title='Admin Controls'>
-							<Box
-								component='form'
-								sx={{
-									'& .MuiTextField-root': { m: 1, width: { xs: '142px', md: 'auto' } },
-								}}
-							>
-								<FormControl sx={{ display: 'flex', marginTop: '-20px' }}>
-									<FormLabel>
-										<Button size='small' variant='text' onClick={() => setIsFinanceDialogOpen(true)}>
-											Edit Square Finances
-											<EditIcon fontSize='small' sx={{ ml: '5px' }} />
-										</Button>
-									</FormLabel>
-								</FormControl>
-								{isFinanceDialogOpen && (
-									<FinanceDialog
-										open={isFinanceDialogOpen}
-										onSave={handleFinanceSave}
-										onClose={() => setIsFinanceDialogOpen(false)}
-										boardData={boardData}
-									/>
-								)}
-
-								{false && (
-									// Disabling this feature
-									<TextField
-										size='small'
-										id='outlined-number'
-										label='Max Squares Per Person'
-										type='number'
-										InputProps={{
-											startAdornment: (
-												<InputAdornment position='start'>
-													<PortraitIcon />
-												</InputAdornment>
-											),
-										}}
-									/>
-								)}
-							</Box>
-
-							<FormControl sx={{ display: 'flex' }}>
+							<FormControl sx={{ display: 'flex', mt: '-20px' }}>
 								<FormLabel>Click Mode</FormLabel>
 								<ToggleButtonGroup
 									color='primary'
@@ -231,8 +197,6 @@ export default function SquaresPage({ boardData, onUpdate }) {
 									<ToggleButton value='select'>Select</ToggleButton>
 									<ToggleButton value='remove'>Remove</ToggleButton>
 									<ToggleButton value='result'>Result</ToggleButton>
-
-									{/* Disabling until fully handled - <Button onClick={handleSwapTeams}>Swap Teams</Button> */}
 								</ToggleButtonGroup>
 							</FormControl>
 
@@ -258,23 +222,37 @@ export default function SquaresPage({ boardData, onUpdate }) {
 							{
 								<FormControl sx={{ mt: '5px' }}>
 									<FormLabel>Actions</FormLabel>
-									<div>
+									<Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+										<Button size='small' variant='contained' onClick={() => setIsFinanceDialogOpen(true)}>
+											<EditIcon sx={{ pr: 1 }} fontSize='small' />
+											Edit Square Finances
+										</Button>
+										{isFinanceDialogOpen && (
+											<FinanceDialog
+												open={isFinanceDialogOpen}
+												onSave={handleFinanceSave}
+												onClose={() => setIsFinanceDialogOpen(false)}
+												boardData={boardData}
+											/>
+										)}
 										<Button variant='contained' size='small' onClick={handleCopyShareLink}>
+											<IosShareIcon sx={{ pr: 1 }} fontSize='small' />
 											Share
 										</Button>
 										<Snackbar
-											open={isSnackbarOpen}
+											open={snackbarMessage}
 											autoHideDuration={3000}
 											anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-											onClose={toggleSnackbar}
-											message='Share link copied to clipboard.'
+											onClose={() => setSnackbarMessage('')}
+											message={snackbarMessage}
 										/>
 										{!areNumbersSet && (
-											<Button variant='contained' size='small' onClick={setNumbers} sx={{ ml: '1em' }}>
+											<Button variant='contained' size='small' onClick={setNumbers}>
+												<BorderStyleIcon sx={{ pr: 1 }} fontSize='small' />
 												Set Numbers
 											</Button>
 										)}
-									</div>
+									</Box>
 								</FormControl>
 							}
 						</CustomAccordion>
