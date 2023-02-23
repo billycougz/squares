@@ -8,9 +8,11 @@ import {
 	Avatar,
 	Button,
 	Chip,
+	Divider,
 	FormControl,
 	FormControlLabel,
 	FormLabel,
+	IconButton,
 	InputAdornment,
 	Radio,
 	RadioGroup,
@@ -19,13 +21,15 @@ import {
 	ToggleButtonGroup,
 } from '@mui/material';
 import { AccountCircle } from '@mui/icons-material';
-import { updateBoard } from '../api';
+import { subscribeNumberToBoard, updateBoard } from '../api';
 import CustomAccordion from '../components/Accordion';
 import CustomTable from '../components/Table';
 import { useLocalStorage, useDocumentTitle } from 'usehooks-ts';
 import PortraitIcon from '@mui/icons-material/Portrait';
 import FinanceDialog from '../components/FinanceDialog';
 import EditIcon from '@mui/icons-material/Edit';
+import SmsIcon from '@mui/icons-material/Sms';
+import SmsDialog from '../components/SmsDialog';
 
 export default function SquaresPage({ boardData, onUpdate }) {
 	const { gridData, boardName, results, userCode, isAdmin, squarePrice, payoutSliderValues } = boardData;
@@ -34,6 +38,7 @@ export default function SquaresPage({ boardData, onUpdate }) {
 	const [clickMode, setClickMode] = useState('select');
 	const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
 	const [isFinanceDialogOpen, setIsFinanceDialogOpen] = useState(false);
+	const [isSmsDialogOpen, setIsSmsDialogOpen] = useState(false);
 
 	useDocumentTitle(`${boardName} | Squares`);
 
@@ -121,6 +126,15 @@ export default function SquaresPage({ boardData, onUpdate }) {
 		setIsFinanceDialogOpen(false);
 	};
 
+	const handleSmsSave = async ({ phoneNumber }) => {
+		const result = await subscribeNumberToBoard({ boardName, phoneNumber: phoneNumber.replace(/\s/g, '') });
+		const storedSubscriptions = JSON.parse(localStorage.getItem('squares-subscriptions')) || {};
+		storedSubscriptions[boardName] = storedSubscriptions[boardName] || {};
+		storedSubscriptions[boardName][initials] = phoneNumber;
+		localStorage.setItem('squares-subscriptions', JSON.stringify(storedSubscriptions));
+		setIsSmsDialogOpen(false);
+	};
+
 	const getPayoutValue = (quarterIndex) => {
 		if (!squarePrice) {
 			return null;
@@ -145,6 +159,19 @@ export default function SquaresPage({ boardData, onUpdate }) {
 							value={initials}
 							onChange={handleInitialsChange}
 						/>
+						<Divider sx={{ height: '35px', mb: '5px' }} orientation='vertical' />
+						<IconButton color='primary' sx={{ p: '10px' }} onClick={() => setIsSmsDialogOpen(true)}>
+							<SmsIcon />
+						</IconButton>
+						{isSmsDialogOpen && (
+							<SmsDialog
+								open={isSmsDialogOpen}
+								onSave={handleSmsSave}
+								onClose={() => setIsSmsDialogOpen(false)}
+								boardName={boardName}
+								initials={initials}
+							/>
+						)}
 					</Box>
 				</Grid>
 

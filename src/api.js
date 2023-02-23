@@ -39,3 +39,13 @@ export const loadBoard = async ({ boardName, adminCode, userCode }) => {
 		return { error: 'Error' };
 	}
 };
+
+export const subscribeNumberToBoard = async (params) => {
+	try {
+		const body = { ...params, operation: 'subscribe' };
+		const { data } = await axios.post(BASE_URL, body);
+		return data;
+	} catch (e) {
+		return { error: 'Error' };
+	}
+};
