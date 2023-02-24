@@ -134,11 +134,12 @@ export default function SquaresPage({ boardData, onUpdate }) {
 	};
 
 	const handleSmsSave = async ({ phoneNumber }) => {
-		const result = await subscribeNumberToBoard({ boardName, phoneNumber: phoneNumber.replace(/\s/g, '') });
+		const { msg } = await subscribeNumberToBoard({ boardName, phoneNumber: phoneNumber.replace(/\s/g, '') });
 		const storedSubscriptions = JSON.parse(localStorage.getItem('squares-subscriptions')) || {};
 		storedSubscriptions[boardName] = storedSubscriptions[boardName] || {};
 		storedSubscriptions[boardName][initials] = phoneNumber;
 		localStorage.setItem('squares-subscriptions', JSON.stringify(storedSubscriptions));
+		setSnackbarMessage(msg);
 		setIsSmsDialogOpen(false);
 	};
 
