@@ -1,7 +1,6 @@
 const { handleGet, handlePost, handleUpdate } = require('./handlers.js');
 
 exports.handler = async (event, context) => {
-	// Hello Billy
 	//console.log('Received event:', JSON.stringify(event, null, 2));
 	let body;
 	let statusCode = '200';
@@ -47,5 +46,3 @@ exports.handler = async (event, context) => {
 		headers,
 	};
 };
-// aws lambda update-function-code --function-name squares-function --zip-file fileb://./my-deployment-package.zip
-// zip -r my-deployment-package.zip *

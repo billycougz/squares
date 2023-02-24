@@ -75,8 +75,17 @@ export default function SquaresPage({ boardData, onUpdate }) {
 		if (clickMode === 'result') {
 			setSnackbarMessage(`Q${Number(resultQuarterIndex) + 1} results saved.`);
 		}
-		if (clickMode === 'select' && Item.gridData[row][col] !== initials) {
-			setSnackbarMessage('This square was taken by another player.');
+		if (clickMode === 'remove') {
+			setSnackbarMessage('Square removed.');
+		}
+		if (clickMode === 'select') {
+			if (Item.gridData[row][col] !== initials) {
+				setSnackbarMessage('This square was taken by another player.');
+			} else {
+				const personalTotal = squareMap[initials] + 1;
+				const financeMsg = squarePrice ? ` and owe $${personalTotal * squarePrice}` : '';
+				setSnackbarMessage(`Square selected. You now have ${personalTotal} squares${financeMsg}.`);
+			}
 		}
 		onUpdate({ ...Item, isAdmin });
 	};

@@ -5,7 +5,7 @@
   "scripts": {
     "client": "cd client && npm start",
     "zip": "cd lambda && zip -r squares-lambda.zip *",
-    "deploy": "cd client && gh-pages -d build"
+    "deploy": "cd client && npm run deploy"
   },
   "repository": {
     "type": "git",
