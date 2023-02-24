@@ -1,0 +1,16 @@
+{
+  "name": "squares",
+  "version": "1.0.0",
+  "description": "Digital football squares (or whatever use case you may have for digital squares).",
+  "scripts": {
+    "client": "cd client && npm start",
+    "zip": "cd lambda && zip -r squares-lambda.zip *",
+    "deploy": "cd client && gh-pages -d build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/billycougz/squares.git"
+  },
+  "author": "William Cougan <william.cougan@gmail.com> (https://williamcougan.com/)",
+  "homepage": "https://github.com/billycougz/squares#readme"
+}
