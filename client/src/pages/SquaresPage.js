@@ -13,11 +13,15 @@ import {
 	FormControlLabel,
 	FormLabel,
 	IconButton,
+	Paper,
 	Radio,
 	RadioGroup,
 	Snackbar,
+	Tab,
+	Tabs,
 	ToggleButton,
 	ToggleButtonGroup,
+	Typography,
 } from '@mui/material';
 import { AccountCircle } from '@mui/icons-material';
 import { subscribeNumberToBoard, updateBoard } from '../api';
@@ -195,43 +199,8 @@ export default function SquaresPage({ boardData, onUpdate }) {
 				{isAdmin && (
 					<Grid xs={12} sm={7}>
 						<CustomAccordion title='Admin Controls'>
-							<FormControl sx={{ display: 'flex', mt: '-20px' }}>
-								<FormLabel>Click Mode</FormLabel>
-								<ToggleButtonGroup
-									color='primary'
-									value={clickMode}
-									exclusive
-									size='small'
-									onChange={(e) => setClickMode(e.target.value)}
-								>
-									<ToggleButton value='select'>Select</ToggleButton>
-									<ToggleButton value='remove'>Remove</ToggleButton>
-									<ToggleButton value='result'>Result</ToggleButton>
-								</ToggleButtonGroup>
-							</FormControl>
-
-							{clickMode === 'result' && (
-								<div>
-									<br />
-									<FormControl size='small'>
-										<FormLabel id='demo-row-radio-buttons-group-label'>Result Quarter</FormLabel>
-										<RadioGroup
-											row
-											name='row-radio-buttons-group'
-											value={resultQuarterIndex}
-											onChange={(e) => setResultQuarterIndex(e.target.value)}
-										>
-											{['Q1', 'Q2', 'Q3', 'Q4'].map((quarter, index) => (
-												<FormControlLabel value={index} control={<Radio />} label={quarter} />
-											))}
-										</RadioGroup>
-									</FormControl>
-								</div>
-							)}
-
-							<FormControl sx={{ mt: '5px' }}>
-								<FormLabel>Actions</FormLabel>
-								<Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+							<FormControl>
+								<Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: '-1em' }}>
 									<Button size='small' variant='contained' onClick={() => setIsFinanceDialogOpen(true)}>
 										<EditIcon sx={{ pr: 1 }} fontSize='small' />
 										Edit Finances
@@ -377,6 +346,39 @@ export default function SquaresPage({ boardData, onUpdate }) {
 				onClose={() => setSnackbarMessage('')}
 				message={snackbarMessage}
 			/>
+			{isAdmin && (
+				<Grid
+					xs={12}
+					component={Paper}
+					sx={{
+						mt: '1em',
+						display: 'flex',
+						flexWrap: 'wrap',
+						justifyContent: 'space-evenly',
+						border: `solid 1px rgb(133, 133, 133)`,
+					}}
+				>
+					<Tabs color='primary' value={clickMode} exclusive size='small' onChange={(e, v) => setClickMode(v)}>
+						<Tab label='select' value='select'>
+							Select
+						</Tab>
+						<Tab label='remove' value='remove'>
+							Remove
+						</Tab>
+						<Tab label='result' value='result'>
+							Result
+						</Tab>
+					</Tabs>
+
+					{clickMode === 'result' && (
+						<RadioGroup row value={resultQuarterIndex} onChange={(e) => setResultQuarterIndex(e.target.value)}>
+							{['Q1', 'Q2', 'Q3', 'Q4'].map((quarter, index) => (
+								<FormControlLabel value={index} control={<Radio />} label={quarter} />
+							))}
+						</RadioGroup>
+					)}
+				</Grid>
+			)}
 			<Grid container sx={{ paddingBottom: '2em', marginTop: '1em' }}>
 				{gridData.map((values, rowIndex) => (
 					<Grid xs>
