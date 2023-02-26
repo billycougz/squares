@@ -1,5 +1,4 @@
-const AWS = require('./AWS');
-const sns = new AWS.SNS();
+const { sns } = require('./AWS');
 
 const TopicArn = 'arn:aws:sns:us-east-1:210534634664:SquaresTopic';
 
@@ -27,6 +26,23 @@ async function publishMessage(boardName, userCode) {
 		console.error(`Error publishing message to SNS topic: ${params.TopicArn}`);
 		console.error(error);
 		return { msg: 'Error publishing message to topic.', error };
+	}
+}
+
+async function sendSmsMessage(phoneNumber, message) {
+	const params = {
+		Message: message,
+		PhoneNumber: phoneNumber,
+	};
+	try {
+		const response = await sns.publish(params).promise();
+		console.log(`Message sent: ${JSON.stringify(params)}`);
+		console.log(`Response: ${JSON.stringify(response)}`);
+		return { msg: 'Successfully sent message.' };
+	} catch (error) {
+		console.error(`Error sending message.`);
+		console.error(error);
+		return { msg: 'Error sending message.', error };
 	}
 }
 
@@ -89,4 +105,5 @@ async function subscribeToBoard(boardName, phoneNumber) {
 module.exports = {
 	publishMessage,
 	subscribeToBoard,
+	sendSmsMessage,
 };

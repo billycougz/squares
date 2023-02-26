@@ -1,11 +1,16 @@
 const { dynamo } = require('./helpers/AWS');
 const getSquaresBoard = require('./helpers/getSquaresBoard');
-const { subscribeToBoard } = require('./helpers/sns.js');
+const { subscribeToBoard, sendSmsMessage } = require('./helpers/sns.js');
 
-const handlePost = (event) => {
+const handlePost = async (event) => {
 	const { operation, boardName, phoneNumber } = JSON.parse(event.body);
 	if (operation === 'subscribe') {
-		return subscribeToBoard(boardName, phoneNumber);
+		const response = await subscribeToBoard(boardName, phoneNumber);
+		if (response.msg === 'Successfully subscribed to board notifications.') {
+			const msg = `You've successfully subscribed to Squares notifications for ${boardName}.`;
+			await sendSmsMessage(phoneNumber, msg);
+		}
+		return response;
 	}
 	return handleCreate(event);
 };
