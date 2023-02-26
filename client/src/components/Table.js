@@ -15,7 +15,7 @@ export default function CustomTable({ headers, rows, initials, highlightProperty
 				<TableHead>
 					<TableRow>
 						{headerValues.map((header) => (
-							<TableCell>{header}</TableCell>
+							<TableCell key={header}>{header}</TableCell>
 						))}
 					</TableRow>
 				</TableHead>

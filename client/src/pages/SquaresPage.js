@@ -382,7 +382,7 @@ export default function SquaresPage({ boardData, onUpdate }) {
 					{clickMode === 'result' && (
 						<RadioGroup row value={resultQuarterIndex} onChange={(e) => setResultQuarterIndex(e.target.value)}>
 							{['Q1', 'Q2', 'Q3', 'Q4'].map((quarter, index) => (
-								<FormControlLabel value={index} control={<Radio />} label={quarter} />
+								<FormControlLabel key={quarter} value={index} control={<Radio />} label={quarter} />
 							))}
 						</RadioGroup>
 					)}
@@ -390,7 +390,7 @@ export default function SquaresPage({ boardData, onUpdate }) {
 			)}
 			<Grid container sx={{ paddingBottom: '2em', marginTop: '1em' }}>
 				{gridData.map((values, rowIndex) => (
-					<Grid xs>
+					<Grid xs key={values}>
 						{values.map((value, colIndex) => (
 							<Square
 								key={`${rowIndex}${colIndex}${value}`}

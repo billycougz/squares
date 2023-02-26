@@ -12,7 +12,7 @@ const Item = styled(Paper)(({ theme }) => ({
 	color: theme.palette.text.secondary,
 }));
 
-export default function Square({ value = '', location: [row, col], backgroundColor, onClick }) {
+export default function Square({ value, location: [row, col], backgroundColor, onClick }) {
 	const theme = useTheme();
 	const isMedium = useMediaQuery(theme.breakpoints.up('md'));
 	const disabled = !row || !col;
@@ -36,9 +36,9 @@ export default function Square({ value = '', location: [row, col], backgroundCol
 				<TextField
 					id='outlined-basic'
 					variant='outlined'
-					value={value}
+					value={value || ''}
 					disabled={disabled}
-					inputProps={{ style: inputStyle, readonly: 'readonly', inputMode: 'none' }}
+					inputProps={{ style: inputStyle, readOnly: 'readonly', inputMode: 'none' }}
 				/>
 			</Item>
 		</Grid>

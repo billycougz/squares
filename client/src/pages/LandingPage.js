@@ -19,7 +19,7 @@ import Loader from '../components/Loader';
 
 export default function LandingPage({ onBoardLoaded, recentSquares }) {
 	const [view, setView] = useState('select');
-	const [formData, setFormData] = useState({});
+	const [formData, setFormData] = useState({ boardName: '', userCode: '', adminCode: '' });
 	const [isLoading, setIsLoading] = useState(false);
 
 	useDocumentTitle('Squares');
@@ -74,9 +74,13 @@ export default function LandingPage({ onBoardLoaded, recentSquares }) {
 			{recentSquares.length ? (
 				<FormControl fullWidth sx={{ margin: '1em 0' }} size='small'>
 					<InputLabel>Recent Squares</InputLabel>
-					<Select value={null} label='Recent Squares'>
-						{recentSquares.map((squaresData) => (
-							<MenuItem value={squaresData.boardName} onClick={() => handleLoad(squaresData)}>
+					<Select value='' label='Recent Squares'>
+						{recentSquares.map((squaresData, index) => (
+							<MenuItem
+								key={`${squaresData.boardName}-${index}`}
+								value={squaresData.boardName}
+								onClick={() => handleLoad(squaresData)}
+							>
 								{squaresData.boardName}
 							</MenuItem>
 						))}
