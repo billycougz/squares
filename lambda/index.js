@@ -1,4 +1,6 @@
-const { handleGet, handlePost, handleUpdate } = require('./handlers.js');
+const handleGet = require('./handlers/handleGet');
+const handlePost = require('./handlers/handlePost');
+const handlePut = require('./handlers/handlePut');
 
 exports.handler = async (event, context) => {
 	//console.log('Received event:', JSON.stringify(event, null, 2));
@@ -25,7 +27,7 @@ exports.handler = async (event, context) => {
 				body = await handlePost(event);
 				break;
 			case 'PUT':
-				body = await handleUpdate(event);
+				body = await handlePut(event);
 				break;
 			case 'OPTIONS':
 				body = {};
