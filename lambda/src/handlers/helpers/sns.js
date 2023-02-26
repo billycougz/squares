@@ -3,9 +3,12 @@ const sns = new AWS.SNS();
 
 const TopicArn = 'arn:aws:sns:us-east-1:210534634664:SquaresTopic';
 
-async function publishMessage(boardName) {
+async function publishMessage(boardName, userCode) {
+	const boardDeepLink = encodeURI(
+		`https://squares.billycougan.com?boardName=${boardName}&userCode=${userCode}&anchor=results`
+	);
 	const params = {
-		Message: `New updates on Squares board ${boardName} https://squares.billycougan.com.`,
+		Message: `The quarterly squares results have been entered for ${boardName} ${boardDeepLink}.`,
 		MessageAttributes: {
 			boardName: {
 				DataType: 'String',

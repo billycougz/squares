@@ -28,7 +28,11 @@ export default function LandingPage({ onBoardLoaded, recentSquares }) {
 		const handleUrlParams = () => {
 			const { searchParams } = new URL(document.location.href);
 			if (searchParams.get('boardName') && searchParams.get('userCode')) {
-				handleLoad({ boardName: searchParams.get('boardName'), userCode: searchParams.get('userCode') });
+				handleLoad({
+					boardName: searchParams.get('boardName'),
+					userCode: searchParams.get('userCode'),
+					anchor: searchParams.get('anchor'),
+				});
 				window.history.replaceState({}, document.title, '/');
 			}
 		};
@@ -53,7 +57,7 @@ export default function LandingPage({ onBoardLoaded, recentSquares }) {
 		if (boardData.error) {
 			alert(boardData.error);
 		} else {
-			onBoardLoaded({ ...boardData, isAdmin: requestData.isAdmin });
+			onBoardLoaded({ ...boardData, isAdmin: requestData.isAdmin, anchor: requestData.anchor });
 		}
 		setIsLoading(false);
 	};

@@ -10,7 +10,7 @@ const handleGet = async (event) => {
 	} else if (!adminCode && !userCode) {
 		return { error: 'Please provide a code.' };
 	} else if (!Item) {
-		return { error: 'Squares with this name could not be found.' };
+		return { error: `A Squares board named ${boardName} could not be found.` };
 	}
 };
 

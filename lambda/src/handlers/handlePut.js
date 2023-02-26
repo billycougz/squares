@@ -26,7 +26,7 @@ const updateBoard = async (event) => {
 				vertical: gridData[0][col],
 				winner: gridData[row][col],
 			};
-			await publishMessage(boardName);
+			await publishMessage(boardName, Item.userCode);
 			break;
 		case 'numbers':
 			const ordered = Array.from(Array(10).keys());

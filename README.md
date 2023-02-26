@@ -22,7 +22,7 @@ Digital football squares (or whatever use case you may have for digital squares)
 ### Lambda deploy
 
 `rm squares-lambda.zip`
-`aws lambda update-function-code --function-name squares-function --zip-file fileb://./squares-lambda.zip`
+`aws lambda update-function-code --function-name squares-function --zip-file fileb://./squares-lambda.zip && rm squares-lambda.zip`
 
 ### Local Dynamo
 

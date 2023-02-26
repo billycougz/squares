@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Unstable_Grid2';
 import Square from '../components/Square';
@@ -36,7 +36,7 @@ import IosShareIcon from '@mui/icons-material/IosShare';
 import BorderStyleIcon from '@mui/icons-material/BorderStyle';
 
 export default function SquaresPage({ boardData, onUpdate }) {
-	const { gridData, boardName, results, userCode, isAdmin, squarePrice, payoutSliderValues } = boardData;
+	const { gridData, boardName, results, userCode, isAdmin, squarePrice, payoutSliderValues, anchor } = boardData;
 	const [initials, setInitials] = useLocalStorage('squares-initials', '');
 	const [resultQuarterIndex, setResultQuarterIndex] = useState(0);
 	const [clickMode, setClickMode] = useState('select');
@@ -45,6 +45,15 @@ export default function SquaresPage({ boardData, onUpdate }) {
 	const [isSmsDialogOpen, setIsSmsDialogOpen] = useState(false);
 
 	useDocumentTitle(`${boardName} | Squares`);
+
+	useEffect(() => {
+		if (anchor === 'results') {
+			const { winner } = results.findLast((result) => !!result.winner);
+			if (winner === initials) {
+				setSnackbarMessage('Congratulations, you won the latest squares quarter!');
+			}
+		}
+	}, []);
 
 	const highlightColor = '#1876d1';
 
@@ -304,7 +313,7 @@ export default function SquaresPage({ boardData, onUpdate }) {
 					</Grid>
 				)}
 				<Grid xs={12} sm={isAdmin ? 7 : 12} md={isAdmin ? 7 : 6}>
-					<CustomAccordion title='Results & Payouts'>
+					<CustomAccordion title='Results & Payouts' defaultExpanded={anchor === 'results'}>
 						{!squarePrice ? (
 							''
 						) : (
