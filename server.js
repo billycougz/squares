@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 app.use(express.json());
-const { handler } = require('./lambda/index');
+const { handler } = require('./lambda/src/index');
 
 app.all('/', async (req, res) => {
 	// Transform the Express request object into an AWS Lambda API Gateway event
