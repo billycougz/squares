@@ -1,4 +1,4 @@
-const AWS = require('aws-sdk');
+const AWS = require('./AWS');
 const sns = new AWS.SNS();
 
 const TopicArn = 'arn:aws:sns:us-east-1:210534634664:SquaresTopic';
@@ -21,10 +21,11 @@ async function publishMessage(boardName) {
 		const response = await sns.publish(params).promise();
 		console.log(`Message published: ${JSON.stringify(params)}`);
 		console.log(`Response: ${JSON.stringify(response)}`);
+		return { msg: 'Successfully published message to topic.' };
 	} catch (error) {
 		console.error(`Error publishing message to SNS topic: ${params.TopicArn}`);
 		console.error(error);
-		throw error;
+		return { msg: 'Error publishing message to topic.', error };
 	}
 }
 

@@ -22,3 +22,8 @@ Digital football squares (or whatever use case you may have for digital squares)
 ### Lambda deploy
 
 `aws lambda update-function-code --function-name squares-function --zip-file fileb://./squares-lambda.zip`
+
+### Local Dynamo
+
+`aws dynamodb list-tables --endpoint-url http://localhost:8000`
+`aws dynamodb scan --table-name SquaresTable --endpoint-url http://localhost:8000`

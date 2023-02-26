@@ -1,4 +1,4 @@
-const AWS = require('aws-sdk');
+const AWS = require('./AWS');
 const dynamo = new AWS.DynamoDB.DocumentClient();
 const { publishMessage, subscribeToBoard } = require('./sns.js');
 
