@@ -5,9 +5,7 @@ const TopicArn = 'arn:aws:sns:us-east-1:210534634664:SquaresTopic';
 
 async function publishMessage(boardName) {
 	const params = {
-		Message: JSON.stringify({
-			default: `New results on board ${boardName}  https://squares.billycougan.com`,
-		}),
+		Message: `New updates on Squares board ${boardName} https://squares.billycougan.com.`,
 		MessageAttributes: {
 			boardName: {
 				DataType: 'String',
