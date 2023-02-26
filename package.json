@@ -6,7 +6,8 @@
     "client": "cd client && npm start",
     "server": "nodemon ./server.js",
     "zip": "cd lambda && zip -r squares-lambda.zip * -x node_modules/\\* package.json package-lock.json",
-    "deploy": "cd client && npm run deploy"
+    "deploy": "cd client && npm run deploy",
+    "dynamo": "cd /Users/williamcougan/workspace/dynamodb_local_latest && java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb"
   },
   "repository": {
     "type": "git",
