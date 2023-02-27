@@ -18,10 +18,7 @@ import {
 	RadioGroup,
 	Snackbar,
 	Tab,
-	Tabs,
-	ToggleButton,
-	ToggleButtonGroup,
-	Typography,
+	Tabs
 } from '@mui/material';
 import { AccountCircle } from '@mui/icons-material';
 import { subscribeNumberToBoard, updateBoard } from '../api';
@@ -36,7 +33,7 @@ import IosShareIcon from '@mui/icons-material/IosShare';
 import BorderStyleIcon from '@mui/icons-material/BorderStyle';
 
 export default function SquaresPage({ boardData, onUpdate }) {
-	const { gridData, boardName, results, userCode, isAdmin, squarePrice, payoutSliderValues, anchor } = boardData;
+	const { gridData, boardName, results, userCode, isAdmin, squarePrice, payoutSliderValues, anchor, teams } = boardData;
 	const [initials, setInitials] = useLocalStorage('squares-initials', '');
 	const [resultQuarterIndex, setResultQuarterIndex] = useState(0);
 	const [clickMode, setClickMode] = useState('select');
@@ -56,11 +53,6 @@ export default function SquaresPage({ boardData, onUpdate }) {
 	}, []);
 
 	const highlightColor = '#1876d1';
-
-	const teams = {
-		horizontal: { name: 'Eagles', color: '#004d56' },
-		vertical: { name: 'Chiefs', color: '#ca243e' },
-	};
 
 	const setNumbers = async () => {
 		const doContinue = window.confirm('Set the numbers? This can only be done once.');
@@ -367,16 +359,10 @@ export default function SquaresPage({ boardData, onUpdate }) {
 						border: `solid 1px rgb(133, 133, 133)`,
 					}}
 				>
-					<Tabs color='primary' value={clickMode} exclusive size='small' onChange={(e, v) => setClickMode(v)}>
-						<Tab label='select' value='select'>
-							Select
-						</Tab>
-						<Tab label='remove' value='remove'>
-							Remove
-						</Tab>
-						<Tab label='result' value='result'>
-							Result
-						</Tab>
+					<Tabs color='primary' value={clickMode} size='small' onChange={(e, v) => setClickMode(v)}>
+						<Tab label='Select' value='select' />
+						<Tab label='Remove' value='remove' />
+						<Tab label='Result' value='result' />
 					</Tabs>
 
 					{clickMode === 'result' && (
@@ -390,7 +376,7 @@ export default function SquaresPage({ boardData, onUpdate }) {
 			)}
 			<Grid container sx={{ paddingBottom: '2em', marginTop: '1em' }}>
 				{gridData.map((values, rowIndex) => (
-					<Grid xs key={values}>
+					<Grid xs key={rowIndex}>
 						{values.map((value, colIndex) => (
 							<Square
 								key={`${rowIndex}${colIndex}${value}`}

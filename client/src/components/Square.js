@@ -36,7 +36,7 @@ export default function Square({ value, location: [row, col], backgroundColor, o
 				<TextField
 					id='outlined-basic'
 					variant='outlined'
-					value={value || ''}
+					value={value !== null ? value : ''}
 					disabled={disabled}
 					inputProps={{ style: inputStyle, readOnly: 'readonly', inputMode: 'none' }}
 				/>
