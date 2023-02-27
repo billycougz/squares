@@ -18,7 +18,8 @@ import {
 	RadioGroup,
 	Snackbar,
 	Tab,
-	Tabs
+	Tabs,
+	Typography,
 } from '@mui/material';
 import { AccountCircle } from '@mui/icons-material';
 import { subscribeNumberToBoard, updateBoard } from '../api';
@@ -374,7 +375,31 @@ export default function SquaresPage({ boardData, onUpdate }) {
 					)}
 				</Grid>
 			)}
-			<Grid container sx={{ paddingBottom: '2em', marginTop: '1em' }}>
+			<Typography
+				xs={11}
+				variant='h5'
+				textAlign='center'
+				sx={{ ml: '2em', mt: 1, color: teams.horizontal.color, textTransform: 'uppercase', letterSpacing: '12px' }}
+			>
+				{teams.horizontal.name}
+			</Typography>
+			<Grid container sx={{ paddingBottom: '2em' }}>
+				<Box
+					sx={{
+						display: 'inline-block',
+						margin: 'auto',
+						mr: '14px',
+						textAlign: 'center',
+						textTransform: 'capitalize',
+						'> *': { display: 'block', lineHeight: '1.1 !important', color: teams.vertical.color },
+					}}
+				>
+					{Array.from(teams.vertical.name).map((letter) => (
+						<Typography variant='h5' sx={{ height: letter === ' ' ? '12px' : '' }}>
+							{letter}
+						</Typography>
+					))}
+				</Box>
 				{gridData.map((values, rowIndex) => (
 					<Grid xs key={rowIndex}>
 						{values.map((value, colIndex) => (

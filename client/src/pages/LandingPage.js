@@ -262,5 +262,5 @@ const nflTeams = [
 	{ code: 'SEA', name: 'Seahawks', location: 'Seattle', color: '#002244' },
 	{ code: 'TB', name: 'Buccaneers', location: 'Tampa Bay', color: '#D50A0A' },
 	{ code: 'TEN', name: 'Titans', location: 'Tennessee', color: '#0C2340' },
-	{ code: 'WAS', name: 'Football Team', location: 'Washington', color: '#773141' },
+	{ code: 'WAS', name: 'Commanders', location: 'Washington', color: '#773141' },
 ];
