@@ -14,7 +14,7 @@ export default function App() {
 
 	const updateRecentSquares = (currentSquares) => {
 		const previousSquares = recentSquares.filter((squares) => squares.boardName !== currentSquares.boardName);
-		setRecentSquares([currentSquares, ...previousSquares]);
+		setRecentSquares([{ ...currentSquares, anchor: undefined }, ...previousSquares]);
 	};
 
 	const handleBoardLoaded = (loadedBoard) => {
