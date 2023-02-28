@@ -7,7 +7,7 @@ import { updateBoard } from '../../api';
 import Square from '../../components/Square';
 
 export default function SquaresGrid({ boardData, initials, setSnackbarMessage, onUpdate, squareMap, highlightColor }) {
-	const { gridData, boardName, results, userCode, isAdmin, squarePrice, payoutSliderValues, anchor, teams } = boardData;
+	const { gridData, boardName, isAdmin, squarePrice, teams } = boardData;
 	const [resultQuarterIndex, setResultQuarterIndex] = useState(0);
 	const [clickMode, setClickMode] = useState('select');
 
@@ -92,31 +92,77 @@ export default function SquaresGrid({ boardData, initials, setSnackbarMessage, o
 					)}
 				</Grid>
 			)}
-			<Typography
-				xs={11}
-				variant='h5'
-				textAlign='center'
-				sx={{ ml: '2em', mt: 1, color: teams.horizontal.color, textTransform: 'uppercase', letterSpacing: '12px' }}
-			>
-				{teams.horizontal.name}
-			</Typography>
-			<Grid container sx={{ paddingBottom: '2em' }}>
-				<Box
+			<Grid container>
+				<Grid xs sx={{ width: '47px', flexGrow: '0', flexBasis: 'auto' }} />
+				<Grid xs sx={{ flexGrow: 'calc(1/11 + .009)' }} />
+				<Grid
+					xs
 					sx={{
-						display: 'inline-block',
-						margin: 'auto',
-						mr: '14px',
-						textAlign: 'center',
-						textTransform: 'capitalize',
-						'> *': { display: 'block', lineHeight: '1.1 !important', color: teams.vertical.color },
+						mt: 1,
+						backgroundColor: teams.horizontal.color,
+						color: 'white',
+						flexGrow: '1',
+						borderRadius: '5px 5px 0 0',
+						p: '14px 0 10px 0',
 					}}
 				>
-					{Array.from(teams.vertical.name).map((letter) => (
-						<Typography variant='h5' sx={{ height: letter === ' ' ? '12px' : '' }}>
-							{letter}
-						</Typography>
-					))}
-				</Box>
+					<Typography
+						variant='h6'
+						textAlign='center'
+						sx={{
+							textTransform: 'uppercase',
+							letterSpacing: '2px',
+							lineHeight: '1',
+						}}
+					>
+						{teams.horizontal.name}
+					</Typography>
+				</Grid>
+			</Grid>
+			<Grid container>
+				<Grid
+					xs
+					sx={{
+						display: 'flex',
+						flexDirection: 'column',
+						alignItems: 'flex-end',
+						flexGrow: '0',
+						flexBasis: 'min-content',
+					}}
+				>
+					<Grid xs sx={{ flexGrow: '0' }}>
+						<Square location={[]} />
+					</Grid>
+					<Grid
+						sx={{
+							display: 'flex',
+							backgroundColor: teams.vertical.color,
+							alignItems: 'center',
+							flexGrow: '1',
+							borderRadius: '5px 0 0 5px',
+						}}
+					>
+						<Box
+							sx={{
+								p: '1em',
+								textAlign: 'center',
+								textTransform: 'capitalize',
+								'> *': {
+									display: 'block',
+									lineHeight: '1 !important',
+									color: 'white',
+								},
+							}}
+						>
+							{Array.from(teams.vertical.name).map((letter) => (
+								<Typography variant='h6' sx={{ height: letter === ' ' ? '12px' : '' }}>
+									{letter}
+								</Typography>
+							))}
+						</Box>
+					</Grid>
+				</Grid>
+
 				{gridData.map((values, rowIndex) => (
 					<Grid xs key={rowIndex}>
 						{values.map((value, colIndex) => (

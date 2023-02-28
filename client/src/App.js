@@ -26,7 +26,7 @@ export default function App() {
 		<ThemeProvider theme={theme}>
 			<CustomHeader boardName={boardData?.boardName} onHomeClick={() => setBoardData(null)} />
 
-			<Box sx={{ flexGrow: 1, margin: '10px 0' }}>
+			<Box sx={{ flexGrow: 1, padding: '1em' }}>
 				{boardData ? (
 					<SquaresBoard boardData={boardData} onUpdate={setBoardData} />
 				) : (

@@ -31,7 +31,7 @@ export default function Square({ value, location: [row, col], backgroundColor, o
 	};
 
 	return (
-		<Grid xs>
+		<Grid xs visibility={!row && !col ? 'hidden' : ''}>
 			<Item onClick={handleClick}>
 				<TextField
 					id='outlined-basic'

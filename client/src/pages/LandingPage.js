@@ -85,7 +85,7 @@ export default function LandingPage({ onBoardLoaded, recentSquares }) {
 				width: 'fit-content',
 				textAlign: 'center',
 				padding: '1em 2em',
-				margin: { xs: 'auto 5px', sm: 'auto' },
+				margin: 'auto',
 			}}
 		>
 			<Loader open={isLoading} />

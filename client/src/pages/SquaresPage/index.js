@@ -47,7 +47,7 @@ export default function SquaresPage({ boardData, onUpdate }) {
 	);
 
 	return (
-		<Box sx={{ flexGrow: 1, margin: '1em' }}>
+		<Box sx={{ flexGrow: 1 }}>
 			<Snackbar
 				open={!!snackbarMessage}
 				autoHideDuration={3000}
