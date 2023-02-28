@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const BASE_URL =
-	window.location.hostname === 'localhost'
-		? 'http://localhost:8080'
+	window.location.hostname === 'localhost' || window.location.hostname === '192.168.254.27'
+		? 'http://192.168.254.27:8080'
 		: 'https://16ivlqrume.execute-api.us-east-1.amazonaws.com/default/squares-function';
 
 export const createBoard = async (boardData) => {
