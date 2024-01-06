@@ -20,7 +20,7 @@ export default function SquaresGrid({
 	highlightColor,
 	clickMode,
 }) {
-	const { gridData, boardName, isAdmin, squarePrice, teams, results } = boardData;
+	const { id, gridData, boardName, isAdmin, squarePrice, teams, results } = boardData;
 
 	const handleSquareClick = async ([row, col]) => {
 		if (!row || !col) {
@@ -36,7 +36,7 @@ export default function SquaresGrid({
 			return;
 		}
 		const value = clickMode === 'remove' ? null : initials;
-		const { Item } = await updateBoard({ boardName, row, col, operation: clickMode, value });
+		const { Item } = await updateBoard({ id, boardName, row, col, operation: clickMode, value });
 		if (clickMode === 'remove') {
 			setSnackbarMessage('Square removed.');
 		}

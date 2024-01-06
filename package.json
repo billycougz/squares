@@ -5,7 +5,6 @@
   "scripts": {
     "client": "cd client && npm start",
     "server": "nodemon ./server.js",
-    "zip": "cd lambda && mkdir -p build && cd src && zip -r ../build/squares-lambda.zip *",
     "deploy": "cd client && npm run deploy",
     "dynamo": "cd /Users/williamcougan/workspace/dynamodb_local_latest && java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb"
   },

@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { subscribeNumberToBoard } from '../../api';
 import SmsDialog from '../../components/SmsDialog';
 
-export default function InitialsBox({ initials, onChange, boardName, setSnackbarMessage }) {
+export default function InitialsBox({ initials, onChange, id, boardName, setSnackbarMessage }) {
 	const [isSmsDialogOpen, setIsSmsDialogOpen] = useState(false);
 	const [initialsUnderChange, setInitialsUnderChange] = useState(initials);
 
@@ -17,7 +17,7 @@ export default function InitialsBox({ initials, onChange, boardName, setSnackbar
 	};
 
 	const handleSmsSave = async ({ phoneNumber }) => {
-		const { msg } = await subscribeNumberToBoard({ boardName, phoneNumber: phoneNumber.replace(/\s/g, '') });
+		const { msg } = await subscribeNumberToBoard({ id, boardName, phoneNumber: phoneNumber.replace(/\s/g, '') });
 		const storedSubscriptions = JSON.parse(localStorage.getItem('squares-subscriptions')) || {};
 		storedSubscriptions[boardName] = storedSubscriptions[boardName] || {};
 		storedSubscriptions[boardName][initials] = phoneNumber;
@@ -30,7 +30,7 @@ export default function InitialsBox({ initials, onChange, boardName, setSnackbar
 		<Box sx={{ display: 'flex', alignItems: 'flex-end' }} id='initial-box'>
 			<AccountCircle sx={{ color: 'action.active', ml: '12px', my: '12px' }} />
 			<TextField
-				autoFocus={!initials}
+				// ToDo: Handle conflict with onLoad info dialog autoFocus={!initials}
 				placeholder='Enter your initials...'
 				fullWidth
 				variant='outlined'

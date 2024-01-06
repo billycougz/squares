@@ -1,17 +1,15 @@
 const getSquaresBoard = require('./helpers/getSquaresBoard');
 
 const handleGet = async (event) => {
-	const { boardName, userCode, adminCode } = event.queryStringParameters;
-	const { Item } = await getSquaresBoard(boardName);
+	const { id, boardName, userCode, adminCode } = event.queryStringParameters;
+	const { Item } = await getSquaresBoard(id);
 	if (Item && adminCode) {
 		return Item.adminCode === adminCode ? { Item } : { error: 'Admin code does not match.' };
-	} else if (Item && userCode) {
-		return Item.userCode === userCode ? { Item } : { error: 'User code does not match.' };
-	} else if (!adminCode && !userCode) {
-		return { error: 'Please provide a code.' };
-	} else if (!Item) {
-		return { error: `A Squares board named ${boardName} could not be found.` };
 	}
+	if (Item) {
+		return { Item };
+	}
+	return { error: `A Squares board with ID ${id} could not be found.` };
 };
 
 module.exports = handleGet;

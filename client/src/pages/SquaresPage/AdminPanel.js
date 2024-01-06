@@ -11,12 +11,12 @@ import ResultsDialog from '../../components/ResultsDialog';
 import AdminMessageDialog from '../../components/AdminMessageDialog';
 
 export default function AdminPanel({ boardData, setSnackbarMessage, onUpdate }) {
-	const { gridData, boardName, userCode, isAdmin, teams, results } = boardData;
+	const { id, gridData, boardName, userCode, isAdmin, teams, results } = boardData;
 	const [activeDialog, setActiveDialog] = useState('');
 
 	const handleCopyShareLink = () => {
 		const { origin } = document.location;
-		const link = `${origin}/?boardName=${boardName}&userCode=${userCode}`;
+		const link = `${origin}/?id=${id}`;
 		navigator.clipboard.writeText(encodeURI(link));
 		setSnackbarMessage('Share link copied to clipboard.');
 	};
@@ -24,13 +24,13 @@ export default function AdminPanel({ boardData, setSnackbarMessage, onUpdate }) 
 	const setNumbers = async () => {
 		const doContinue = window.confirm('Set the numbers? This can only be done once.');
 		if (doContinue) {
-			const { Item } = await updateBoard({ boardName, operation: 'numbers' });
+			const { Item } = await updateBoard({ id, boardName, operation: 'numbers' });
 			onUpdate({ ...Item, isAdmin });
 		}
 	};
 
 	const handleFinanceSave = async (value) => {
-		const { Item } = await updateBoard({ boardName, operation: 'finances', value });
+		const { Item } = await updateBoard({ id, boardName, operation: 'finances', value });
 		onUpdate({ ...Item, isAdmin });
 		setActiveDialog('');
 	};
@@ -38,6 +38,7 @@ export default function AdminPanel({ boardData, setSnackbarMessage, onUpdate }) 
 	const handleSubmitResult = async ({ quarterIndex, scores, cell }) => {
 		const [col, row] = cell;
 		const { Item } = await updateBoard({
+			id,
 			scores,
 			boardName,
 			row,

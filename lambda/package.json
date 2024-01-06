@@ -1,5 +1,10 @@
 {
+  "name": "squares-api",
+  "scripts": {
+    "zip": "node build.js"
+  },
   "dependencies": {
-    "aws-sdk": "^2.1323.0"
+    "aws-sdk": "^2.1323.0",
+    "uuid": "^9.0.1"
   }
 }

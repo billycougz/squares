@@ -13,7 +13,7 @@ const steps = [
 		content: (
 			<Box sx={{ '> *': { marginBottom: '1em !important' } }}>
 				<Typography>
-					Squares is the easiest way to play Football Squares with friends and family regardless of where everyone is
+					Squares is the easiest way to play Super Bowl Squares with friends and family regardless of where everyone is
 					located!
 				</Typography>
 				<Typography>
@@ -32,7 +32,6 @@ const steps = [
 					Squares is completely free and no money is exchanged through the platform. The Squares board creator
 					determines how participants will exchange funds to pay for squares and receive payouts (e.g., Venmo).
 				</Typography>
-				<Typography>Get started now by creating a Squares board or join one with an access code!</Typography>
 			</Box>
 		),
 	},

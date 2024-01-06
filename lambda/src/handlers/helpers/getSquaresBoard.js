@@ -1,10 +1,10 @@
 const { dynamo } = require('./AWS');
 
-const getSquaresBoard = async (boardName) => {
+const getSquaresBoard = async (id) => {
 	const { Item } = await dynamo
 		.get({
-			TableName: 'SquaresTable',
-			Key: { boardName },
+			TableName: 'SquaresTable-v2',
+			Key: { id },
 		})
 		.promise();
 	if (Item) {
@@ -33,7 +33,7 @@ const handleModelChanges = async (Item) => {
 		propertyAdded = true;
 	}
 	if (propertyAdded) {
-		await dynamo.put({ TableName: 'SquaresTable', Item }).promise();
+		await dynamo.put({ TableName: 'SquaresTable-v2', Item }).promise();
 	}
 	return Item;
 };

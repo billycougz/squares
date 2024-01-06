@@ -3,25 +3,23 @@ import {
 	Button,
 	Checkbox,
 	FormControl,
-	FormLabel,
 	InputLabel,
 	MenuItem,
 	Paper,
 	Select,
-	ToggleButton,
-	ToggleButtonGroup,
 	Typography,
 	TextField,
-	Tabs,
-	Tab,
 	Box,
-	FormHelperText,
+	FormControlLabel,
+	FormGroup,
 } from '@mui/material';
 import { useDocumentTitle } from 'usehooks-ts';
 import { createBoard, loadBoard } from '../api';
 import Loader from '../components/Loader';
 import styled from '@emotion/styled';
 import LandingInfoDialog from '../components/LandingInfoDialog';
+import { MuiTelInput } from 'mui-tel-input';
+import PhoneNumberWarning from '../components/PhoneNumberWarning';
 
 const FadeContainer = styled.div`
 	opacity: ${({ $fadeIn }) => ($fadeIn ? 1 : 0)};
@@ -44,11 +42,11 @@ const TitleContainer = styled.div`
 `;
 
 export default function LandingPage({ onBoardLoaded, recentSquares }) {
-	const [view, setView] = useState('select');
 	const [formData, setFormData] = useState({
 		boardName: '',
 		userCode: '',
 		adminCode: '',
+		phoneNumber: '',
 		teams: {
 			horizontal: nflTeams.find((team) => team.default === 'horizontal'),
 			vertical: nflTeams.find((team) => team.default === 'vertical'),
@@ -57,16 +55,18 @@ export default function LandingPage({ onBoardLoaded, recentSquares }) {
 	const [isLoading, setIsLoading] = useState(false);
 	const [fadeIn, setFadeIn] = useState(false);
 	const [showInfo, setShowInfo] = useState(false);
+	const [showPhoneInput, setShowPhoneInput] = useState(true);
+	const [showPhoneNumberWarning, setShowPhoneNumberWarning] = useState(false);
 
 	useDocumentTitle('Squares');
 
 	useEffect(() => {
 		const handleUrlParams = () => {
 			const { searchParams } = new URL(document.location.href);
-			if (searchParams.get('boardName') && searchParams.get('userCode')) {
+			if (searchParams.get('id')) {
 				handleLoad({
-					boardName: searchParams.get('boardName'),
-					userCode: searchParams.get('userCode'),
+					id: searchParams.get('id'),
+					isAdmin: Boolean(searchParams.get('adminCode')),
 					anchor: searchParams.get('anchor'),
 				});
 				window.history.replaceState({}, document.title, '/');
@@ -102,10 +102,51 @@ export default function LandingPage({ onBoardLoaded, recentSquares }) {
 		setIsLoading(false);
 	};
 
-	const isSubmitDisabled =
-		!formData.boardName ||
-		(view === 'Create' && (!formData.adminCode || !formData.userCode)) ||
-		(view === 'Load' && !formData.adminCode && !formData.userCode);
+	const handleTogglePhoneInput = () => {
+		if (showPhoneInput) {
+			setShowPhoneNumberWarning(true);
+		} else {
+			setShowPhoneInput(true);
+		}
+	};
+
+	const handlePhoneNumberWarningClose = (proceed) => {
+		if (proceed) {
+			setShowPhoneInput(false);
+		}
+		setShowPhoneNumberWarning(false);
+	};
+
+	const TeamSelectionMenu = () => {
+		<Box sx={{ width: '100%' }}>
+			{['horizontal', 'vertical'].map((teamSide) => (
+				<FormControl variant='filled' fullWidth sx={{ mb: 1, mt: 1 }} size='small'>
+					<InputLabel sx={{ color: 'white !important', textTransform: 'capitalize' }}>{teamSide} Team</InputLabel>
+					<Select
+						value={formData.teams[teamSide].name}
+						label={`${teamSide} Team`}
+						sx={{ backgroundColor: `${formData.teams[teamSide].color} !important`, color: 'white' }}
+					>
+						{nflTeams.map(({ code, location, name, color }) => (
+							<MenuItem
+								sx={{ backgroundColor: color, color: 'white', '&:hover': { color } }}
+								key={name}
+								value={name}
+								onClick={() =>
+									setFormData({
+										...formData,
+										teams: { ...formData.teams, [teamSide]: { code, location, name, color } },
+									})
+								}
+							>
+								{`${location} ${name}`}
+							</MenuItem>
+						))}
+					</Select>
+				</FormControl>
+			))}
+		</Box>;
+	};
 
 	return (
 		<Paper
@@ -160,136 +201,61 @@ export default function LandingPage({ onBoardLoaded, recentSquares }) {
 
 				<Paper sx={{ padding: '1em', marginTop: '1em' }}>
 					<Typography variant='h5' sx={{ opacity: '.69', textAlign: 'left', marginBottom: '8px' }}>
-						Get Started
+						Create Squares
 					</Typography>
-					<ToggleButtonGroup
-						size='small'
-						fullWidth='true'
-						value={view}
-						exclusive
-						onChange={(e) => setView(e.target.value)}
-					>
-						<ToggleButton value='Create'>Create Squares</ToggleButton>
-						<ToggleButton value='Load'>Find Squares</ToggleButton>
-					</ToggleButtonGroup>
 
-					{view !== 'select' && (
-						<div>
-							<br />
-							<TextField
-								label='Squares Name'
-								value={formData.boardName}
-								helperText={
-									view === 'Create'
-										? 'Create a unique name for your Squares board'
-										: 'The unique name of your Squares board'
-								}
-								onChange={(e) => setFormData({ ...formData, boardName: e.target.value })}
-								fullWidth
+					<FormGroup>
+						<TextField
+							label='Squares Name'
+							value={formData.boardName}
+							helperText='Create a name for your Squares board'
+							onChange={(e) => setFormData({ ...formData, boardName: e.target.value })}
+							fullWidth
+							size='small'
+						/>
+
+						<FormControlLabel
+							control={
+								<Checkbox
+									defaultChecked
+									value={showPhoneInput}
+									checked={showPhoneInput}
+									onChange={handleTogglePhoneInput}
+								/>
+							}
+							label='Send me the link to my Squares board'
+							sx={{
+								'.MuiButtonBase-root': { padding: '9px' },
+								'.MuiTypography-root': { fontSize: '.8rem' },
+							}}
+						/>
+
+						{showPhoneNumberWarning && <PhoneNumberWarning onClose={handlePhoneNumberWarningClose} />}
+
+						{showPhoneInput && (
+							<MuiTelInput
 								size='small'
-							/>
-							<br />
-							<br />
-							{view === 'Load' && (
-								<>
-									<FormControl sx={{ flexDirection: 'row', alignItems: 'center', marginTop: '-1em' }}>
-										<FormLabel>I am the admin</FormLabel>
-										<Checkbox
-											value={!!formData.isAdmin}
-											onChange={(e) => setFormData({ ...formData, isAdmin: e.target.checked })}
-										/>
-									</FormControl>
-									<br />
-								</>
-							)}
-							{(view === 'Create' || !formData.isAdmin) && (
-								<>
-									<TextField
-										label='User Code'
-										value={formData.userCode}
-										helperText={
-											view === 'Create'
-												? 'Create a code to share with your participants'
-												: 'The code required to access your Squares'
-										}
-										onChange={(e) =>
-											setFormData({
-												...formData,
-												userCode: e.target.value,
-												adminCode: view === 'Load' ? '' : formData.adminCode,
-											})
-										}
-										fullWidth
-										size='small'
-									/>
-									<br />
-									<br />
-								</>
-							)}
-							{(view === 'Create' || formData.isAdmin) && (
-								<>
-									<TextField
-										label='Admin Code'
-										value={formData.adminCode}
-										helperText={
-											view === 'Create'
-												? 'Create a code that you will use as the admin'
-												: 'The code required to administer your Squares'
-										}
-										onChange={(e) =>
-											setFormData({
-												...formData,
-												adminCode: e.target.value,
-												userCode: view === 'Load' ? '' : formData.userCode,
-											})
-										}
-										fullWidth
-										size='small'
-									/>
-								</>
-							)}
-							{view === 'Create' && (
-								<Box sx={{ width: '100%' }}>
-									{['horizontal', 'vertical'].map((teamSide) => (
-										<FormControl variant='filled' fullWidth sx={{ mb: 1, mt: 1 }} size='small'>
-											<InputLabel sx={{ color: 'white !important', textTransform: 'capitalize' }}>
-												{teamSide} Team
-											</InputLabel>
-											<Select
-												value={formData.teams[teamSide].name}
-												label={`${teamSide} Team`}
-												sx={{ backgroundColor: `${formData.teams[teamSide].color} !important`, color: 'white' }}
-											>
-												{nflTeams.map(({ code, location, name, color }) => (
-													<MenuItem
-														sx={{ backgroundColor: color, color: 'white', '&:hover': { color } }}
-														key={name}
-														value={name}
-														onClick={() =>
-															setFormData({
-																...formData,
-																teams: { ...formData.teams, [teamSide]: { code, location, name, color } },
-															})
-														}
-													>
-														{`${location} ${name}`}
-													</MenuItem>
-												))}
-											</Select>
-										</FormControl>
-									))}
-								</Box>
-							)}
-							<Button
+								defaultCountry='US'
+								forceCallingCode
+								disableDropdown
+								value={formData.phoneNumber}
+								onChange={(value) => setFormData({ ...formData, phoneNumber: value })}
 								fullWidth
-								disabled={isSubmitDisabled}
-								variant='contained'
-								onClick={() => (view === 'Create' ? handleCreate() : handleLoad(formData))}
-							>
-								{view}
-							</Button>
-						</div>
-					)}
+								sx={{ marginBottom: '1em' }}
+							/>
+						)}
+
+						{/* Disabled team selection */ false && <TeamSelectionMenu />}
+
+						<Button
+							fullWidth
+							disabled={!formData.boardName || (showPhoneInput && formData.phoneNumber.length !== 15)}
+							variant='contained'
+							onClick={handleCreate}
+						>
+							Create
+						</Button>
+					</FormGroup>
 				</Paper>
 			</FadeContainer>
 		</Paper>

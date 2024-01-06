@@ -7,8 +7,10 @@ async function handlePut(event) {
 }
 
 const updateBoard = async (event) => {
-	const { boardName, row, col, value, operation, scores = {} } = JSON.parse(event.body);
-	const { Item } = await getSquaresBoard(boardName);
+	const { id, boardName, row, col, value, operation, scores = {} } = JSON.parse(event.body);
+	console.log('requesting table');
+	const { Item } = await getSquaresBoard(id);
+	console.log('received table');
 	switch (operation) {
 		case 'select':
 			if (!Item.gridData[row][col]) {
@@ -29,11 +31,10 @@ const updateBoard = async (event) => {
 				col,
 				winner,
 			};
-			const boardDeepLink = encodeURI(
-				`https://squares.billycougan.com?boardName=${boardName}&userCode=${Item.userCode}&anchor=results`
-			);
+			// ToDo: Handle the static URL (LVIII will change)
+			const boardDeepLink = encodeURI(`https://squares-lviii.com?id=${id}&anchor=results`);
 			const smsMessage = `The ${quarter} Squares results for ${boardName} are in. With a score of ${Item.teams.horizontal.name}: ${scores.horizontal}, ${Item.teams.vertical.name}: ${scores.vertical}, the win goes to ${winner}!\n\nTap the following link to open your Squares board.\n\n${boardDeepLink}`;
-			await publishMessage(smsMessage, boardName);
+			await publishMessage(smsMessage, id);
 			break;
 		case 'numbers':
 			const ordered = Array.from(Array(10).keys());
@@ -57,7 +58,7 @@ const updateBoard = async (event) => {
 			break;
 	}
 	const updateRequest = {
-		TableName: 'SquaresTable',
+		TableName: 'SquaresTable-v2',
 		Item,
 	};
 	// Using dynamo.put() rather than dynamo.update() because put is simpler

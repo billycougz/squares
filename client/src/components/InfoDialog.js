@@ -7,36 +7,37 @@ import { Box, Button, List, ListItem, MobileStepper, Typography } from '@mui/mat
 import { useState } from 'react';
 import { KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material';
 
-const steps = [
-	{
-		heading: 'Squares Basics',
-		content: (
-			<Box sx={{ '> *': { marginBottom: '1em !important' } }}>
-				<Typography>Squares is simple. Enter your initials once, then tap any square to claim it.</Typography>
-				<Typography>
-					To receive notifications at the end of each quarter, tap the blue message icon next to your initials.
-				</Typography>
-				{true ? (
-					<>
-						<Typography>As admin, you have several controls that other users do not.</Typography>
-						<ul style={{ paddingLeft: '20px' }}>
-							<li>Set the square price and payouts</li>
-							<li>Set the square board numbers</li>
-							<li>Enter the quarterly results</li>
-							<li>Remove square claims</li>
-						</ul>
-					</>
-				) : (
-					<Typography>Reach out to your admin for more info.</Typography>
-				)}
-			</Box>
-		),
-	},
-];
-
 export default function InfoDialog({ onClose, isAdmin }) {
 	const [activeStepIndex, setActiveStepIndex] = useState(0);
 	const { heading, content } = steps[activeStepIndex];
+
+	const steps = [
+		{
+			heading: 'Squares Basics',
+			content: (
+				<Box sx={{ '> *': { marginBottom: '1em !important' } }}>
+					<Typography>Squares is simple. Enter your initials once, then tap any square to claim it.</Typography>
+					<Typography>
+						To receive notifications at the end of each quarter, tap the blue message icon next to your initials.
+					</Typography>
+					{isAdmin ? (
+						<>
+							<Typography>As admin, you have several controls that other users do not.</Typography>
+							<ul style={{ paddingLeft: '20px' }}>
+								<li>Set the square price and payouts</li>
+								<li>Set the square board numbers</li>
+								<li>Enter the quarterly results</li>
+								<li>Remove square claims</li>
+							</ul>
+						</>
+					) : (
+						<Typography>Reach out to your admin for more info.</Typography>
+					)}
+				</Box>
+			),
+		},
+	];
+
 	return (
 		<Dialog open={true} onClose={onClose} sx={{ '.MuiDialog-paper': { margin: '0 !important' } }}>
 			<DialogTitle sx={{ display: 'flex', justifyContent: 'space-between' }}>

@@ -2,13 +2,13 @@ const { sns } = require('./AWS');
 
 const TopicArn = 'arn:aws:sns:us-east-1:210534634664:SquaresTopic';
 
-async function publishMessage(Message, boardName) {
+async function publishMessage(Message, id) {
 	const params = {
 		Message,
 		MessageAttributes: {
-			boardName: {
+			boardId: {
 				DataType: 'String',
-				StringValue: boardName,
+				StringValue: id,
 			},
 		},
 		TopicArn: TopicArn,
@@ -43,7 +43,7 @@ async function sendSmsMessage(phoneNumber, message) {
 	}
 }
 
-async function subscribeToBoard(boardName, phoneNumber) {
+async function subscribeToBoard(id, phoneNumber) {
 	try {
 		// Check if phone number is already subscribed to SNS topic
 		const listSubscriptionsResponse = await sns.listSubscriptionsByTopic({ TopicArn }).promise();
@@ -56,12 +56,12 @@ async function subscribeToBoard(boardName, phoneNumber) {
 				.promise();
 			subscription.Attributes = Attributes;
 			const existingFilterPolicy = JSON.parse(subscription.Attributes.FilterPolicy);
-			if (existingFilterPolicy?.boardName?.some((name) => name === boardName)) {
-				const msg = 'This phone number is already subscribed to this board.';
+			if (existingFilterPolicy?.boardId?.some((existingId) => existingId === id)) {
+				const msg = 'This phone number is already subscribed.';
 				console.log(msg);
 				return { msg };
 			}
-			existingFilterPolicy.boardName.push(boardName);
+			existingFilterPolicy.boardId.push(id);
 			const setSubscriptionAttributesResponse = await sns
 				.setSubscriptionAttributes({
 					SubscriptionArn: subscription.SubscriptionArn,
@@ -80,14 +80,14 @@ async function subscribeToBoard(boardName, phoneNumber) {
 					TopicArn,
 					Endpoint: phoneNumber,
 					Attributes: {
-						FilterPolicy: JSON.stringify({ boardName: [boardName] }),
+						FilterPolicy: JSON.stringify({ boardId: [id] }),
 					},
 				})
 				.promise();
 
 			console.log(
 				`Successfully subscribed phone number to SNS topic with filter policy: ${JSON.stringify({
-					boardName: [boardName],
+					boardId: [id],
 				})}`
 			);
 			console.log(`Response: ${JSON.stringify(subscribeResponse)}`);

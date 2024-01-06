@@ -8,7 +8,7 @@ const BASE_URL =
 export const createBoard = async (boardData) => {
 	try {
 		const body = {
-			TableName: 'SquaresTable',
+			TableName: 'SquaresTable-v2',
 			Item: boardData,
 		};
 		const { data } = await axios.post(BASE_URL, body);
@@ -27,13 +27,10 @@ export const updateBoard = async (updateData) => {
 	}
 };
 
-export const loadBoard = async ({ boardName, adminCode, userCode }) => {
+export const loadBoard = async ({ id, boardName, adminCode }) => {
 	try {
-		userCode = adminCode ? undefined : userCode;
-		let url = `${BASE_URL}?TableName=SquaresTable&boardName=${boardName}`;
-		if (userCode) {
-			url += `&userCode=${userCode}`;
-		} else if (adminCode) {
+		let url = `${BASE_URL}?TableName=SquaresTable-v2&id=${id}`;
+		if (adminCode) {
 			url += `&adminCode=${adminCode}`;
 		}
 		const { data } = await axios.get(url);

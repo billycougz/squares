@@ -19,7 +19,7 @@ const hideOnLandscapeStyles = {
 };
 
 export default function SquaresPage({ boardData, onUpdate, onHomeClick }) {
-	const { gridData, boardName, results, isAdmin, anchor } = boardData;
+	const { id, gridData, boardName, results, isAdmin, anchor } = boardData;
 
 	const [initials, setInitials] = useLocalStorage('squares-initials', '');
 	const [view, setView] = useState('board');
@@ -40,10 +40,14 @@ export default function SquaresPage({ boardData, onUpdate, onHomeClick }) {
 			if (winner === initials) {
 				setSnackbarMessage('Congratulations, you won the latest squares quarter!');
 			}
-		} else if (!initials) {
-			setShowInfoDialog(true);
 		}
 	}, [boardData]);
+
+	useEffect(() => {
+		if (!initials) {
+			setShowInfoDialog(true);
+		}
+	}, []);
 
 	const highlightColor = '#1876d1';
 
@@ -71,6 +75,7 @@ export default function SquaresPage({ boardData, onUpdate, onHomeClick }) {
 			<Grid container spacing={2} sx={{ marginBottom: '5px' }}>
 				<Grid xs={12} sm={isAdmin ? 5 : 6}>
 					<InitialsBox
+						id={id}
 						initials={initials}
 						boardName={boardName}
 						onChange={setInitials}
@@ -87,21 +92,23 @@ export default function SquaresPage({ boardData, onUpdate, onHomeClick }) {
 					<ResultsPanel boardData={boardData} initials={initials} anchor={anchor} />
 				</Grid>
 			</Grid>
-			<Grid
-				xs={12}
-				component={Paper}
-				sx={{
-					display: 'flex',
-					flexWrap: 'wrap',
-					justifyContent: 'space-evenly',
-					border: `solid 1px rgb(133, 133, 133)`,
-				}}
-			>
-				<Tabs color='primary' value={clickMode} size='small' onChange={(e, v) => setClickMode(v)}>
-					<Tab label='Select' value='select' />
-					<Tab label='Remove' value='remove' />
-				</Tabs>
-			</Grid>
+			{isAdmin && (
+				<Grid
+					xs={12}
+					component={Paper}
+					sx={{
+						display: 'flex',
+						flexWrap: 'wrap',
+						justifyContent: 'space-evenly',
+						border: `solid 1px rgb(133, 133, 133)`,
+					}}
+				>
+					<Tabs color='primary' value={clickMode} size='small' onChange={(e, v) => setClickMode(v)}>
+						<Tab label='Select' value='select' />
+						<Tab label='Remove' value='remove' />
+					</Tabs>
+				</Grid>
+			)}
 			<SquaresGrid
 				boardData={boardData}
 				initials={initials}
@@ -139,28 +146,31 @@ export default function SquaresPage({ boardData, onUpdate, onHomeClick }) {
 					<Box sx={{ marginTop: '1em' }}>
 						<Box sx={{ ...hideOnLandscapeStyles }}>
 							<InitialsBox
+								id={id}
 								initials={initials}
 								boardName={boardName}
 								onChange={setInitials}
 								setSnackbarMessage={setSnackbarMessage}
 							/>
 						</Box>
-						<Grid
-							xs={12}
-							component={Paper}
-							sx={{
-								mt: '1em',
-								display: 'flex',
-								flexWrap: 'wrap',
-								justifyContent: 'space-evenly',
-								border: `solid 1px rgb(133, 133, 133)`,
-							}}
-						>
-							<Tabs color='primary' value={clickMode} size='small' onChange={(e, v) => setClickMode(v)}>
-								<Tab label='Select' value='select' />
-								<Tab label='Remove' value='remove' />
-							</Tabs>
-						</Grid>
+						{isAdmin && (
+							<Grid
+								xs={12}
+								component={Paper}
+								sx={{
+									mt: '1em',
+									display: 'flex',
+									flexWrap: 'wrap',
+									justifyContent: 'space-evenly',
+									border: `solid 1px rgb(133, 133, 133)`,
+								}}
+							>
+								<Tabs color='primary' value={clickMode} size='small' onChange={(e, v) => setClickMode(v)}>
+									<Tab label='Select' value='select' />
+									<Tab label='Remove' value='remove' />
+								</Tabs>
+							</Grid>
+						)}
 						<SquaresGrid
 							boardData={boardData}
 							initials={initials}
