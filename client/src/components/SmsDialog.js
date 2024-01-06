@@ -23,7 +23,7 @@ export default function SmsDialog({ open, onClose, onSave, boardName, initials }
 				<DialogContent>
 					<DialogContentText>
 						<VerifiedIcon color='primary' sx={{ mb: '-5px', pr: 1 }} />
-						<strong>{storedNumber}</strong> is subscribed to <strong> {boardName}</strong>.
+						<strong>{storedNumber}</strong> is subscribed.
 					</DialogContentText>
 				</DialogContent>
 				<DialogActions>

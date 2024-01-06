@@ -7,7 +7,7 @@ async function handlePut(event) {
 }
 
 const updateBoard = async (event) => {
-	const { boardName, row, col, value, operation } = JSON.parse(event.body);
+	const { boardName, row, col, value, operation, scores = {} } = JSON.parse(event.body);
 	const { Item } = await getSquaresBoard(boardName);
 	switch (operation) {
 		case 'select':
@@ -20,13 +20,20 @@ const updateBoard = async (event) => {
 			break;
 		case 'result':
 			const { gridData } = Item;
+			const quarter = Item.results[value].quarter;
+			const winner = gridData[row][col];
 			Item.results[value] = {
-				quarter: Item.results[value].quarter,
-				horizontal: gridData[row][0],
-				vertical: gridData[0][col],
-				winner: gridData[row][col],
+				quarter,
+				scores,
+				row,
+				col,
+				winner,
 			};
-			await publishMessage(boardName, Item.userCode);
+			const boardDeepLink = encodeURI(
+				`https://squares.billycougan.com?boardName=${boardName}&userCode=${Item.userCode}&anchor=results`
+			);
+			const smsMessage = `The ${quarter} Squares results for ${boardName} are in. With a score of ${Item.teams.horizontal.name}: ${scores.horizontal}, ${Item.teams.vertical.name}: ${scores.vertical}, the win goes to ${winner}!\n\nTap the following link to open your Squares board.\n\n${boardDeepLink}`;
+			await publishMessage(smsMessage, boardName);
 			break;
 		case 'numbers':
 			const ordered = Array.from(Array(10).keys());

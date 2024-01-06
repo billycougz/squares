@@ -2,19 +2,16 @@ const { sns } = require('./AWS');
 
 const TopicArn = 'arn:aws:sns:us-east-1:210534634664:SquaresTopic';
 
-async function publishMessage(boardName, userCode) {
-	const boardDeepLink = encodeURI(
-		`https://squares.billycougan.com?boardName=${boardName}&userCode=${userCode}&anchor=results`
-	);
+async function publishMessage(Message, boardName) {
 	const params = {
-		Message: `The quarterly squares results have been entered for ${boardName} ${boardDeepLink}.`,
+		Message,
 		MessageAttributes: {
 			boardName: {
 				DataType: 'String',
 				StringValue: boardName,
 			},
 		},
-		TopicArn: 'arn:aws:sns:us-east-1:210534634664:SquaresTopic',
+		TopicArn: TopicArn,
 	};
 
 	try {

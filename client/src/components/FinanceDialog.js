@@ -46,7 +46,7 @@ export default function FinanceDialog({ open, onClose, onSave, children, boardDa
 	);
 
 	return (
-		<Dialog open={open} onClose={onClose} fullWidth>
+		<Dialog open={true} onClose={onClose} fullWidth>
 			<DialogTitle>Square Finances</DialogTitle>
 			<DialogContent>
 				<TextField

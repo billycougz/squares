@@ -1,15 +1,26 @@
-import { useState } from 'react';
-import { FormControlLabel, Paper, Radio, RadioGroup, Tab, Tabs, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Unstable_Grid2';
 import { Alert } from '@mui/material';
 import { updateBoard } from '../../api';
 import Square from '../../components/Square';
+import AspectRatioIcon from '@mui/icons-material/AspectRatio';
+import styled from '@emotion/styled';
 
-export default function SquaresGrid({ boardData, initials, setSnackbarMessage, onUpdate, squareMap, highlightColor }) {
-	const { gridData, boardName, isAdmin, squarePrice, teams } = boardData;
-	const [resultQuarterIndex, setResultQuarterIndex] = useState(0);
-	const [clickMode, setClickMode] = useState('select');
+const ExpandButton = styled.div`
+	position: absolute;
+`;
+
+export default function SquaresGrid({
+	boardData,
+	initials,
+	setSnackbarMessage,
+	onUpdate,
+	squareMap,
+	highlightColor,
+	clickMode,
+}) {
+	const { gridData, boardName, isAdmin, squarePrice, teams, results } = boardData;
 
 	const handleSquareClick = async ([row, col]) => {
 		if (!row || !col) {
@@ -24,11 +35,8 @@ export default function SquaresGrid({ boardData, initials, setSnackbarMessage, o
 			setSnackbarMessage('Please enter your initials before selecting a square.');
 			return;
 		}
-		const value = clickMode === 'remove' ? null : clickMode === 'result' ? resultQuarterIndex : initials;
+		const value = clickMode === 'remove' ? null : initials;
 		const { Item } = await updateBoard({ boardName, row, col, operation: clickMode, value });
-		if (clickMode === 'result') {
-			setSnackbarMessage(`Q${Number(resultQuarterIndex) + 1} results saved.`);
-		}
 		if (clickMode === 'remove') {
 			setSnackbarMessage('Square removed.');
 		}
@@ -51,48 +59,23 @@ export default function SquaresGrid({ boardData, initials, setSnackbarMessage, o
 		} else if (!col && row) {
 			return horizontal.color;
 		}
+		if (resultMap[row]?.[col]) {
+			return 'rgb(102, 187, 106)';
+		}
 		if (gridData[row][col] === initials) {
 			return highlightColor;
 		}
 		return '';
 	};
+
+	const resultMap = getResultCellMap(results);
+
 	return (
 		<Box>
-			<Alert
-				variant='outlined'
-				severity='warning'
-				sx={{ marginTop: '1em', background: 'white', display: { xs: 'flex', sm: 'none' } }}
-			>
-				Flip to landscape for roomier squares.
-			</Alert>
-			{isAdmin && (
-				<Grid
-					xs={12}
-					component={Paper}
-					sx={{
-						mt: '1em',
-						display: 'flex',
-						flexWrap: 'wrap',
-						justifyContent: 'space-evenly',
-						border: `solid 1px rgb(133, 133, 133)`,
-					}}
-				>
-					<Tabs color='primary' value={clickMode} size='small' onChange={(e, v) => setClickMode(v)}>
-						<Tab label='Select' value='select' />
-						<Tab label='Remove' value='remove' />
-						<Tab label='Result' value='result' />
-					</Tabs>
-
-					{clickMode === 'result' && (
-						<RadioGroup row value={resultQuarterIndex} onChange={(e) => setResultQuarterIndex(e.target.value)}>
-							{['Q1', 'Q2', 'Q3', 'Q4'].map((quarter, index) => (
-								<FormControlLabel key={quarter} value={index} control={<Radio />} label={quarter} />
-							))}
-						</RadioGroup>
-					)}
-				</Grid>
-			)}
 			<Grid container>
+				{/* <ExpandButton>
+					<AspectRatioIcon />
+				</ExpandButton> */}
 				<Grid xs sx={{ width: '47px', flexGrow: '0', flexBasis: 'auto' }} />
 				<Grid xs sx={{ flexGrow: 'calc(1/11 + .009)' }} />
 				<Grid
@@ -171,6 +154,7 @@ export default function SquaresGrid({ boardData, initials, setSnackbarMessage, o
 								value={value}
 								location={[rowIndex, colIndex]}
 								backgroundColor={getCellColor(rowIndex, colIndex)}
+								resultQuarters={resultMap[rowIndex]?.[colIndex]?.join(',')}
 								onClick={handleSquareClick}
 								adminMode={clickMode}
 							/>
@@ -178,6 +162,25 @@ export default function SquaresGrid({ boardData, initials, setSnackbarMessage, o
 					</Grid>
 				))}
 			</Grid>
+			<Alert
+				variant='outlined'
+				severity='warning'
+				sx={{ marginTop: '1em', background: 'white', display: { xs: 'flex', sm: 'none' } }}
+			>
+				Flip to landscape for roomier squares.
+			</Alert>
 		</Box>
 	);
+}
+
+function getResultCellMap(results) {
+	return results.reduce((map, result) => {
+		const { row, col, quarter } = result;
+		if (result.row) {
+			map[row] = map[row] || {};
+			map[row][col] = map[row][col] || [];
+			map[row][col].push(quarter);
+		}
+		return map;
+	}, {});
 }

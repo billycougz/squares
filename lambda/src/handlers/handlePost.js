@@ -7,7 +7,7 @@ const handlePost = async (event) => {
 	if (operation === 'subscribe') {
 		const response = await subscribeToBoard(boardName, phoneNumber);
 		if (response.msg === 'Successfully subscribed to board notifications.') {
-			const msg = `You've successfully subscribed to Squares notifications for ${boardName}.`;
+			const msg = `You've successfully subscribed to Squares notifications for ${boardName}.\n\nConsider adding this phone number to your contacts.`;
 			await sendSmsMessage(phoneNumber, msg);
 		}
 		return response;

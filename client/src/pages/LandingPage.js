@@ -15,10 +15,33 @@ import {
 	Tabs,
 	Tab,
 	Box,
+	FormHelperText,
 } from '@mui/material';
 import { useDocumentTitle } from 'usehooks-ts';
 import { createBoard, loadBoard } from '../api';
 import Loader from '../components/Loader';
+import styled from '@emotion/styled';
+import LandingInfoDialog from '../components/LandingInfoDialog';
+
+const FadeContainer = styled.div`
+	opacity: ${({ $fadeIn }) => ($fadeIn ? 1 : 0)};
+	transition: opacity 1s ease-in-out;
+	transition-delay: 1s;
+	top: 30px;
+	position: relative;
+	max-width: 500px;
+	margin: auto;
+	margin-bottom: 150px;
+`;
+
+const TitleContainer = styled.div`
+	position: relative;
+	top: ${({ $fadeIn }) => ($fadeIn ? 2 : 50)}%;
+	left: 50%;
+	transform: ${({ $fadeIn }) => ($fadeIn ? 'translateX(-50%)' : 'translate(-50%, -50%)')};
+	transition: top 1s ease-out, transform 1s ease-out;
+	width: 100vw;
+`;
 
 export default function LandingPage({ onBoardLoaded, recentSquares }) {
 	const [view, setView] = useState('select');
@@ -32,6 +55,8 @@ export default function LandingPage({ onBoardLoaded, recentSquares }) {
 		},
 	});
 	const [isLoading, setIsLoading] = useState(false);
+	const [fadeIn, setFadeIn] = useState(false);
+	const [showInfo, setShowInfo] = useState(false);
 
 	useDocumentTitle('Squares');
 
@@ -48,6 +73,10 @@ export default function LandingPage({ onBoardLoaded, recentSquares }) {
 			}
 		};
 		handleUrlParams();
+		const timer = setTimeout(() => {
+			setFadeIn(true);
+		}, 2000);
+		return () => clearTimeout(timer);
 	}, []);
 
 	const handleCreate = async () => {
@@ -81,151 +110,188 @@ export default function LandingPage({ onBoardLoaded, recentSquares }) {
 	return (
 		<Paper
 			sx={{
-				padding: '1em',
-				width: 'fit-content',
 				textAlign: 'center',
-				padding: '1em 2em',
-				margin: 'auto',
+				padding: '1em',
+				borderRadius: '0',
+				backgroundColor: 'rgb(25, 118, 210)',
+				color: 'white',
+				height: '100vh',
+				overflow: 'scroll',
 			}}
 		>
 			<Loader open={isLoading} />
-			<Typography variant='h1'>Squares</Typography>
-			<Typography variant='subtitle1'>Digital Football Squares</Typography>
-			{recentSquares.length ? (
-				<FormControl fullWidth sx={{ margin: '1em 0' }} size='small'>
-					<InputLabel>Recent Squares</InputLabel>
-					<Select value='' label='Recent Squares'>
-						{recentSquares.map((squaresData, index) => (
-							<MenuItem
-								key={`${squaresData.boardName}-${index}`}
-								value={squaresData.boardName}
-								onClick={() => handleLoad(squaresData)}
-							>
-								{squaresData.boardName}
-							</MenuItem>
-						))}
-					</Select>
-				</FormControl>
-			) : (
-				''
-			)}
-			<br />
-			<ToggleButtonGroup color='primary' value={view} exclusive onChange={(e) => setView(e.target.value)}>
-				<ToggleButton value='Create'>Create New Squares</ToggleButton>
-				<ToggleButton value='Load'>Load Existing Squares</ToggleButton>
-			</ToggleButtonGroup>
-			<br />
 
-			<br />
-			{view !== 'select' && (
-				<div>
-					<TextField
-						label='Squares Name'
-						value={formData.boardName}
-						helperText={view === 'Create' ? 'Create a name for your Squares board' : 'The name of your Squares board'}
-						onChange={(e) => setFormData({ ...formData, boardName: e.target.value })}
-						fullWidth
-					/>
-					<br />
-					<br />
-					{view === 'Load' && (
-						<>
-							<FormControl sx={{ flexDirection: 'row', alignItems: 'center', marginTop: '-1em' }}>
-								<FormLabel>I am the admin</FormLabel>
-								<Checkbox
-									value={!!formData.isAdmin}
-									onChange={(e) => setFormData({ ...formData, isAdmin: e.target.checked })}
-								/>
-							</FormControl>
-							<br />
-						</>
-					)}
-					{(view === 'Create' || !formData.isAdmin) && (
-						<>
-							<TextField
-								label='User Code'
-								value={formData.userCode}
-								helperText={
-									view === 'Create'
-										? 'Create a code to share with your participants'
-										: 'The code required to access your Squares'
-								}
-								onChange={(e) =>
-									setFormData({
-										...formData,
-										userCode: e.target.value,
-										adminCode: view === 'Load' ? '' : formData.adminCode,
-									})
-								}
-								fullWidth
-							/>
-							<br />
-							<br />
-						</>
-					)}
-					{(view === 'Create' || formData.isAdmin) && (
-						<>
-							<TextField
-								label='Admin Code'
-								value={formData.adminCode}
-								helperText={
-									view === 'Create'
-										? 'Create a code that you will use as the admin'
-										: 'The code required to administer your Squares'
-								}
-								onChange={(e) =>
-									setFormData({
-										...formData,
-										adminCode: e.target.value,
-										userCode: view === 'Load' ? '' : formData.userCode,
-									})
-								}
-								fullWidth
-							/>
-						</>
-					)}
-					{view === 'Create' && (
-						<Box sx={{ width: '100%' }}>
-							{['horizontal', 'vertical'].map((teamSide) => (
-								<FormControl variant='filled' fullWidth sx={{ mb: 1, mt: 1 }} size='small'>
-									<InputLabel sx={{ color: 'white !important', textTransform: 'capitalize' }}>
-										{teamSide} Team
-									</InputLabel>
-									<Select
-										value={formData.teams[teamSide].name}
-										label={`${teamSide} Team`}
-										sx={{ backgroundColor: `${formData.teams[teamSide].color} !important`, color: 'white' }}
+			<TitleContainer $fadeIn={fadeIn}>
+				<img src='/kara-logo-plays.png' alt='Squares Logo' height='100' />
+				<Typography variant='h1' sx={{ mt: '-30px' }}>
+					Squares
+				</Typography>
+				<Typography sx={{ letterSpacing: '3px', textTransform: 'uppercase', marginTop: '' }}>
+					Digital football squares
+				</Typography>
+			</TitleContainer>
+
+			<FadeContainer $fadeIn={fadeIn}>
+				<Button variant='outlined' sx={{ color: 'white', borderColor: 'white' }} onClick={() => setShowInfo(true)}>
+					How to play
+				</Button>
+				{showInfo && <LandingInfoDialog onClose={() => setShowInfo(false)} />}
+				{Boolean(recentSquares.length) && (
+					<Paper sx={{ padding: '1em', marginTop: '1em' }}>
+						<Typography variant='h5' sx={{ opacity: '.69', textAlign: 'left', marginBottom: '8px' }}>
+							Your Squares
+						</Typography>
+						<FormControl fullWidth size='small'>
+							<InputLabel sx={{ fontSize: '.8rem', marginTop: '3px' }}>SHOW RECENT SQUARES</InputLabel>
+							<Select value='' size='small'>
+								{recentSquares.map((squaresData, index) => (
+									<MenuItem
+										key={`${squaresData.boardName}-${index}`}
+										value={squaresData.boardName}
+										onClick={() => handleLoad(squaresData)}
 									>
-										{nflTeams.map(({ code, location, name, color }) => (
-											<MenuItem
-												sx={{ backgroundColor: color, color: 'white', '&:hover': { color } }}
-												key={name}
-												value={name}
-												onClick={() =>
-													setFormData({
-														...formData,
-														teams: { ...formData.teams, [teamSide]: { code, location, name, color } },
-													})
-												}
-											>
-												{`${location} ${name}`}
-											</MenuItem>
-										))}
-									</Select>
-								</FormControl>
-							))}
-						</Box>
-					)}
-					<Button
-						fullWidth
-						disabled={isSubmitDisabled}
-						variant='contained'
-						onClick={() => (view === 'Create' ? handleCreate() : handleLoad(formData))}
+										{squaresData.boardName}
+									</MenuItem>
+								))}
+							</Select>
+						</FormControl>
+					</Paper>
+				)}
+
+				<Paper sx={{ padding: '1em', marginTop: '1em' }}>
+					<Typography variant='h5' sx={{ opacity: '.69', textAlign: 'left', marginBottom: '8px' }}>
+						Get Started
+					</Typography>
+					<ToggleButtonGroup
+						size='small'
+						fullWidth='true'
+						value={view}
+						exclusive
+						onChange={(e) => setView(e.target.value)}
 					>
-						{view}
-					</Button>
-				</div>
-			)}
+						<ToggleButton value='Create'>Create Squares</ToggleButton>
+						<ToggleButton value='Load'>Find Squares</ToggleButton>
+					</ToggleButtonGroup>
+
+					{view !== 'select' && (
+						<div>
+							<br />
+							<TextField
+								label='Squares Name'
+								value={formData.boardName}
+								helperText={
+									view === 'Create'
+										? 'Create a unique name for your Squares board'
+										: 'The unique name of your Squares board'
+								}
+								onChange={(e) => setFormData({ ...formData, boardName: e.target.value })}
+								fullWidth
+								size='small'
+							/>
+							<br />
+							<br />
+							{view === 'Load' && (
+								<>
+									<FormControl sx={{ flexDirection: 'row', alignItems: 'center', marginTop: '-1em' }}>
+										<FormLabel>I am the admin</FormLabel>
+										<Checkbox
+											value={!!formData.isAdmin}
+											onChange={(e) => setFormData({ ...formData, isAdmin: e.target.checked })}
+										/>
+									</FormControl>
+									<br />
+								</>
+							)}
+							{(view === 'Create' || !formData.isAdmin) && (
+								<>
+									<TextField
+										label='User Code'
+										value={formData.userCode}
+										helperText={
+											view === 'Create'
+												? 'Create a code to share with your participants'
+												: 'The code required to access your Squares'
+										}
+										onChange={(e) =>
+											setFormData({
+												...formData,
+												userCode: e.target.value,
+												adminCode: view === 'Load' ? '' : formData.adminCode,
+											})
+										}
+										fullWidth
+										size='small'
+									/>
+									<br />
+									<br />
+								</>
+							)}
+							{(view === 'Create' || formData.isAdmin) && (
+								<>
+									<TextField
+										label='Admin Code'
+										value={formData.adminCode}
+										helperText={
+											view === 'Create'
+												? 'Create a code that you will use as the admin'
+												: 'The code required to administer your Squares'
+										}
+										onChange={(e) =>
+											setFormData({
+												...formData,
+												adminCode: e.target.value,
+												userCode: view === 'Load' ? '' : formData.userCode,
+											})
+										}
+										fullWidth
+										size='small'
+									/>
+								</>
+							)}
+							{view === 'Create' && (
+								<Box sx={{ width: '100%' }}>
+									{['horizontal', 'vertical'].map((teamSide) => (
+										<FormControl variant='filled' fullWidth sx={{ mb: 1, mt: 1 }} size='small'>
+											<InputLabel sx={{ color: 'white !important', textTransform: 'capitalize' }}>
+												{teamSide} Team
+											</InputLabel>
+											<Select
+												value={formData.teams[teamSide].name}
+												label={`${teamSide} Team`}
+												sx={{ backgroundColor: `${formData.teams[teamSide].color} !important`, color: 'white' }}
+											>
+												{nflTeams.map(({ code, location, name, color }) => (
+													<MenuItem
+														sx={{ backgroundColor: color, color: 'white', '&:hover': { color } }}
+														key={name}
+														value={name}
+														onClick={() =>
+															setFormData({
+																...formData,
+																teams: { ...formData.teams, [teamSide]: { code, location, name, color } },
+															})
+														}
+													>
+														{`${location} ${name}`}
+													</MenuItem>
+												))}
+											</Select>
+										</FormControl>
+									))}
+								</Box>
+							)}
+							<Button
+								fullWidth
+								disabled={isSubmitDisabled}
+								variant='contained'
+								onClick={() => (view === 'Create' ? handleCreate() : handleLoad(formData))}
+							>
+								{view}
+							</Button>
+						</div>
+					)}
+				</Paper>
+			</FadeContainer>
 		</Paper>
 	);
 }

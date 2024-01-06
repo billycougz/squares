@@ -9,10 +9,11 @@ import SmsDialog from '../../components/SmsDialog';
 
 export default function InitialsBox({ initials, onChange, boardName, setSnackbarMessage }) {
 	const [isSmsDialogOpen, setIsSmsDialogOpen] = useState(false);
+	const [initialsUnderChange, setInitialsUnderChange] = useState(initials);
 
 	const handleInitialsChange = (e) => {
 		const { value } = e.target;
-		onChange(value.toUpperCase());
+		onChange(initialsUnderChange);
 	};
 
 	const handleSmsSave = async ({ phoneNumber }) => {
@@ -33,8 +34,9 @@ export default function InitialsBox({ initials, onChange, boardName, setSnackbar
 				placeholder='Enter your initials...'
 				fullWidth
 				variant='outlined'
-				value={initials}
-				onChange={handleInitialsChange}
+				value={initialsUnderChange}
+				onChange={(e) => setInitialsUnderChange(e.target.value.toUpperCase())}
+				onBlur={handleInitialsChange}
 			/>
 			<Divider sx={{ height: '35px', mb: '5px' }} orientation='vertical' />
 			<IconButton color='primary' sx={{ p: '10px' }} onClick={() => setIsSmsDialogOpen(true)}>

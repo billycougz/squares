@@ -33,11 +33,11 @@ export default function ResultsPanel({ boardData, initials, anchor }) {
 				initials={initials}
 				highlightProperty='Winner'
 				headers={['Quarter', teams.horizontal.name, teams.vertical.name, 'Winner', squarePrice && 'Amount']}
-				rows={results.map(({ quarter, horizontal, vertical, winner }, index) => ({
+				rows={results.map(({ quarter, scores, winner }, index) => ({
 					Quarter: quarter,
 					Winner: winner,
-					[teams.horizontal.name]: horizontal,
-					[teams.vertical.name]: vertical,
+					[teams.horizontal.name]: scores?.horizontal,
+					[teams.vertical.name]: scores?.vertical,
 					Amount: getPayoutValue(index),
 				}))}
 			/>
