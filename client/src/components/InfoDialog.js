@@ -9,7 +9,6 @@ import { KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material';
 
 export default function InfoDialog({ onClose, isAdmin }) {
 	const [activeStepIndex, setActiveStepIndex] = useState(0);
-	const { heading, content } = steps[activeStepIndex];
 
 	const steps = [
 		{
@@ -37,6 +36,8 @@ export default function InfoDialog({ onClose, isAdmin }) {
 			),
 		},
 	];
+
+	const { heading, content } = steps[activeStepIndex];
 
 	return (
 		<Dialog open={true} onClose={onClose} sx={{ '.MuiDialog-paper': { margin: '0 !important' } }}>
