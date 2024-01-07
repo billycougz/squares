@@ -49,9 +49,9 @@ export default function SquaresGrid({
 			if (Item.gridData[row][col] !== initials) {
 				setSnackbarMessage('This square was taken by another player.');
 			} else {
-				const personalTotal = squareMap[initials] + 1;
+				const personalTotal = squareMap[initials] || 0 + 1;
 				const financeMsg = squarePrice ? ` and owe $${personalTotal * squarePrice}` : '';
-				setSnackbarMessage(`Square selected. You now have ${personalTotal} squares${financeMsg}.`);
+				setSnackbarMessage(`You now have ${personalTotal} squares${financeMsg}.`);
 			}
 		}
 		onUpdate({ ...Item, isAdmin });
