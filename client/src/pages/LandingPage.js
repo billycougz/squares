@@ -258,6 +258,7 @@ export default function LandingPage({}) {
 						{showPhoneNumberWarning && <PhoneNumberWarning onClose={handlePhoneNumberWarningClose} />}
 
 						<MuiTelInput
+							placeholder='Phone Number'
 							size='small'
 							defaultCountry='US'
 							forceCallingCode
