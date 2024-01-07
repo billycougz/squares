@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import {
 	Button,
 	Checkbox,
@@ -13,13 +13,14 @@ import {
 	FormControlLabel,
 	FormGroup,
 } from '@mui/material';
-import { useDocumentTitle } from 'usehooks-ts';
+import { useDocumentTitle, useLocalStorage } from 'usehooks-ts';
 import { createBoard, loadBoard } from '../api';
 import Loader from '../components/Loader';
 import styled from '@emotion/styled';
 import LandingInfoDialog from '../components/LandingInfoDialog';
 import { MuiTelInput } from 'mui-tel-input';
 import PhoneNumberWarning from '../components/PhoneNumberWarning';
+import AppContext from '../App/AppContext';
 
 const FadeContainer = styled.div`
 	opacity: ${({ $fadeIn }) => ($fadeIn ? 1 : 0)};
@@ -41,7 +42,7 @@ const TitleContainer = styled.div`
 	width: 100vw;
 `;
 
-export default function LandingPage({ onBoardLoaded, recentSquares }) {
+export default function LandingPage({}) {
 	const [formData, setFormData] = useState({
 		boardName: '',
 		userCode: '',
@@ -57,6 +58,19 @@ export default function LandingPage({ onBoardLoaded, recentSquares }) {
 	const [showInfo, setShowInfo] = useState(false);
 	const [showPhoneInput, setShowPhoneInput] = useState(true);
 	const [showPhoneNumberWarning, setShowPhoneNumberWarning] = useState(false);
+	const [recentSquares, setRecentSquares] = useLocalStorage('recent-squares', []);
+	const { boardData, setBoardData, boardInsights } = useContext(AppContext);
+
+	const updateRecentSquares = (currentSquares) => {
+		const previousSquares = recentSquares.filter((squares) => squares.boardName !== currentSquares.boardName);
+		setRecentSquares([{ ...currentSquares, anchor: undefined }, ...previousSquares]);
+	};
+
+	const handleBoardLoaded = (loadedBoard) => {
+		updateRecentSquares(loadedBoard);
+		setBoardData(loadedBoard);
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	};
 
 	useDocumentTitle('Squares');
 
@@ -84,7 +98,7 @@ export default function LandingPage({ onBoardLoaded, recentSquares }) {
 		delete formData.isAdmin;
 		const boardData = await createBoard(formData);
 		if (!boardData.error) {
-			onBoardLoaded({ ...boardData, isAdmin: true });
+			handleBoardLoaded({ ...boardData, isAdmin: true });
 		} else {
 			alert(boardData.error);
 		}
@@ -97,7 +111,7 @@ export default function LandingPage({ onBoardLoaded, recentSquares }) {
 		if (boardData.error) {
 			alert(boardData.error);
 		} else {
-			onBoardLoaded({ ...boardData, isAdmin: requestData.isAdmin, anchor: requestData.anchor });
+			handleBoardLoaded({ ...boardData, isAdmin: requestData.isAdmin, anchor: requestData.anchor });
 		}
 		setIsLoading(false);
 	};

@@ -1,7 +1,7 @@
 import { Paper, Snackbar, Tab, Tabs, Typography, useMediaQuery } from '@mui/material';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Unstable_Grid2';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useDocumentTitle, useLocalStorage } from 'usehooks-ts';
 import AdminPanel from './AdminPanel';
 import InitialsBox from './InitialsBox';
@@ -11,6 +11,7 @@ import SummaryPanel from './SummaryPanel';
 import CustomHeader from '../../components/Header';
 import InfoDialog from '../../components/InfoDialog';
 import SimpleBottomNavigation from '../../components/BottomNav';
+import AppContext from '../../App/AppContext';
 
 const hideOnLandscapeStyles = {
 	'@media only screen and (orientation: landscape)': {
@@ -18,7 +19,8 @@ const hideOnLandscapeStyles = {
 	},
 };
 
-export default function SquaresPage({ boardData, onUpdate, onHomeClick }) {
+export default function SquaresPage({}) {
+	const { boardData, setBoardData, boardInsights } = useContext(AppContext);
 	const { id, gridData, boardName, results, isAdmin, anchor } = boardData;
 
 	const [initials, setInitials] = useLocalStorage('squares-initials', '');
@@ -83,7 +85,7 @@ export default function SquaresPage({ boardData, onUpdate, onHomeClick }) {
 					/>
 				</Grid>
 				<Grid xs={12} sm={7} display={isAdmin ? '' : 'none'}>
-					<AdminPanel boardData={boardData} setSnackbarMessage={setSnackbarMessage} onUpdate={onUpdate} />
+					<AdminPanel boardData={boardData} setSnackbarMessage={setSnackbarMessage} onUpdate={setBoardData} />
 				</Grid>
 				<Grid xs={12} sm={isAdmin ? 5 : 6}>
 					<SummaryPanel boardData={boardData} initials={initials} squareMap={squareMap} />
@@ -112,7 +114,7 @@ export default function SquaresPage({ boardData, onUpdate, onHomeClick }) {
 			<SquaresGrid
 				boardData={boardData}
 				initials={initials}
-				onUpdate={onUpdate}
+				onUpdate={setBoardData}
 				setSnackbarMessage={setSnackbarMessage}
 				squareMap={squareMap}
 				highlightColor={highlightColor}
@@ -127,7 +129,7 @@ export default function SquaresPage({ boardData, onUpdate, onHomeClick }) {
 				<Grid container spacing={2}>
 					{view === 'admin' && (
 						<Grid xs={12}>
-							<AdminPanel boardData={boardData} setSnackbarMessage={setSnackbarMessage} onUpdate={onUpdate} />
+							<AdminPanel boardData={boardData} setSnackbarMessage={setSnackbarMessage} onUpdate={setBoardData} />
 						</Grid>
 					)}
 					{view === 'players' && (
@@ -174,7 +176,7 @@ export default function SquaresPage({ boardData, onUpdate, onHomeClick }) {
 						<SquaresGrid
 							boardData={boardData}
 							initials={initials}
-							onUpdate={onUpdate}
+							onUpdate={setBoardData}
 							setSnackbarMessage={setSnackbarMessage}
 							squareMap={squareMap}
 							highlightColor={highlightColor}
@@ -192,7 +194,11 @@ export default function SquaresPage({ boardData, onUpdate, onHomeClick }) {
 	return (
 		<div>
 			<Box sx={isMobile && hideOnLandscapeStyles}>
-				<CustomHeader boardName={boardName} onHomeClick={onHomeClick} onInfoClick={() => setShowInfoDialog(true)} />
+				<CustomHeader
+					boardName={boardName}
+					onHomeClick={() => setBoardData(null)}
+					onInfoClick={() => setShowInfoDialog(true)}
+				/>
 			</Box>
 
 			<Snackbar
