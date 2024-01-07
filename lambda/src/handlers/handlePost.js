@@ -22,8 +22,11 @@ const handleCreate = async (event) => {
 		return emptyValues.map(() => [...emptyValues]);
 	};
 
-	// Initialize the board
 	const requestBody = JSON.parse(event.body);
+	const { phoneNumber } = requestBody.Item;
+	delete requestBody.Item.phoneNumber;
+
+	// Initialize the board
 	requestBody.Item.createdAt = Date.now();
 	requestBody.Item.id = uuidv4();
 	requestBody.Item.adminCode = uuidv4();
@@ -36,12 +39,14 @@ const handleCreate = async (event) => {
 	// Create the board
 	await dynamo.put(requestBody).promise();
 
-	if (requestBody.Item.phoneNumber) {
+	if (phoneNumber) {
 		// Send details to the board creator
 		const userLink = `https://squares-lviii.com/?id=${requestBody.Item.id}`;
 		const adminLink = `${userLink}&adminCode=${requestBody.Item.adminCode}`;
-		const message = `Your Squares board ${requestBody.Item.boardName} is ready!\n\nUse this link to administer your board:\n\n${adminLink}\n\nShare this link with your participants:\n\n${userLink}.`;
-		sendSmsMessage(requestBody.Item.phoneNumber, message);
+		const message = `Your Squares board ${requestBody.Item.boardName} is ready!\n\nUse this link to administer your board (keep it to yourself):\n\n${adminLink}\n\nShare this link with your participants:\n\n${userLink}.`;
+		await sendSmsMessage(phoneNumber, message);
+		await subscribeToBoard(requestBody.Item.id, phoneNumber);
+		requestBody.Item.subscribedPhoneNumber = phoneNumber;
 	}
 
 	return requestBody.Item;

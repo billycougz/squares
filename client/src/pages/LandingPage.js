@@ -21,6 +21,7 @@ import LandingInfoDialog from '../components/LandingInfoDialog';
 import { MuiTelInput } from 'mui-tel-input';
 import PhoneNumberWarning from '../components/PhoneNumberWarning';
 import AppContext from '../App/AppContext';
+import { AdminPanelSettingsRounded } from '@mui/icons-material';
 
 const FadeContainer = styled.div`
 	opacity: ${({ $fadeIn }) => ($fadeIn ? 1 : 0)};
@@ -53,10 +54,10 @@ export default function LandingPage({}) {
 			vertical: nflTeams.find((team) => team.default === 'vertical'),
 		},
 	});
+	const [formErrors, setFormErrors] = useState({});
 	const [isLoading, setIsLoading] = useState(false);
 	const [fadeIn, setFadeIn] = useState(false);
 	const [showInfo, setShowInfo] = useState(false);
-	const [showPhoneInput, setShowPhoneInput] = useState(true);
 	const [showPhoneNumberWarning, setShowPhoneNumberWarning] = useState(false);
 	const [recentSquares, setRecentSquares] = useLocalStorage('recent-squares', []);
 	const { boardData, setBoardData, boardInsights } = useContext(AppContext);
@@ -93,11 +94,35 @@ export default function LandingPage({}) {
 		return () => clearTimeout(timer);
 	}, []);
 
+	const handleCreateClick = async () => {
+		console.log(formData.phoneNumber);
+		const errors = {
+			boardName: !Boolean(formData.boardName),
+			phoneNumber: !Boolean(!formData.phoneNumber || (formData.phoneNumber && formData.phoneNumber.length === 15)),
+		};
+		if (Object.values(errors).some((value) => value)) {
+			setFormErrors(errors);
+			return;
+		}
+		if (!formData.phoneNumber) {
+			setShowPhoneNumberWarning(true);
+			return;
+		}
+		handleCreate();
+	};
+
 	const handleCreate = async () => {
 		setIsLoading(true);
 		delete formData.isAdmin;
 		const boardData = await createBoard(formData);
-		if (!boardData.error) {
+		const { error, subscribedPhoneNumber, boardName } = boardData;
+		if (!error) {
+			if (subscribedPhoneNumber) {
+				const storedSubscriptions = JSON.parse(localStorage.getItem('squares-subscriptions')) || {};
+				storedSubscriptions[boardName] = storedSubscriptions[boardName] || {};
+				storedSubscriptions[boardName]['_ADMIN'] = subscribedPhoneNumber;
+				localStorage.setItem('squares-subscriptions', JSON.stringify(storedSubscriptions));
+			}
 			handleBoardLoaded({ ...boardData, isAdmin: true });
 		} else {
 			alert(boardData.error);
@@ -116,19 +141,20 @@ export default function LandingPage({}) {
 		setIsLoading(false);
 	};
 
-	const handleTogglePhoneInput = () => {
-		if (showPhoneInput) {
-			setShowPhoneNumberWarning(true);
-		} else {
-			setShowPhoneInput(true);
-		}
-	};
-
 	const handlePhoneNumberWarningClose = (proceed) => {
 		if (proceed) {
-			setShowPhoneInput(false);
+			handleCreate();
 		}
 		setShowPhoneNumberWarning(false);
+	};
+
+	const updateFormField = (field, value) => {
+		if (field === 'phoneNumber' && value === '+1') {
+			// Handles quirk where +1 remains in the value even after phone number completely deleted
+			value = '';
+		}
+		setFormData({ ...formData, [field]: value });
+		setFormErrors({ ...formErrors, [field]: false });
 	};
 
 	const TeamSelectionMenu = () => {
@@ -222,51 +248,37 @@ export default function LandingPage({}) {
 						<TextField
 							label='Squares Name'
 							value={formData.boardName}
-							helperText='Create a name for your Squares board'
-							onChange={(e) => setFormData({ ...formData, boardName: e.target.value })}
+							helperText='Create a name for your Squares board.'
+							error={formErrors.boardName}
+							onChange={(e) => updateFormField('boardName', e.target.value)}
 							fullWidth
 							size='small'
 						/>
 
-						<FormControlLabel
-							control={
-								<Checkbox
-									defaultChecked
-									value={showPhoneInput}
-									checked={showPhoneInput}
-									onChange={handleTogglePhoneInput}
-								/>
-							}
-							label='Send me the link to my Squares board'
-							sx={{
-								'.MuiButtonBase-root': { padding: '9px' },
-								'.MuiTypography-root': { fontSize: '.8rem' },
-							}}
-						/>
-
 						{showPhoneNumberWarning && <PhoneNumberWarning onClose={handlePhoneNumberWarningClose} />}
 
-						{showPhoneInput && (
-							<MuiTelInput
-								size='small'
-								defaultCountry='US'
-								forceCallingCode
-								disableDropdown
-								value={formData.phoneNumber}
-								onChange={(value) => setFormData({ ...formData, phoneNumber: value })}
-								fullWidth
-								sx={{ marginBottom: '1em' }}
-							/>
-						)}
+						<MuiTelInput
+							size='small'
+							defaultCountry='US'
+							forceCallingCode
+							disableDropdown
+							value={formData.phoneNumber}
+							error={formErrors.phoneNumber}
+							helperText={
+								<span>
+									Phone number is optional.
+									<br /> Squares uses your phone number to send you your unique board link and board event
+									notifications.
+								</span>
+							}
+							onChange={(value) => updateFormField('phoneNumber', value)}
+							fullWidth
+							sx={{ margin: '10px 0' }}
+						/>
 
 						{/* Disabled team selection */ false && <TeamSelectionMenu />}
 
-						<Button
-							fullWidth
-							disabled={!formData.boardName || (showPhoneInput && formData.phoneNumber.length !== 15)}
-							variant='contained'
-							onClick={handleCreate}
-						>
+						<Button fullWidth variant='contained' onClick={handleCreateClick}>
 							Create
 						</Button>
 					</FormGroup>

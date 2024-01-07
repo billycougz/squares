@@ -77,6 +77,7 @@ export default function SquaresPage({}) {
 			<Grid container spacing={2} sx={{ marginBottom: '5px' }}>
 				<Grid xs={12} sm={isAdmin ? 5 : 6}>
 					<InitialsBox
+						isAdmin={isAdmin}
 						id={id}
 						initials={initials}
 						boardName={boardName}
@@ -149,6 +150,7 @@ export default function SquaresPage({}) {
 						<Box sx={{ ...hideOnLandscapeStyles }}>
 							<InitialsBox
 								id={id}
+								isAdmin={isAdmin}
 								initials={initials}
 								boardName={boardName}
 								onChange={setInitials}

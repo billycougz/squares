@@ -8,12 +8,13 @@ import { Button } from '@mui/material';
 import { MuiTelInput } from 'mui-tel-input';
 import VerifiedIcon from '@mui/icons-material/Verified';
 
-export default function SmsDialog({ open, onClose, onSave, boardName, initials }) {
+export default function SmsDialog({ open, onClose, onSave, boardName, initials, isAdmin }) {
 	const [phoneNumber, setPhoneNumber] = useState('');
 
 	const storedNumber = (() => {
 		const storedSubscriptions = JSON.parse(localStorage.getItem('squares-subscriptions')) || {};
-		return storedSubscriptions?.[boardName]?.[initials];
+		// _ADMIN is set in LandingPage upon create, other subscriptions stored by initials in InitialsBox.js
+		return isAdmin ? storedSubscriptions?.[boardName]?.['_ADMIN'] : storedSubscriptions?.[boardName]?.[initials];
 	})();
 
 	if (storedNumber) {

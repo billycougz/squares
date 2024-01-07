@@ -36,5 +36,5 @@ body {
 }
 
 .MuiFormHelperText-root {
-  margin-left: 5px;
+  margin-left: 0px !important;
 }

@@ -48,7 +48,7 @@ async function subscribeToBoard(id, phoneNumber) {
 		// Check if phone number is already subscribed to SNS topic
 		const listSubscriptionsResponse = await sns.listSubscriptionsByTopic({ TopicArn }).promise();
 		const subscription = listSubscriptionsResponse.Subscriptions.find(
-			(sub) => sub.Protocol === 'sms' && sub.Endpoint === phoneNumber
+			(sub) => sub.Protocol === 'sms' && sub.Endpoint === phoneNumber.replace(/\s/g, '')
 		);
 		if (subscription) {
 			const { Attributes } = await sns

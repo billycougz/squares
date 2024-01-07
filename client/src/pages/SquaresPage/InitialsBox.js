@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { subscribeNumberToBoard } from '../../api';
 import SmsDialog from '../../components/SmsDialog';
 
-export default function InitialsBox({ initials, onChange, id, boardName, setSnackbarMessage }) {
+export default function InitialsBox({ initials, onChange, id, boardName, setSnackbarMessage, isAdmin }) {
 	const [isSmsDialogOpen, setIsSmsDialogOpen] = useState(false);
 	const [initialsUnderChange, setInitialsUnderChange] = useState(initials);
 
@@ -44,6 +44,7 @@ export default function InitialsBox({ initials, onChange, id, boardName, setSnac
 			</IconButton>
 			{isSmsDialogOpen && (
 				<SmsDialog
+					isAdmin={isAdmin}
 					open={isSmsDialogOpen}
 					onSave={handleSmsSave}
 					onClose={() => setIsSmsDialogOpen(false)}
