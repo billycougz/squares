@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import BorderStyleIcon from '@mui/icons-material/BorderStyle';
 import EditIcon from '@mui/icons-material/Edit';
 import IosShareIcon from '@mui/icons-material/IosShare';
@@ -9,8 +9,11 @@ import FinanceDialog from '../../components/FinanceDialog';
 import { updateBoard } from '../../api';
 import ResultsDialog from '../../components/ResultsDialog';
 import AdminMessageDialog from '../../components/AdminMessageDialog';
+import AppContext from '../../App/AppContext';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 
-export default function AdminPanel({ boardData, setSnackbarMessage, onUpdate }) {
+export default function AdminPanel({ setSnackbarMessage, onUpdate }) {
+	const { boardData, boardInsights } = useContext(AppContext);
 	const { id, gridData, boardName, userCode, isAdmin, teams, results } = boardData;
 	const [activeDialog, setActiveDialog] = useState('');
 
@@ -18,10 +21,14 @@ export default function AdminPanel({ boardData, setSnackbarMessage, onUpdate }) 
 		const { origin } = document.location;
 		const link = `${origin}/?id=${id}`;
 		navigator.clipboard.writeText(encodeURI(link));
-		setSnackbarMessage('Share link copied to clipboard.');
+		setSnackbarMessage('Participant link copied to clipboard.');
 	};
 
-	const setNumbers = async () => {
+	const handleSetNumbersClick = async () => {
+		if (boardInsights.remainingSquares) {
+			setSnackbarMessage('The numbers cannot be set until all squares have been claimed.');
+			return;
+		}
 		const doContinue = window.confirm('Set the numbers? This can only be done once.');
 		if (doContinue) {
 			const { Item } = await updateBoard({ id, boardName, operation: 'numbers' });
@@ -33,6 +40,18 @@ export default function AdminPanel({ boardData, setSnackbarMessage, onUpdate }) 
 		const { Item } = await updateBoard({ id, boardName, operation: 'finances', value });
 		onUpdate({ ...Item, isAdmin });
 		setActiveDialog('');
+	};
+
+	const handleEnterResultsClick = () => {
+		if (boardInsights.remainingSquares) {
+			setSnackbarMessage('Results cannot be entered until all squares have been claimed.');
+			return;
+		}
+		if (boardInsights.areNumbersSet) {
+			setSnackbarMessage('Results cannot be entered until the numbers have been set.');
+			return;
+		}
+		setActiveDialog('results');
 	};
 
 	const handleSubmitResult = async ({ quarterIndex, scores, cell }) => {
@@ -50,31 +69,21 @@ export default function AdminPanel({ boardData, setSnackbarMessage, onUpdate }) 
 		setActiveDialog('');
 	};
 
-	const areNumbersSet = gridData[0].some((value) => value);
-
 	return (
 		<CustomAccordion title='Admin Controls'>
 			<FormControl>
 				<Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: '-1em' }}>
-					<Button size='small' variant='contained' onClick={() => setActiveDialog('finance')} fullWidth>
-						<EditIcon sx={{ pr: 1 }} fontSize='small' />
-						Finances
+					<Button
+						size='small'
+						variant='contained'
+						onClick={() => setActiveDialog('finance')}
+						fullWidth
+						startIcon={<AttachMoneyIcon />}
+					>
+						Manage Finances
 					</Button>
 					{activeDialog === 'finance' && (
 						<FinanceDialog onSave={handleFinanceSave} onClose={() => setActiveDialog('')} boardData={boardData} />
-					)}
-					<Button size='small' variant='contained' onClick={() => setActiveDialog('results')} fullWidth>
-						<EditIcon sx={{ pr: 1 }} fontSize='small' />
-						Results
-					</Button>
-					{activeDialog === 'results' && (
-						<ResultsDialog
-							results={results}
-							teams={teams}
-							gridData={gridData}
-							onSave={handleSubmitResult}
-							onClose={() => setActiveDialog('')}
-						/>
 					)}
 
 					{/* ToDo 12/30/23 - <Button size='small' variant='contained' onClick={() => setActiveDialog('admin-message')}>
@@ -90,15 +99,31 @@ export default function AdminPanel({ boardData, setSnackbarMessage, onUpdate }) 
 							onClose={() => setActiveDialog('')}
 						/>
 					)} */}
-					<Button variant='contained' size='small' onClick={handleCopyShareLink} fullWidth>
-						<IosShareIcon sx={{ pr: 1 }} fontSize='small' />
-						Share
+					<Button variant='contained' size='small' onClick={handleCopyShareLink} fullWidth startIcon={<IosShareIcon />}>
+						Copy link for participants
 					</Button>
-					{!areNumbersSet && (
-						<Button variant='contained' size='small' onClick={setNumbers} fullWidth>
-							<BorderStyleIcon sx={{ pr: 1 }} fontSize='small' />
+					{!boardInsights.areNumbersSet && (
+						<Button
+							variant='contained'
+							size='small'
+							onClick={handleSetNumbersClick}
+							fullWidth
+							startIcon={<BorderStyleIcon />}
+						>
 							Set Numbers
 						</Button>
+					)}
+					<Button size='small' variant='contained' onClick={handleEnterResultsClick} fullWidth startIcon={<EditIcon />}>
+						Enter Results
+					</Button>
+					{activeDialog === 'results' && (
+						<ResultsDialog
+							results={results}
+							teams={teams}
+							gridData={gridData}
+							onSave={handleSubmitResult}
+							onClose={() => setActiveDialog('')}
+						/>
 					)}
 				</Box>
 			</FormControl>
