@@ -50,8 +50,9 @@ const updateBoard = async (event) => {
 			});
 			break;
 		case 'finances':
-			const { squarePrice, payoutSliderValues } = value;
+			const { squarePrice, payoutSliderValues, maxSquares } = value;
 			Item.squarePrice = squarePrice;
+			Item.maxSquares = maxSquares;
 			Item.payoutSliderValues = payoutSliderValues;
 			break;
 		default:

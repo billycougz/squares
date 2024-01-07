@@ -20,7 +20,7 @@ export default function SquaresGrid({
 	highlightColor,
 	clickMode,
 }) {
-	const { id, gridData, boardName, isAdmin, squarePrice, teams, results } = boardData;
+	const { id, gridData, boardName, isAdmin, squarePrice, maxSquares, teams, results } = boardData;
 
 	const handleSquareClick = async ([row, col]) => {
 		if (!row || !col) {
@@ -33,6 +33,11 @@ export default function SquaresGrid({
 		}
 		if (clickMode === 'select' && !initials) {
 			setSnackbarMessage('Please enter your initials before selecting a square.');
+			return;
+		}
+		const currentInitialsCount = squareMap[initials];
+		if (clickMode === 'select' && maxSquares && currentInitialsCount === maxSquares) {
+			setSnackbarMessage("You've reached the square limit.");
 			return;
 		}
 		const value = clickMode === 'remove' ? null : initials;

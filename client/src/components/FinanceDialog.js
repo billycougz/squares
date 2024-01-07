@@ -8,8 +8,10 @@ import DialogTitle from '@mui/material/DialogTitle';
 import PaidIcon from '@mui/icons-material/Paid';
 import { Avatar, Button, Chip, FormControl, FormLabel, InputAdornment, Slider } from '@mui/material';
 import CustomTable from './Table';
+import TagIcon from '@mui/icons-material/Tag';
 
 export default function FinanceDialog({ open, onClose, onSave, children, boardData }) {
+	const [maxSquares, setMaxSquares] = useState(boardData.maxSquares);
 	const [squarePrice, setSquarePrice] = useState(boardData.squarePrice);
 	const [payoutSliderValues, setPayoutSliderValues] = useState(boardData.payoutSliderValues);
 
@@ -29,6 +31,7 @@ export default function FinanceDialog({ open, onClose, onSave, children, boardDa
 	};
 
 	const hasValueChanged =
+		maxSquares !== boardData.maxSquares ||
 		squarePrice !== boardData.squarePrice ||
 		JSON.stringify(payoutSliderValues) !== JSON.stringify(boardData.payoutSliderValues);
 
@@ -70,6 +73,28 @@ export default function FinanceDialog({ open, onClose, onSave, children, boardDa
 					}}
 				/>
 
+				<TextField
+					fullWidth
+					sx={{ margin: 1, ml: '0 !important', width: '120px' }}
+					size='small'
+					id='outlined-number'
+					label='Max per Person'
+					type='number'
+					value={maxSquares}
+					onChange={(e) => setMaxSquares(Number(e.target.value) || '')}
+					InputProps={{
+						inputProps: {
+							min: '0',
+							inputMode: 'numeric',
+						},
+						startAdornment: (
+							<InputAdornment position='start'>
+								<TagIcon />
+							</InputAdornment>
+						),
+					}}
+				/>
+
 				<Chip
 					sx={{
 						margin: '1em 0 0em 0',
@@ -77,16 +102,34 @@ export default function FinanceDialog({ open, onClose, onSave, children, boardDa
 					avatar={
 						<Avatar
 							sx={{
-								width: 'auto',
+								width: 'auto !important',
 								borderRadius: 'inherit',
 								padding: '0 10px',
 								fontWeight: 'bold',
 							}}
 						>
-							{`$${squarePrice ? 100 * squarePrice : 0}`}
+							Total Pot
 						</Avatar>
 					}
-					label='Total Pot'
+					label={`$${squarePrice ? 100 * squarePrice : 0}`}
+				/>
+				<Chip
+					sx={{
+						margin: '1em 0 0em 0',
+					}}
+					avatar={
+						<Avatar
+							sx={{
+								width: 'auto !important',
+								borderRadius: 'inherit',
+								padding: '0 10px',
+								fontWeight: 'bold',
+							}}
+						>
+							Per Person
+						</Avatar>
+					}
+					label={squarePrice ? `${squarePrice && maxSquares ? '$' + maxSquares * squarePrice : 'N/A'}` : '$0'}
 				/>
 				{!squarePrice ? (
 					''
@@ -110,7 +153,7 @@ export default function FinanceDialog({ open, onClose, onSave, children, boardDa
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={onClose}>Cancel</Button>
-				<Button onClick={() => onSave({ squarePrice, payoutSliderValues })} disabled={!hasValueChanged}>
+				<Button onClick={() => onSave({ squarePrice, maxSquares, payoutSliderValues })} disabled={!hasValueChanged}>
 					Save
 				</Button>
 			</DialogActions>

@@ -29,6 +29,7 @@ const handleCreate = async (event) => {
 	requestBody.Item.adminCode = uuidv4();
 	requestBody.Item.gridData = initializeGrid();
 	requestBody.Item.squarePrice = 0;
+	requestBody.Item.maxSquares = 0;
 	requestBody.Item.payoutSliderValues = [25, 50, 75, 100];
 	requestBody.Item.results = [{ quarter: 'Q1' }, { quarter: 'Q2' }, { quarter: 'Q3' }, { quarter: 'Q4' }];
 
