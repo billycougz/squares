@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import AppContext from './AppContext';
 
 const AppContextProvider = ({ children }) => {
-	const [boardData, setBoardData] = useState(null);
+	const [boardData, setBoardData] = useState({});
 	const [boardInsights, setBoardInsights] = useState({});
 
 	const handleBoardDataChange = (updatedData) => {

@@ -12,6 +12,7 @@ import CustomHeader from '../../components/Header';
 import InfoDialog from '../../components/InfoDialog';
 import SimpleBottomNavigation from '../../components/BottomNav';
 import AppContext from '../../App/AppContext';
+import AdminIntroDialog from '../../components/AdminIntroDialog';
 
 const hideOnLandscapeStyles = {
 	'@media only screen and (orientation: landscape)': {
@@ -28,6 +29,7 @@ export default function SquaresPage({}) {
 	const [clickMode, setClickMode] = useState('select');
 	const [snackbarMessage, setSnackbarMessage] = useState('');
 	const [showInfoDialog, setShowInfoDialog] = useState(false);
+	const [showAdminIntroDialog, setShowAdminIntroDialog] = useState(false);
 
 	// Ahhhhhhh, sorry to my future self about the mobile handling...
 	const hasMobileHeight = useMediaQuery('(max-width:600px)');
@@ -46,7 +48,10 @@ export default function SquaresPage({}) {
 	}, [boardData]);
 
 	useEffect(() => {
-		if (!initials) {
+		if (boardData.adminIntro) {
+			setShowAdminIntroDialog(true);
+			setBoardData({ ...boardData, adminIntro: false });
+		} else if (!initials) {
 			setShowInfoDialog(true);
 		}
 	}, []);
@@ -211,6 +216,9 @@ export default function SquaresPage({}) {
 				message={snackbarMessage}
 			/>
 			{showInfoDialog && <InfoDialog onClose={() => setShowInfoDialog(false)} isAdmin={isAdmin} />}
+			{showAdminIntroDialog && (
+				<AdminIntroDialog setSnackbarMessage={setSnackbarMessage} onClose={() => setShowAdminIntroDialog(false)} />
+			)}
 			{isMobile ? <MobileView /> : <NonMobileView />}
 		</div>
 	);

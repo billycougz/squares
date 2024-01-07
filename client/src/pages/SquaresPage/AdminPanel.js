@@ -8,7 +8,7 @@ import CustomAccordion from '../../components/Accordion';
 import FinanceDialog from '../../components/FinanceDialog';
 import { updateBoard } from '../../api';
 import ResultsDialog from '../../components/ResultsDialog';
-import AdminMessageDialog from '../../components/AdminMessageDialog';
+import AdminIntroDialog from '../../components/AdminIntroDialog';
 import AppContext from '../../App/AppContext';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 

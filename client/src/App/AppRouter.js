@@ -5,7 +5,7 @@ import SquaresPage from '../pages/SquaresPage';
 
 function Router() {
 	const { boardData } = useContext(AppContext);
-	return boardData ? <SquaresPage /> : <LandingPage />;
+	return boardData?.id ? <SquaresPage /> : <LandingPage />;
 }
 
 export default Router;

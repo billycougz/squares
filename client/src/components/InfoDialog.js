@@ -19,19 +19,6 @@ export default function InfoDialog({ onClose, isAdmin }) {
 					<Typography>
 						To receive notifications at the end of each quarter, tap the blue message icon next to your initials.
 					</Typography>
-					{isAdmin ? (
-						<>
-							<Typography>As admin, you have several controls that other users do not.</Typography>
-							<ul style={{ paddingLeft: '20px' }}>
-								<li>Set the square price and payouts</li>
-								<li>Set the square board numbers</li>
-								<li>Enter the quarterly results</li>
-								<li>Remove square claims</li>
-							</ul>
-						</>
-					) : (
-						<Typography>Reach out to your admin for more info.</Typography>
-					)}
 				</Box>
 			),
 		},

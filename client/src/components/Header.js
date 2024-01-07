@@ -23,7 +23,8 @@ export default function CustomHeader({ boardName, onHomeClick, onInfoClick }) {
 				</IconButton>
 				<Typography variant='h6'>{boardName}</Typography>
 				<div>
-					{isMobile() && !isStandalone() && (
+					{/** ToDo: Enable this */}
+					{false && isMobile() && !isStandalone() && (
 						<IconButton onClick={() => setShowInstallDialog(true)}>
 							<DownloadIcon sx={{ color: 'white' }} />
 						</IconButton>

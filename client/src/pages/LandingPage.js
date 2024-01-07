@@ -123,7 +123,7 @@ export default function LandingPage({}) {
 				storedSubscriptions[boardName]['_ADMIN'] = subscribedPhoneNumber;
 				localStorage.setItem('squares-subscriptions', JSON.stringify(storedSubscriptions));
 			}
-			handleBoardLoaded({ ...boardData, isAdmin: true });
+			handleBoardLoaded({ ...boardData, isAdmin: true, adminIntro: true });
 		} else {
 			alert(boardData.error);
 		}
