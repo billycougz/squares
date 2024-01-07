@@ -28,6 +28,7 @@ const AppContextProvider = ({ children }) => {
 		setBoardInsights({
 			remainingSquares: squareMap?.['_remaining'],
 			areNumbersSet: updatedData?.gridData[0][1], // If one number is set they all are
+			getClaimCount: (initials) => squareMap[initials] || 0,
 		});
 	};
 

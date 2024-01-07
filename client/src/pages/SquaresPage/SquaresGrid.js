@@ -6,20 +6,16 @@ import { updateBoard } from '../../api';
 import Square from '../../components/Square';
 import AspectRatioIcon from '@mui/icons-material/AspectRatio';
 import styled from '@emotion/styled';
+import { useContext } from 'react';
+import AppContext from '../../App/AppContext';
 
 const ExpandButton = styled.div`
 	position: absolute;
 `;
 
-export default function SquaresGrid({
-	boardData,
-	initials,
-	setSnackbarMessage,
-	onUpdate,
-	squareMap,
-	highlightColor,
-	clickMode,
-}) {
+export default function SquaresGrid({ initials, setSnackbarMessage, onUpdate, highlightColor, clickMode }) {
+	const { boardData, boardInsights } = useContext(AppContext);
+
 	const { id, gridData, boardName, isAdmin, squarePrice, maxSquares, teams, results } = boardData;
 
 	const handleSquareClick = async ([row, col]) => {
@@ -35,7 +31,7 @@ export default function SquaresGrid({
 			setSnackbarMessage('Please enter your initials before selecting a square.');
 			return;
 		}
-		const currentInitialsCount = squareMap[initials];
+		const currentInitialsCount = boardInsights.getClaimCount(initials);
 		if (clickMode === 'select' && maxSquares && currentInitialsCount === maxSquares) {
 			setSnackbarMessage("You've reached the square limit.");
 			return;
@@ -49,7 +45,7 @@ export default function SquaresGrid({
 			if (Item.gridData[row][col] !== initials) {
 				setSnackbarMessage('This square was taken by another player.');
 			} else {
-				const personalTotal = squareMap[initials] || 0 + 1;
+				const personalTotal = currentInitialsCount + 1;
 				const financeMsg = squarePrice ? ` and owe $${personalTotal * squarePrice}` : '';
 				setSnackbarMessage(`You now have ${personalTotal} squares${financeMsg}.`);
 			}
