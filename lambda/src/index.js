@@ -3,7 +3,8 @@ const handlePost = require('./handlers/handlePost');
 const handlePut = require('./handlers/handlePut');
 
 exports.handler = async (event, context) => {
-	//console.log('Received event:', JSON.stringify(event, null, 2));
+	console.log('Received event:', JSON.stringify(event, null, 2));
+
 	let body;
 	let statusCode = '200';
 

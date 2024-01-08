@@ -25,10 +25,6 @@ export default function AdminPanel({ setSnackbarMessage, onUpdate }) {
 	};
 
 	const handleSetNumbersClick = async () => {
-		if (boardInsights.remainingSquares) {
-			setSnackbarMessage('The numbers cannot be set until all squares have been claimed.');
-			return;
-		}
 		const doContinue = window.confirm('Set the numbers? This can only be done once.');
 		if (doContinue) {
 			const { Item } = await updateBoard({ id, boardName, operation: 'numbers' });
@@ -43,14 +39,6 @@ export default function AdminPanel({ setSnackbarMessage, onUpdate }) {
 	};
 
 	const handleEnterResultsClick = () => {
-		if (boardInsights.remainingSquares) {
-			setSnackbarMessage('Results cannot be entered until all squares have been claimed.');
-			return;
-		}
-		if (boardInsights.areNumbersSet) {
-			setSnackbarMessage('Results cannot be entered until the numbers have been set.');
-			return;
-		}
 		setActiveDialog('results');
 	};
 

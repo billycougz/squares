@@ -24,8 +24,9 @@ const handleSubscribe = async ({ id, phoneNumber, boardName }) => {
 };
 
 const handleCreate = async (boardData) => {
-	const { id, boardName, adminCode, phoneNumber } = boardData;
-	delete boardData.phoneNumber; // Don't need to persist this with the other boardData
+	// We don't need to store the admin's phoneNumber with the board data
+	const { phoneNumber } = boardData;
+	delete boardData.phoneNumber;
 
 	const initializeGrid = () => {
 		const emptyValues = Array.from({ length: 11 }).map(() => null);
@@ -52,6 +53,7 @@ const handleCreate = async (boardData) => {
 
 	if (phoneNumber) {
 		// Send details to the board creator
+		const { id, boardName, adminCode } = boardData;
 		const userLink = `${AWS_CONSTANTS.BASE_FRONTEND_URL}/?id=${id}`;
 		const adminLink = `${userLink}&adminCode=${adminCode}`;
 		const message = `Your Squares board ${boardName} is ready!\n\nUse this link to administer your board (keep it to yourself):\n\n${adminLink}\n\nShare this link with your participants:\n\n${userLink}.`;
