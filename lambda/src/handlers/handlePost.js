@@ -1,55 +1,66 @@
-const { dynamo } = require('./helpers/AWS');
+const { dynamo, AWS_CONSTANTS } = require('./helpers/AWS');
 const { subscribeToBoard, sendSmsMessage } = require('./helpers/sns.js');
 const { v4: uuidv4 } = require('uuid');
 
 const handlePost = async (event) => {
-	const { operation, id, boardName, phoneNumber } = JSON.parse(event.body);
-	if (operation === 'subscribe') {
-		const response = await subscribeToBoard(id, phoneNumber);
-		if (response.msg === 'Successfully subscribed to board notifications.') {
-			const msg = `You've successfully subscribed to Squares notifications for ${boardName}.\n\nConsider adding this phone number to your contacts.`;
-			await sendSmsMessage(phoneNumber, msg);
-		}
-		return response;
+	const { operation, data } = JSON.parse(event.body);
+	switch (operation) {
+		case 'subscribe':
+			return handleSubscribe(data);
+		case 'create':
+			return handleCreate(data);
+		default:
+			console.error(`Error: Unknown POST operation ${operation}.`);
 	}
-	return handleCreate(event);
 };
 
-const handleCreate = async (event) => {
-	// Localized function to initialize the gird
+const handleSubscribe = async ({ id, phoneNumber, boardName }) => {
+	const response = await subscribeToBoard(id, phoneNumber);
+	if (response.msg === 'Successfully subscribed to board notifications.') {
+		const msg = `You've successfully subscribed to Squares notifications for ${boardName}.\n\nConsider adding this phone number to your contacts.`;
+		await sendSmsMessage(phoneNumber, msg);
+	}
+	return response;
+};
+
+const handleCreate = async (boardData) => {
+	const { id, boardName, adminCode, phoneNumber } = boardData;
+	delete boardData.phoneNumber; // Don't need to persist this with the other boardData
+
 	const initializeGrid = () => {
 		const emptyValues = Array.from({ length: 11 }).map(() => null);
 		return emptyValues.map(() => [...emptyValues]);
 	};
 
-	const requestBody = JSON.parse(event.body);
-	const { phoneNumber } = requestBody.Item;
-	delete requestBody.Item.phoneNumber;
-
 	// Initialize the board
-	requestBody.Item.createdAt = Date.now();
-	requestBody.Item.id = uuidv4();
-	requestBody.Item.adminCode = uuidv4();
-	requestBody.Item.gridData = initializeGrid();
-	requestBody.Item.squarePrice = 0;
-	requestBody.Item.maxSquares = 0;
-	requestBody.Item.payoutSliderValues = [25, 50, 75, 100];
-	requestBody.Item.results = [{ quarter: 'Q1' }, { quarter: 'Q2' }, { quarter: 'Q3' }, { quarter: 'Q4' }];
+	boardData.createdAt = Date.now();
+	boardData.id = uuidv4();
+	boardData.adminCode = uuidv4();
+	boardData.gridData = initializeGrid();
+	boardData.squarePrice = 0;
+	boardData.maxSquares = 0;
+	boardData.payoutSliderValues = [25, 50, 75, 100];
+	boardData.results = [{ quarter: 'Q1' }, { quarter: 'Q2' }, { quarter: 'Q3' }, { quarter: 'Q4' }];
 
 	// Create the board
-	await dynamo.put(requestBody).promise();
+	await dynamo
+		.put({
+			TableName: AWS_CONSTANTS.SQUARES_TABLE_NAME,
+			Item: boardData,
+		})
+		.promise();
 
 	if (phoneNumber) {
 		// Send details to the board creator
-		const userLink = `https://squares-lviii.com/?id=${requestBody.Item.id}`;
-		const adminLink = `${userLink}&adminCode=${requestBody.Item.adminCode}`;
-		const message = `Your Squares board ${requestBody.Item.boardName} is ready!\n\nUse this link to administer your board (keep it to yourself):\n\n${adminLink}\n\nShare this link with your participants:\n\n${userLink}.`;
+		const userLink = `${AWS_CONSTANTS.BASE_FRONTEND_URL}/?id=${id}`;
+		const adminLink = `${userLink}&adminCode=${adminCode}`;
+		const message = `Your Squares board ${boardName} is ready!\n\nUse this link to administer your board (keep it to yourself):\n\n${adminLink}\n\nShare this link with your participants:\n\n${userLink}.`;
 		await sendSmsMessage(phoneNumber, message);
-		await subscribeToBoard(requestBody.Item.id, phoneNumber);
-		requestBody.Item.subscribedPhoneNumber = phoneNumber;
+		await subscribeToBoard(id, phoneNumber);
+		boardData.subscribedPhoneNumber = phoneNumber;
 	}
 
-	return requestBody.Item;
+	return boardData;
 };
 
 module.exports = handlePost;

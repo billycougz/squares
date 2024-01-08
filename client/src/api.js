@@ -7,10 +7,7 @@ const BASE_URL =
 
 export const createBoard = async (boardData) => {
 	try {
-		const body = {
-			TableName: 'SquaresTable-v2',
-			Item: boardData,
-		};
+		const body = { data: boardData, operation: 'create' };
 		const { data } = await axios.post(BASE_URL, body);
 		return data;
 	} catch (e) {
@@ -27,9 +24,9 @@ export const updateBoard = async (updateData) => {
 	}
 };
 
-export const loadBoard = async ({ id, boardName, adminCode }) => {
+export const loadBoard = async ({ id, adminCode }) => {
 	try {
-		let url = `${BASE_URL}?TableName=SquaresTable-v2&id=${id}`;
+		let url = `${BASE_URL}?id=${id}`;
 		if (adminCode) {
 			url += `&adminCode=${adminCode}`;
 		}
@@ -42,7 +39,7 @@ export const loadBoard = async ({ id, boardName, adminCode }) => {
 
 export const subscribeNumberToBoard = async (params) => {
 	try {
-		const body = { ...params, operation: 'subscribe' };
+		const body = { data: params, operation: 'subscribe' };
 		const { data } = await axios.post(BASE_URL, body);
 		return data;
 	} catch (e) {

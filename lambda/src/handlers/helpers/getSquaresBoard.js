@@ -1,9 +1,9 @@
-const { dynamo } = require('./AWS');
+const { dynamo, AWS_CONSTANTS } = require('./AWS');
 
 const getSquaresBoard = async (id) => {
 	const { Item } = await dynamo
 		.get({
-			TableName: 'SquaresTable-v2',
+			TableName: AWS_CONSTANTS.SQUARES_TABLE_NAME,
 			Key: { id },
 		})
 		.promise();
@@ -16,24 +16,9 @@ const getSquaresBoard = async (id) => {
 
 const handleModelChanges = async (Item) => {
 	let propertyAdded = false;
-	if (!Item.results) {
-		Item.results = [{ quarter: 'Q1' }, { quarter: 'Q2' }, { quarter: 'Q3' }, { quarter: 'Q4' }];
-		propertyAdded = true;
-	}
-	if (!Item.payoutSliderValues) {
-		Item.squarePrice = 0;
-		Item.payoutSliderValues = [25, 50, 75, 100];
-		propertyAdded = true;
-	}
-	if (!Item.teams) {
-		Item.teams = {
-			horizontal: { code: 'PHI', name: 'Eagles', location: 'Philadelphia', color: '#004C54' },
-			vertical: { code: 'KC', name: 'Chiefs', location: 'Kansas City', color: '#E31837' },
-		};
-		propertyAdded = true;
-	}
+	// ToDo: Implement rules upon breaking model changes
 	if (propertyAdded) {
-		await dynamo.put({ TableName: 'SquaresTable-v2', Item }).promise();
+		await dynamo.put({ TableName: AWS_CONSTANTS.SQUARES_TABLE_NAME, Item }).promise();
 	}
 	return Item;
 };

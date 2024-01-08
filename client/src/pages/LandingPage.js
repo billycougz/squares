@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import {
 	Button,
-	Checkbox,
 	FormControl,
 	InputLabel,
 	MenuItem,
@@ -10,7 +9,6 @@ import {
 	Typography,
 	TextField,
 	Box,
-	FormControlLabel,
 	FormGroup,
 } from '@mui/material';
 import { useDocumentTitle, useLocalStorage } from 'usehooks-ts';
@@ -21,7 +19,6 @@ import LandingInfoDialog from '../components/LandingInfoDialog';
 import { MuiTelInput } from 'mui-tel-input';
 import PhoneNumberWarning from '../components/PhoneNumberWarning';
 import AppContext from '../App/AppContext';
-import { AdminPanelSettingsRounded } from '@mui/icons-material';
 
 const FadeContainer = styled.div`
 	opacity: ${({ $fadeIn }) => ($fadeIn ? 1 : 0)};
@@ -46,8 +43,6 @@ const TitleContainer = styled.div`
 export default function LandingPage({}) {
 	const [formData, setFormData] = useState({
 		boardName: '',
-		userCode: '',
-		adminCode: '',
 		phoneNumber: '',
 		teams: {
 			horizontal: nflTeams.find((team) => team.default === 'horizontal'),
@@ -95,7 +90,6 @@ export default function LandingPage({}) {
 	}, []);
 
 	const handleCreateClick = async () => {
-		console.log(formData.phoneNumber);
 		const errors = {
 			boardName: !Boolean(formData.boardName),
 			phoneNumber: !Boolean(!formData.phoneNumber || (formData.phoneNumber && formData.phoneNumber.length === 15)),

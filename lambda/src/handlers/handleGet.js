@@ -1,7 +1,7 @@
 const getSquaresBoard = require('./helpers/getSquaresBoard');
 
 const handleGet = async (event) => {
-	const { id, boardName, userCode, adminCode } = event.queryStringParameters;
+	const { id, adminCode } = event.queryStringParameters;
 	const { Item } = await getSquaresBoard(id);
 	if (Item && adminCode) {
 		return Item.adminCode === adminCode ? { Item } : { error: 'Admin code does not match.' };

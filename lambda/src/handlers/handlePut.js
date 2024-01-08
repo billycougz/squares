@@ -1,4 +1,4 @@
-const { dynamo } = require('./helpers/AWS');
+const { dynamo, AWS_CONSTANTS } = require('./helpers/AWS');
 const getSquaresBoard = require('./helpers/getSquaresBoard');
 const { publishMessage } = require('./helpers/sns.js');
 
@@ -32,7 +32,7 @@ const updateBoard = async (event) => {
 				winner,
 			};
 			// ToDo: Handle the static URL (LVIII will change)
-			const boardDeepLink = encodeURI(`https://squares-lviii.com?id=${id}&anchor=results`);
+			const boardDeepLink = encodeURI(`${AWS_CONSTANTS.BASE_FRONTEND_URL}?id=${id}&anchor=results`);
 			const smsMessage = `The ${quarter} Squares results for ${boardName} are in. With a score of ${Item.teams.horizontal.name}: ${scores.horizontal}, ${Item.teams.vertical.name}: ${scores.vertical}, the win goes to ${winner}!\n\nTap the following link to open your Squares board.\n\n${boardDeepLink}`;
 			await publishMessage(smsMessage, id);
 			break;
@@ -59,7 +59,7 @@ const updateBoard = async (event) => {
 			break;
 	}
 	const updateRequest = {
-		TableName: 'SquaresTable-v2',
+		TableName: AWS_CONSTANTS.SQUARES_TABLE_NAME,
 		Item,
 	};
 	// Using dynamo.put() rather than dynamo.update() because put is simpler
