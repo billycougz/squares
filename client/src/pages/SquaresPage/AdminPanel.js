@@ -47,7 +47,7 @@ export default function AdminPanel({ setSnackbarMessage, onUpdate }) {
 			setSnackbarMessage('Results cannot be entered until all squares have been claimed.');
 			return;
 		}
-		if (boardInsights.areNumbersSet) {
+		if (!boardInsights.areNumbersSet) {
 			setSnackbarMessage('Results cannot be entered until the numbers have been set.');
 			return;
 		}
