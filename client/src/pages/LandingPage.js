@@ -134,6 +134,10 @@ export default function LandingPage({}) {
 	 * Called both after a board is created and after a board is loaded
 	 */
 	const handleBoardReady = ({ boardData, adminCode, anchor, adminIntro }) => {
+		const recentBoard = recentSquares.find(({ id }) => id === boardData.id);
+		// adminCode can be provided as a param or preexist if found in recentSquares
+		// recentSquares scenario occurs on clicking link sent upon results
+		adminCode = adminCode || recentBoard?.adminCode;
 		if (!adminCode) {
 			// ToDo: Handle adminCode better - don't send from API if not admin
 			delete boardData.adminCode;
