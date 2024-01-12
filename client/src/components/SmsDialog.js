@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -7,8 +7,12 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { Button } from '@mui/material';
 import { MuiTelInput } from 'mui-tel-input';
 import VerifiedIcon from '@mui/icons-material/Verified';
+import AppContext from '../App/AppContext';
 
-export default function SmsDialog({ open, onClose, onSave, boardName, initials, isAdmin }) {
+export default function SmsDialog({ open, onClose, onSave, boardName, initials }) {
+	const { boardUser } = useContext(AppContext);
+	const { isAdmin } = boardUser;
+
 	const [phoneNumber, setPhoneNumber] = useState('');
 
 	const storedNumber = (() => {

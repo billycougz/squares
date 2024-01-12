@@ -21,8 +21,9 @@ const hideOnLandscapeStyles = {
 };
 
 export default function SquaresPage({}) {
-	const { boardData, setBoardData, boardInsights } = useContext(AppContext);
-	const { id, gridData, boardName, results, isAdmin, anchor } = boardData;
+	const { boardData, setBoardData, boardUser } = useContext(AppContext);
+	const { id, gridData, boardName, results, anchor } = boardData;
+	const { isAdmin } = boardUser;
 
 	const [initials, setInitials] = useLocalStorage('squares-initials', '');
 	const [view, setView] = useState('board');
@@ -49,8 +50,10 @@ export default function SquaresPage({}) {
 
 	useEffect(() => {
 		if (boardData.adminIntro) {
+			// ToDo: Handle transient adminIntro better
+			delete boardData.adminIntro;
 			setShowAdminIntroDialog(true);
-			setBoardData({ ...boardData, adminIntro: false });
+			setBoardData(boardData);
 		} else if (!initials) {
 			setShowInfoDialog(true);
 		}
@@ -82,7 +85,6 @@ export default function SquaresPage({}) {
 			<Grid container spacing={2} sx={{ marginBottom: '5px' }}>
 				<Grid xs={12} sm={isAdmin ? 5 : 6}>
 					<InitialsBox
-						isAdmin={isAdmin}
 						id={id}
 						initials={initials}
 						boardName={boardName}
@@ -155,7 +157,6 @@ export default function SquaresPage({}) {
 						<Box sx={{ ...hideOnLandscapeStyles }}>
 							<InitialsBox
 								id={id}
-								isAdmin={isAdmin}
 								initials={initials}
 								boardName={boardName}
 								onChange={setInitials}
@@ -193,7 +194,7 @@ export default function SquaresPage({}) {
 				)}
 			</Box>
 			<Box sx={hideOnLandscapeStyles}>
-				<SimpleBottomNavigation isAdmin={isAdmin} onViewChange={setView} view={view} />
+				<SimpleBottomNavigation onViewChange={setView} view={view} />
 			</Box>
 		</>
 	);
@@ -215,7 +216,7 @@ export default function SquaresPage({}) {
 				onClose={() => setSnackbarMessage('')}
 				message={snackbarMessage}
 			/>
-			{showInfoDialog && <InfoDialog onClose={() => setShowInfoDialog(false)} isAdmin={isAdmin} />}
+			{showInfoDialog && <InfoDialog onClose={() => setShowInfoDialog(false)} />}
 			{showAdminIntroDialog && (
 				<AdminIntroDialog setSnackbarMessage={setSnackbarMessage} onClose={() => setShowAdminIntroDialog(false)} />
 			)}

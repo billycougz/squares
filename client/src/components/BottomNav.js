@@ -6,8 +6,11 @@ import GroupIcon from '@mui/icons-material/Group';
 import PaidIcon from '@mui/icons-material/Paid';
 import GridOnIcon from '@mui/icons-material/GridOn';
 import TuneIcon from '@mui/icons-material/Tune';
+import AppContext from '../App/AppContext';
 
-export default function SimpleBottomNavigation({ isAdmin, onViewChange, view }) {
+export default function SimpleBottomNavigation({ onViewChange, view }) {
+	const { boardUser } = React.useContext(AppContext);
+	const { isAdmin } = boardUser;
 	return (
 		<Box sx={{ position: 'fixed', bottom: 0, width: '100%' }}>
 			<BottomNavigation

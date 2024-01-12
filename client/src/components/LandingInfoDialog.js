@@ -37,7 +37,7 @@ const steps = [
 	},
 ];
 
-export default function LandingInfoDialog({ onClose, isAdmin }) {
+export default function LandingInfoDialog({ onClose }) {
 	const [activeStepIndex, setActiveStepIndex] = useState(0);
 	const { heading, content } = steps[activeStepIndex];
 	return (

@@ -8,13 +8,13 @@ import CustomAccordion from '../../components/Accordion';
 import FinanceDialog from '../../components/FinanceDialog';
 import { updateBoard } from '../../api';
 import ResultsDialog from '../../components/ResultsDialog';
-import AdminIntroDialog from '../../components/AdminIntroDialog';
 import AppContext from '../../App/AppContext';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 
 export default function AdminPanel({ setSnackbarMessage, onUpdate }) {
 	const { boardData, boardInsights } = useContext(AppContext);
-	const { id, gridData, boardName, userCode, isAdmin, teams, results } = boardData;
+	const { id, gridData, boardName, teams, results } = boardData;
+
 	const [activeDialog, setActiveDialog] = useState('');
 
 	const handleCopyShareLink = () => {
@@ -32,13 +32,13 @@ export default function AdminPanel({ setSnackbarMessage, onUpdate }) {
 		const doContinue = window.confirm('Set the numbers? This can only be done once.');
 		if (doContinue) {
 			const { Item } = await updateBoard({ id, boardName, operation: 'numbers' });
-			onUpdate({ ...Item, isAdmin });
+			onUpdate({ ...Item });
 		}
 	};
 
 	const handleFinanceSave = async (value) => {
 		const { Item } = await updateBoard({ id, boardName, operation: 'finances', value });
-		onUpdate({ ...Item, isAdmin });
+		onUpdate({ ...Item });
 		setActiveDialog('');
 	};
 
@@ -65,7 +65,7 @@ export default function AdminPanel({ setSnackbarMessage, onUpdate }) {
 			operation: 'result',
 			value: Number(quarterIndex),
 		});
-		onUpdate({ ...Item, isAdmin });
+		onUpdate({ ...Item });
 		setActiveDialog('');
 	};
 

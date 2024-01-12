@@ -93,7 +93,7 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }) {
 		if (direction === 1) {
 			if (stepIndex === 1) {
 				const { Item } = await updateBoard({ id, boardName, operation: 'finances', value: financeData });
-				setBoardData({ ...Item, isAdmin: true });
+				setBoardData({ ...Item });
 			}
 		}
 		setStepIndex(stepIndex + direction);

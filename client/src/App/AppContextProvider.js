@@ -2,10 +2,14 @@ import React, { useState } from 'react';
 import AppContext from './AppContext';
 
 const AppContextProvider = ({ children }) => {
+	const [boardUser, setBoardUser] = useState({});
 	const [boardData, setBoardData] = useState({});
 	const [boardInsights, setBoardInsights] = useState({});
 
 	const handleBoardDataChange = (updatedData) => {
+		if (!updatedData || (updatedData && !updatedData.id)) {
+			setBoardUser({});
+		}
 		const squareMap = updatedData?.gridData.reduce(
 			(map, row, rowIndex) => {
 				if (!rowIndex) {
@@ -33,7 +37,15 @@ const AppContextProvider = ({ children }) => {
 	};
 
 	return (
-		<AppContext.Provider value={{ boardInsights, boardData, setBoardData: handleBoardDataChange }}>
+		<AppContext.Provider
+			value={{
+				boardUser,
+				setBoardUser,
+				boardInsights,
+				boardData,
+				setBoardData: handleBoardDataChange,
+			}}
+		>
 			{children}
 		</AppContext.Provider>
 	);

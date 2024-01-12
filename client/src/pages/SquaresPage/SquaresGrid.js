@@ -16,7 +16,7 @@ const ExpandButton = styled.div`
 export default function SquaresGrid({ initials, setSnackbarMessage, onUpdate, highlightColor, clickMode }) {
 	const { boardData, boardInsights } = useContext(AppContext);
 
-	const { id, gridData, boardName, isAdmin, squarePrice, maxSquares, teams, results } = boardData;
+	const { id, gridData, boardName, squarePrice, maxSquares, teams, results } = boardData;
 
 	const handleSquareClick = async ([row, col]) => {
 		if (!row || !col) {
@@ -50,7 +50,7 @@ export default function SquaresGrid({ initials, setSnackbarMessage, onUpdate, hi
 				setSnackbarMessage(`You now have ${personalTotal} squares${financeMsg}.`);
 			}
 		}
-		onUpdate({ ...Item, isAdmin });
+		onUpdate({ ...Item });
 	};
 
 	const getCellColor = (row, col) => {

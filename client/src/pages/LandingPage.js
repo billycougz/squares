@@ -41,6 +41,18 @@ const TitleContainer = styled.div`
 `;
 
 export default function LandingPage({}) {
+	useDocumentTitle('Squares');
+
+	const { setBoardData, setBoardUser } = useContext(AppContext);
+
+	const [recentSquares, setRecentSquares] = useLocalStorage('recent-squares', []);
+
+	const [formErrors, setFormErrors] = useState({});
+	const [isLoading, setIsLoading] = useState(false);
+	const [fadeIn, setFadeIn] = useState(false);
+	const [showInfo, setShowInfo] = useState(false);
+	const [showPhoneNumberWarning, setShowPhoneNumberWarning] = useState(false);
+
 	const [formData, setFormData] = useState({
 		boardName: '',
 		phoneNumber: '',
@@ -49,26 +61,6 @@ export default function LandingPage({}) {
 			vertical: nflTeams.find((team) => team.default === 'vertical'),
 		},
 	});
-	const [formErrors, setFormErrors] = useState({});
-	const [isLoading, setIsLoading] = useState(false);
-	const [fadeIn, setFadeIn] = useState(false);
-	const [showInfo, setShowInfo] = useState(false);
-	const [showPhoneNumberWarning, setShowPhoneNumberWarning] = useState(false);
-	const [recentSquares, setRecentSquares] = useLocalStorage('recent-squares', []);
-	const { boardData, setBoardData, boardInsights } = useContext(AppContext);
-
-	const updateRecentSquares = (currentSquares) => {
-		const previousSquares = recentSquares.filter((squares) => squares.boardName !== currentSquares.boardName);
-		setRecentSquares([{ ...currentSquares, anchor: undefined }, ...previousSquares]);
-	};
-
-	const handleBoardLoaded = (loadedBoard) => {
-		updateRecentSquares(loadedBoard);
-		setBoardData(loadedBoard);
-		window.scrollTo({ top: 0, behavior: 'smooth' });
-	};
-
-	useDocumentTitle('Squares');
 
 	useEffect(() => {
 		const handleUrlParams = () => {
@@ -76,7 +68,7 @@ export default function LandingPage({}) {
 			if (searchParams.get('id')) {
 				handleLoad({
 					id: searchParams.get('id'),
-					isAdmin: Boolean(searchParams.get('adminCode')),
+					adminCode: searchParams.get('adminCode'),
 					anchor: searchParams.get('anchor'),
 				});
 				window.history.replaceState({}, document.title, '/');
@@ -107,7 +99,6 @@ export default function LandingPage({}) {
 
 	const handleCreate = async () => {
 		setIsLoading(true);
-		delete formData.isAdmin;
 		const boardData = await createBoard(formData);
 		const { error, subscribedPhoneNumber, boardName } = boardData;
 		if (!error) {
@@ -117,22 +108,47 @@ export default function LandingPage({}) {
 				storedSubscriptions[boardName]['_ADMIN'] = subscribedPhoneNumber;
 				localStorage.setItem('squares-subscriptions', JSON.stringify(storedSubscriptions));
 			}
-			handleBoardLoaded({ ...boardData, isAdmin: true, adminIntro: true });
+			// ToDo: Handle adminCode better
+			handleBoardReady({ boardData, adminCode: boardData.adminCode, adminIntro: true });
 		} else {
 			alert(boardData.error);
 		}
 		setIsLoading(false);
 	};
 
-	const handleLoad = async (requestData) => {
+	/**
+	 * Called both on load by URL and on select of a recent board
+	 */
+	const handleLoad = async ({ id, adminCode, anchor }) => {
 		setIsLoading(true);
-		const boardData = await loadBoard(requestData);
+		const boardData = await loadBoard({ id, adminCode });
 		if (boardData.error) {
 			alert(boardData.error);
 		} else {
-			handleBoardLoaded({ ...boardData, isAdmin: requestData.isAdmin, anchor: requestData.anchor });
+			handleBoardReady({ boardData, adminCode, anchor });
 		}
 		setIsLoading(false);
+	};
+
+	/**
+	 * Called both after a board is created and after a board is loaded
+	 */
+	const handleBoardReady = ({ boardData, adminCode, anchor, adminIntro }) => {
+		if (!adminCode) {
+			// ToDo: Handle adminCode better - don't send from API if not admin
+			delete boardData.adminCode;
+		}
+		updateRecentSquares(boardData);
+		// ToDo: anchor and adminIntro are transient properties that should be handled separately
+		setBoardData({ ...boardData, anchor, adminIntro });
+		setBoardUser({ isAdmin: Boolean(adminCode) });
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	};
+
+	const updateRecentSquares = (currentSquares) => {
+		// ToDo: Don't store entire board, simply need id, boardName, and adminCode
+		const previousSquares = recentSquares.filter((squares) => squares.boardName !== currentSquares.boardName);
+		setRecentSquares([{ ...currentSquares }, ...previousSquares]);
 	};
 
 	const handlePhoneNumberWarningClose = (proceed) => {
