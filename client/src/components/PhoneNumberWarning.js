@@ -10,16 +10,18 @@ export default function PhoneNumberWarning({ onClose }) {
 			<DialogContent>
 				<DialogContentText>
 					<Alert variant='outlined' severity='warning'>
-						If you lose the link to your board there is no way to recover it.
+						<strong style={{ marginBottom: '10px', display: 'block' }}>Skip phone number?</strong>
+						<p>If you lose the link to your board there is no way to recover it.</p>
+						<p>Board event notifications greatly enhance the Squares experience.</p>
 					</Alert>
 				</DialogContentText>
 			</DialogContent>
 			<DialogActions>
 				<Button variant='contained' onClick={() => onClose()} size='small'>
-					Cancel
+					Go Back
 				</Button>
 				<Button onClick={() => onClose(true)} size='small'>
-					Proceed
+					Skip
 				</Button>
 			</DialogActions>
 		</Dialog>
