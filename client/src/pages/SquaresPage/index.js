@@ -93,7 +93,7 @@ export default function SquaresPage({}) {
 					/>
 				</Grid>
 				<Grid xs={12} sm={7} display={isAdmin ? '' : 'none'}>
-					<AdminPanel boardData={boardData} setSnackbarMessage={setSnackbarMessage} onUpdate={setBoardData} />
+					<AdminPanel setView={setView} setSnackbarMessage={setSnackbarMessage} />
 				</Grid>
 				<Grid xs={12} sm={isAdmin ? 5 : 6}>
 					<SummaryPanel boardData={boardData} initials={initials} squareMap={squareMap} />
@@ -137,7 +137,7 @@ export default function SquaresPage({}) {
 				<Grid container spacing={2}>
 					{view === 'admin' && (
 						<Grid xs={12}>
-							<AdminPanel boardData={boardData} setSnackbarMessage={setSnackbarMessage} onUpdate={setBoardData} />
+							<AdminPanel setView={setView} setSnackbarMessage={setSnackbarMessage} />
 						</Grid>
 					)}
 					{view === 'players' && (

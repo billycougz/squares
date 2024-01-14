@@ -4,17 +4,17 @@ import theme from '../styles/theme';
 import '../styles/styles.css';
 import AppContextProvider from './AppContextProvider';
 import Router from './AppRouter';
-import { SnackbarProvider } from './AppSnackbar';
+import { AppServicesProvider } from './AppServices';
 
 export default function App() {
 	return (
 		<AppContextProvider>
 			<ThemeProvider theme={theme}>
-				<SnackbarProvider>
+				<AppServicesProvider>
 					<Box sx={{ flexGrow: 1 }}>
 						<Router />
 					</Box>
-				</SnackbarProvider>
+				</AppServicesProvider>
 			</ThemeProvider>
 		</AppContextProvider>
 	);

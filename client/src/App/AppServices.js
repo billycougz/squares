@@ -1,15 +1,22 @@
 import React, { createContext, useContext, useState } from 'react';
 import { Snackbar } from '@mui/material';
+import Loader from '../components/Loader';
 
-const SnackbarContext = createContext();
+const AppServicesContext = createContext();
 
 const defaultConfig = {
 	autoHideDuration: 3000,
 	anchorOrigin: { vertical: 'top', horizontal: 'center' },
 };
 
-const SnackbarProvider = ({ children }) => {
+/**
+ * Provider for global app services
+ * - Snackbar
+ * - Loader
+ */
+const AppServicesProvider = ({ children }) => {
 	const [snackbarConfig, setSnackbarConfig] = useState(null);
+	const [isLoading, setIsLoading] = useState(false);
 
 	const showSnackbar = (message, config = {}) => {
 		setSnackbarConfig({ ...defaultConfig, ...config, message });
@@ -20,15 +27,16 @@ const SnackbarProvider = ({ children }) => {
 	};
 
 	return (
-		<SnackbarContext.Provider value={{ showSnackbar }}>
+		<AppServicesContext.Provider value={{ showSnackbar, setIsLoading }}>
 			{children}
+			<Loader open={isLoading} />
 			{snackbarConfig && <Snackbar open={Boolean(snackbarConfig)} {...snackbarConfig} onClose={hideSnackbar} />}
-		</SnackbarContext.Provider>
+		</AppServicesContext.Provider>
 	);
 };
 
-const useSnackbar = () => {
-	return useContext(SnackbarContext);
+const useAppServices = () => {
+	return useContext(AppServicesContext);
 };
 
-export { SnackbarProvider, useSnackbar };
+export { AppServicesProvider, useAppServices };

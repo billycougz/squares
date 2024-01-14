@@ -10,9 +10,11 @@ import { updateBoard } from '../../api';
 import ResultsDialog from '../../components/ResultsDialog';
 import AppContext from '../../App/AppContext';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import { useAppServices } from '../../App/AppServices';
 
-export default function AdminPanel({ setSnackbarMessage, onUpdate }) {
-	const { boardData, boardInsights } = useContext(AppContext);
+export default function AdminPanel({ setSnackbarMessage, setView }) {
+	const { boardData, boardInsights, setBoardData } = useContext(AppContext);
+	const { setIsLoading } = useAppServices();
 	const { id, gridData, boardName, teams, results } = boardData;
 
 	const [activeDialog, setActiveDialog] = useState('');
@@ -31,14 +33,17 @@ export default function AdminPanel({ setSnackbarMessage, onUpdate }) {
 		}
 		const doContinue = window.confirm('Set the numbers? This can only be done once.');
 		if (doContinue) {
+			setIsLoading(true);
 			const { Item } = await updateBoard({ id, boardName, operation: 'numbers' });
-			onUpdate({ ...Item });
+			setBoardData(Item);
+			setView('board');
+			setIsLoading(false);
 		}
 	};
 
 	const handleFinanceSave = async (value) => {
 		const { Item } = await updateBoard({ id, boardName, operation: 'finances', value });
-		onUpdate({ ...Item });
+		setBoardData(Item);
 		setActiveDialog('');
 	};
 
@@ -65,7 +70,8 @@ export default function AdminPanel({ setSnackbarMessage, onUpdate }) {
 			operation: 'result',
 			value: Number(quarterIndex),
 		});
-		onUpdate({ ...Item });
+		setBoardData(Item);
+		setView('results');
 		setActiveDialog('');
 	};
 
