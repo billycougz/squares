@@ -29,9 +29,10 @@ const AppContextProvider = ({ children }) => {
 			{ _remaining: 0 }
 		);
 		setBoardData(updatedData);
+		const firstNumberSquare = updatedData?.gridData[0][1];
 		setBoardInsights({
 			remainingSquares: squareMap?.['_remaining'],
-			areNumbersSet: updatedData?.gridData[0][1], // If one number is set they all are
+			areNumbersSet: firstNumberSquare || firstNumberSquare === 0,
 			getClaimCount: (initials) => squareMap[initials] || 0,
 		});
 	};
