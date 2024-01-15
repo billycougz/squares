@@ -2,7 +2,7 @@ import { useContext, useState } from 'react';
 import BorderStyleIcon from '@mui/icons-material/BorderStyle';
 import EditIcon from '@mui/icons-material/Edit';
 import IosShareIcon from '@mui/icons-material/IosShare';
-import { Button, FormControl } from '@mui/material';
+import { Button, DialogContentText, FormControl } from '@mui/material';
 import Box from '@mui/material/Box';
 import CustomAccordion from '../../components/Accordion';
 import FinanceDialog from '../../components/FinanceDialog';
@@ -14,7 +14,7 @@ import { useAppServices } from '../../App/AppServices';
 
 export default function AdminPanel({ setSnackbarMessage, setView }) {
 	const { boardData, boardInsights, setBoardData } = useContext(AppContext);
-	const { setIsLoading } = useAppServices();
+	const { setIsLoading, setDialog } = useAppServices();
 	const { id, gridData, boardName, teams, results } = boardData;
 
 	const [activeDialog, setActiveDialog] = useState('');
@@ -31,14 +31,20 @@ export default function AdminPanel({ setSnackbarMessage, setView }) {
 			setSnackbarMessage('The numbers cannot be set until all squares have been claimed.');
 			return;
 		}
-		const doContinue = window.confirm('Set the numbers? This can only be done once.');
-		if (doContinue) {
+		const handleContinue = async () => {
+			setDialog(null);
 			setIsLoading(true);
 			const { Item } = await updateBoard({ id, boardName, operation: 'numbers' });
 			setBoardData(Item);
 			setView('board');
 			setIsLoading(false);
-		}
+		};
+		setDialog({
+			title: 'Set Board Numbers',
+			children: <DialogContentText>The numbers will be randomly set. This can't be undone.</DialogContentText>,
+			closeConfig: { text: 'Cancel', action: () => setDialog(null) },
+			saveConfig: { display: true, text: 'Confirm', action: handleContinue },
+		});
 	};
 
 	const handleFinanceSave = async (value) => {
