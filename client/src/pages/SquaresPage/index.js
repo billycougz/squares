@@ -1,4 +1,4 @@
-import { Paper, Snackbar, Tab, Tabs, Typography, useMediaQuery } from '@mui/material';
+import { Button, Paper, Snackbar, Tab, Tabs, useMediaQuery } from '@mui/material';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Unstable_Grid2';
 import { useContext, useEffect, useState } from 'react';
@@ -21,8 +21,8 @@ const hideOnLandscapeStyles = {
 };
 
 export default function SquaresPage({}) {
-	const { boardData, setBoardData, boardUser } = useContext(AppContext);
-	const { id, gridData, boardName, results, anchor } = boardData;
+	const { boardData, setBoardData, boardUser, boardInsights } = useContext(AppContext);
+	const { id, gridData, boardName, results, anchor, adminPaymentLink } = boardData;
 	const { isAdmin } = boardUser;
 
 	const [initials, setInitials] = useLocalStorage('squares-initials', '');
@@ -40,6 +40,7 @@ export default function SquaresPage({}) {
 	useDocumentTitle(`${boardName} | Squares`);
 
 	useEffect(() => {
+		// Handle results anchor
 		if (anchor === 'results') {
 			const { winner } = results.findLast((result) => !!result.winner);
 			if (winner === initials) {
@@ -49,13 +50,15 @@ export default function SquaresPage({}) {
 	}, [boardData]);
 
 	useEffect(() => {
+		// Handle intro flows (admin and non-admin)
 		if (boardData.adminIntro) {
 			// ToDo: Handle transient adminIntro better
 			delete boardData.adminIntro;
 			setShowAdminIntroDialog(true);
 			setBoardData(boardData);
-		} else if (!initials) {
-			setShowInfoDialog(true);
+		} else if (!showAdminIntroDialog && (!initials || !boardInsights?.getClaimCount(initials))) {
+			// ToDo: Handle better
+			setShowInfoDialog({ intro: true });
 		}
 	}, []);
 
@@ -79,6 +82,33 @@ export default function SquaresPage({}) {
 		},
 		{ _remaining: 0 }
 	);
+
+	const PaymentLink = () => {
+		function validateVenmoUrl(inputString) {
+			const pattern = /^https:\/\/venmo\.com\/u\/\S+$/;
+			return pattern.test(inputString.trim());
+		}
+		if (!adminPaymentLink || !validateVenmoUrl(adminPaymentLink)) {
+			return null;
+		}
+		const urlObject = new URL(adminPaymentLink);
+		const username = urlObject.pathname
+			.split('/')
+			.filter((segment) => segment !== '')
+			.pop();
+		return (
+			<Button
+				sx={{ mt: '1rem' }}
+				variant='contained'
+				fullWidth
+				href={adminPaymentLink}
+				target='_BLANK'
+				startIcon={<img src='/venmo.svg' width='24' height='24' />}
+			>
+				{boardUser.isAdmin ? `Open Venmo` : `Venmo @${username}`}
+			</Button>
+		);
+	};
 
 	const NonMobileView = () => (
 		<Box sx={{ margin: '1em' }}>
@@ -163,6 +193,7 @@ export default function SquaresPage({}) {
 								setSnackbarMessage={setSnackbarMessage}
 							/>
 						</Box>
+						<PaymentLink />
 						{isAdmin && (
 							<Grid
 								xs={12}
@@ -205,7 +236,7 @@ export default function SquaresPage({}) {
 				<CustomHeader
 					boardName={boardName}
 					onHomeClick={() => setBoardData(null)}
-					onInfoClick={() => setShowInfoDialog(true)}
+					onInfoClick={() => setShowInfoDialog({ intro: false })}
 				/>
 			</Box>
 
@@ -216,7 +247,9 @@ export default function SquaresPage({}) {
 				onClose={() => setSnackbarMessage('')}
 				message={snackbarMessage}
 			/>
-			{showInfoDialog && <InfoDialog onClose={() => setShowInfoDialog(false)} />}
+			{showInfoDialog && !showAdminIntroDialog && (
+				<InfoDialog onClose={() => setShowInfoDialog(false)} isIntro={showInfoDialog?.intro} />
+			)}
 			{showAdminIntroDialog && (
 				<AdminIntroDialog setSnackbarMessage={setSnackbarMessage} onClose={() => setShowAdminIntroDialog(false)} />
 			)}

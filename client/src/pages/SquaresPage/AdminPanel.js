@@ -11,6 +11,9 @@ import ResultsDialog from '../../components/ResultsDialog';
 import AppContext from '../../App/AppContext';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import { useAppServices } from '../../App/AppServices';
+import InfoIcon from '@mui/icons-material/Info';
+import ManagePaymentInfoContent from '../../components/ManagePaymentInfoContent';
+import ManagePaymentDialog from '../../components/ManagePaymentDialog';
 
 export default function AdminPanel({ setSnackbarMessage, setView }) {
 	const { boardData, boardInsights, setBoardData } = useContext(AppContext);
@@ -85,6 +88,10 @@ export default function AdminPanel({ setSnackbarMessage, setView }) {
 		<CustomAccordion title='Admin Controls'>
 			<FormControl>
 				<Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: '-1em' }}>
+					<Button variant='contained' size='small' onClick={handleCopyShareLink} fullWidth startIcon={<IosShareIcon />}>
+						Copy link for participants
+					</Button>
+
 					<Button
 						size='small'
 						variant='contained'
@@ -98,22 +105,18 @@ export default function AdminPanel({ setSnackbarMessage, setView }) {
 						<FinanceDialog onSave={handleFinanceSave} onClose={() => setActiveDialog('')} boardData={boardData} />
 					)}
 
-					{/* ToDo 12/30/23 - <Button size='small' variant='contained' onClick={() => setActiveDialog('admin-message')}>
-						<EditIcon sx={{ pr: 1 }} fontSize='small' />
-						Admin Message
+					<Button
+						size='small'
+						variant='contained'
+						onClick={() => setActiveDialog('paymentInfo')}
+						fullWidth
+						startIcon={<InfoIcon />}
+					>
+						Manage Payment Info
 					</Button>
-					{activeDialog === 'admin-message' && (
-						<AdminMessageDialog
-							results={results}
-							teams={teams}
-							gridData={gridData}
-							onSave={null}
-							onClose={() => setActiveDialog('')}
-						/>
-					)} */}
-					<Button variant='contained' size='small' onClick={handleCopyShareLink} fullWidth startIcon={<IosShareIcon />}>
-						Copy link for participants
-					</Button>
+
+					{activeDialog === 'paymentInfo' && <ManagePaymentDialog onClose={() => setActiveDialog('')} />}
+
 					{!boardInsights.areNumbersSet && (
 						<Button
 							variant='contained'
@@ -125,6 +128,7 @@ export default function AdminPanel({ setSnackbarMessage, setView }) {
 							Set Numbers
 						</Button>
 					)}
+
 					<Button size='small' variant='contained' onClick={handleEnterResultsClick} fullWidth startIcon={<EditIcon />}>
 						Enter Results
 					</Button>

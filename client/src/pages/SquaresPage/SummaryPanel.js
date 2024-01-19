@@ -68,11 +68,11 @@ export default function SummaryPanel({ boardData, initials, squareMap }) {
 			<CustomTable
 				initials={initials}
 				highlightProperty='Initials'
-				headers={['Initials', 'Squares', squarePrice && 'Owed']}
+				headers={['Initials', 'Squares', squarePrice && 'Amount']}
 				rows={Object.keys(squareMap)
 					.sort()
 					.filter((key) => key !== '_remaining')
-					.map((key) => ({ Initials: key, Squares: squareMap[key], Owed: `$${squareMap[key] * squarePrice}` }))}
+					.map((key) => ({ Initials: key, Squares: squareMap[key], Amount: `$${squareMap[key] * squarePrice}` }))}
 			/>
 		</CustomAccordion>
 	);

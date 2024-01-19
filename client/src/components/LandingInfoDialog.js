@@ -21,16 +21,16 @@ const steps = [
 					square costs a dollar amount set by the Squares board creator.
 				</Typography>
 				<Typography>
-					Once every square is claimed, the Squares board creator randomly assigns a number 0-9 across both the X and Y
-					axes. The axes correspond to the two teams in the Super Bowl.
+					Once every square is claimed, the Squares board creator randomly assigns a number 0-9 across both grid axes.
+					The axes correspond to the two teams in the Super Bowl.
 				</Typography>
 				<Typography>
 					At the end of each Super Bowl quarter, one square will correspond to the last digit of each team's score. The
 					owner of this square wins the payout set by the Squares board creator for the given quarter.
 				</Typography>
 				<Typography>
-					Squares is completely free and no money is exchanged through the platform. The Squares board creator
-					determines how participants will exchange funds to pay for squares and receive payouts (e.g., Venmo).
+					Squares is a free platform. The Squares board creator determines how participants will exchange funds to pay
+					for squares and receive payouts (e.g., Venmo).
 				</Typography>
 			</Box>
 		),

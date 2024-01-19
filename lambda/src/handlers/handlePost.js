@@ -38,6 +38,8 @@ const handleCreate = async (boardData) => {
 	boardData.id = uuidv4();
 	boardData.adminCode = uuidv4();
 	boardData.gridData = initializeGrid();
+	// paymentMethod isn't actually doing anything right now
+	boardData.paymentMethod = 'Venmo';
 	boardData.squarePrice = 0;
 	boardData.maxSquares = 0;
 	boardData.payoutSliderValues = [25, 50, 75, 100];

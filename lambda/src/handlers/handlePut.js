@@ -9,7 +9,7 @@ async function handlePut(event) {
 const updateBoard = async (event) => {
 	const { id, boardName, row, col, value, operation, scores = {} } = JSON.parse(event.body);
 	console.log('requesting table');
-	const { Item } = await getSquaresBoard(id);
+	let { Item } = await getSquaresBoard(id);
 	console.log('received table');
 	switch (operation) {
 		case 'select':
@@ -50,10 +50,9 @@ const updateBoard = async (event) => {
 			});
 			break;
 		case 'finances':
-			const { squarePrice, payoutSliderValues, maxSquares } = value;
-			Item.squarePrice = squarePrice;
-			Item.maxSquares = maxSquares;
-			Item.payoutSliderValues = payoutSliderValues;
+			// const { squarePrice, payoutSliderValues, maxSquares } = value;
+			// Might want to handle this better
+			Item = { ...Item, ...value };
 			break;
 		default:
 			break;

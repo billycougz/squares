@@ -1,7 +1,6 @@
 import TextField from '@mui/material/TextField';
-import DialogContent from '@mui/material/DialogContent';
-import PaidIcon from '@mui/icons-material/Paid';
-import { Avatar, Chip, FormControl, FormLabel, InputAdornment, Slider } from '@mui/material';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import { Avatar, Box, Chip, FormControl, FormLabel, InputAdornment, Slider } from '@mui/material';
 import CustomTable from './Table';
 import TagIcon from '@mui/icons-material/Tag';
 
@@ -42,7 +41,7 @@ export default function ManageFinanceContent({ financeData, onDataChange }) {
 	};
 
 	return (
-		<DialogContent>
+		<Box>
 			<TextField
 				sx={{ margin: 1, ml: '0 !important', width: '120px' }}
 				size='small'
@@ -58,7 +57,7 @@ export default function ManageFinanceContent({ financeData, onDataChange }) {
 					},
 					startAdornment: (
 						<InputAdornment position='start'>
-							<PaidIcon />
+							<AttachMoneyIcon />
 						</InputAdornment>
 					),
 				}}
@@ -69,9 +68,10 @@ export default function ManageFinanceContent({ financeData, onDataChange }) {
 				sx={{ margin: 1, ml: '0 !important', width: '120px' }}
 				size='small'
 				id='outlined-number'
-				label='Max per Person'
+				label='Limit Per Person'
 				type='number'
-				value={maxSquares}
+				value={maxSquares || ''}
+				placeholder='No Limit'
 				onChange={(e) => handleDataChange('maxSquares', Number(e.target.value) || '')}
 				InputProps={{
 					inputProps: {
@@ -141,6 +141,6 @@ export default function ManageFinanceContent({ financeData, onDataChange }) {
 					<CustomTable headers={['Q1', 'Q2', 'Q3', 'Q4']} rows={[percentRow, amountRow]} />
 				</>
 			)}
-		</DialogContent>
+		</Box>
 	);
 }

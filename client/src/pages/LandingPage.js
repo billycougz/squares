@@ -81,10 +81,14 @@ export default function LandingPage({}) {
 		return () => clearTimeout(timer);
 	}, []);
 
+	const phoneIsValidOrEmpty = (value) => {
+		return !value || (value && value.length === 15);
+	};
+
 	const handleCreateClick = async () => {
 		const errors = {
 			boardName: !Boolean(formData.boardName),
-			phoneNumber: !Boolean(!formData.phoneNumber || (formData.phoneNumber && formData.phoneNumber.length === 15)),
+			phoneNumber: !phoneIsValidOrEmpty(formData.phoneNumber),
 		};
 		if (Object.values(errors).some((value) => value)) {
 			setFormErrors(errors);
@@ -270,7 +274,6 @@ export default function LandingPage({}) {
 						/>
 
 						{showPhoneNumberWarning && <PhoneNumberWarning onClose={handlePhoneNumberWarningClose} />}
-
 						<MuiTelInput
 							placeholder='Phone Number'
 							size='small'
@@ -281,7 +284,7 @@ export default function LandingPage({}) {
 							error={formErrors.phoneNumber}
 							helperText={
 								<span>
-									Phone number is optional.
+									Optional but recommended.
 									<br /> Squares uses your phone number to send you your unique board link and board event
 									notifications.
 								</span>
