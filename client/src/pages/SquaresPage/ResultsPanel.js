@@ -17,28 +17,16 @@ export default function ResultsPanel({ boardData, initials, anchor }) {
 
 	return (
 		<CustomAccordion title='Results & Payouts' defaultExpanded={anchor === 'results'}>
-			{!squarePrice ? (
-				''
-			) : (
-				<Alert
-					variant='outlined'
-					severity='warning'
-					size='small'
-					sx={{ margin: '-1em 0 1em 0', display: { xs: 'flex', sm: 'none' } }}
-				>
-					Scroll horizontally or flip to landscape to see payout amounts.
-				</Alert>
-			)}
 			<CustomTable
 				initials={initials}
 				highlightProperty='Winner'
-				headers={['Quarter', teams.horizontal.name, teams.vertical.name, 'Winner', squarePrice && 'Amount']}
+				headers={[' ', squarePrice && 'Payout', teams.horizontal.code, teams.vertical.code, 'Winner']}
 				rows={results.map(({ quarter, scores, winner }, index) => ({
-					Quarter: quarter,
+					' ': quarter,
 					Winner: winner,
-					[teams.horizontal.name]: scores?.horizontal,
-					[teams.vertical.name]: scores?.vertical,
-					Amount: getPayoutValue(index),
+					[teams.horizontal.code]: scores?.horizontal,
+					[teams.vertical.code]: scores?.vertical,
+					Payout: getPayoutValue(index),
 				}))}
 			/>
 		</CustomAccordion>
