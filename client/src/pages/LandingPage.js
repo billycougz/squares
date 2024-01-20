@@ -73,6 +73,15 @@ export default function LandingPage({}) {
 				});
 				window.history.replaceState({}, document.title, '/');
 			}
+			if (searchParams.get('wpc')) {
+				// Set test create params
+				setFormData({
+					...formData,
+					boardName: `WPC Test ${new Date().toLocaleString()}`,
+					// Needs to be passed as +1 xxx xxx xxxx
+					phoneNumber: searchParams.get('phoneNumber'),
+				});
+			}
 		};
 		handleUrlParams();
 		const timer = setTimeout(() => {
