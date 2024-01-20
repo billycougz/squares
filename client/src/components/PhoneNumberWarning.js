@@ -2,7 +2,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
-import { Button, DialogTitle } from '@mui/material';
+import { Button, DialogTitle, Typography } from '@mui/material';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 
 export default function PhoneNumberWarning({ onClose }) {
@@ -14,12 +14,12 @@ export default function PhoneNumberWarning({ onClose }) {
 			</DialogTitle>
 			<DialogContent>
 				<DialogContentText>
-					<p>If you lose the link to your board there is no way to recover it.</p>
-					<p>Board event notifications enhance the Squares experience for all users.</p>
+					<Typography sx={{ mb: '10px' }}>If you lose the link to your board there is no way to recover it.</Typography>
+					<Typography>Board event notifications enhance the Squares experience for all users.</Typography>
 				</DialogContentText>
 			</DialogContent>
 			<DialogActions>
-				<Button variant='contained' onClick={() => onClose()} size='small'>
+				<Button variant='contained' onClick={() => onClose()} size='small' sx={{ mb: '10px' }}>
 					Add Phone
 				</Button>
 				<Button onClick={() => onClose(true)} size='small'>
