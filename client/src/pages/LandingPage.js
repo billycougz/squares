@@ -43,7 +43,7 @@ const TitleContainer = styled.div`
 export default function LandingPage({}) {
 	useDocumentTitle('Squares');
 
-	const { setBoardData, setBoardUser, updateSubscriptions } = useContext(AppContext);
+	const { setBoardData, setBoardUser } = useContext(AppContext);
 
 	const [recentSquares, setRecentSquares] = useLocalStorage('recent-squares', []);
 
@@ -151,10 +151,14 @@ export default function LandingPage({}) {
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	};
 
-	const updateRecentSquares = (currentSquares) => {
-		// ToDo: Don't store entire board, simply need id, boardName, and adminCode
-		const previousSquares = recentSquares.filter((squares) => squares.boardName !== currentSquares.boardName);
-		setRecentSquares([{ ...currentSquares }, ...previousSquares]);
+	const updateRecentSquares = (loadedBoard) => {
+		const mostRecentBoard = {
+			id: loadedBoard.id,
+			boardName: loadedBoard.boardName,
+			adminCode: loadedBoard.adminCode,
+		};
+		const additionalRecentBoards = recentSquares.filter(({ id }) => id !== loadedBoard.id);
+		setRecentSquares([mostRecentBoard, ...additionalRecentBoards]);
 	};
 
 	const handlePhoneNumberWarningClose = (proceed) => {
