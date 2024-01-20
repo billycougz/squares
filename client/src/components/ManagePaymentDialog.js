@@ -12,7 +12,7 @@ export default function ManagePaymentDialog({ onClose }) {
 	const { setIsLoading } = useAppServices();
 
 	const [paymentInfoData, setPaymentInfoData] = useState({
-		adminPaymentLink: boardData.adminPaymentLink,
+		venmoUsername: boardData.venmoUsername,
 		financeMessage: boardData.financeMessage,
 	});
 
@@ -23,7 +23,7 @@ export default function ManagePaymentDialog({ onClose }) {
 	};
 
 	const isSaveDisabled =
-		paymentInfoData.adminPaymentLink === boardData.adminPaymentLink &&
+		paymentInfoData.venmoUsername === boardData.venmoUsername &&
 		paymentInfoData.financeMessage === boardData.financeMessage;
 
 	const props = {

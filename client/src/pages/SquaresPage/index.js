@@ -22,7 +22,7 @@ const hideOnLandscapeStyles = {
 
 export default function SquaresPage({}) {
 	const { boardData, setBoardData, boardUser, boardInsights, getSubscribedNumber } = useContext(AppContext);
-	const { id, gridData, boardName, results, anchor, adminPaymentLink } = boardData;
+	const { id, gridData, boardName, results, anchor, venmoUsername } = boardData;
 	const { isAdmin } = boardUser;
 
 	const [initials, setInitials] = useLocalStorage('squares-initials', '');
@@ -91,28 +91,19 @@ export default function SquaresPage({}) {
 	);
 
 	const PaymentLink = () => {
-		function validateVenmoUrl(inputString) {
-			const pattern = /^https:\/\/venmo\.com\/u\/\S+$/;
-			return pattern.test(inputString.trim());
-		}
-		if (!adminPaymentLink || !validateVenmoUrl(adminPaymentLink)) {
+		if (!venmoUsername) {
 			return null;
 		}
-		const urlObject = new URL(adminPaymentLink);
-		const username = urlObject.pathname
-			.split('/')
-			.filter((segment) => segment !== '')
-			.pop();
 		return (
 			<Button
 				sx={{ mt: '1rem' }}
 				variant='contained'
 				fullWidth
-				href={adminPaymentLink}
+				href={`https://venmo.com/u/${venmoUsername}`}
 				target='_BLANK'
 				startIcon={<img src='/venmo.svg' width='24' height='24' />}
 			>
-				{boardUser.isAdmin ? `Open Venmo` : `Venmo @${username}`}
+				{boardUser.isAdmin ? `Open Venmo` : `Venmo @${venmoUsername}`}
 			</Button>
 		);
 	};

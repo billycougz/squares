@@ -8,13 +8,13 @@ import AppContext from '../App/AppContext';
 
 export default function FinanceDialog({ onClose, onSave }) {
 	const { boardData } = useContext(AppContext);
-	const { squarePrice, maxSquares, payoutSliderValues, adminPaymentLink, financeMessage } = boardData;
+	const { squarePrice, maxSquares, payoutSliderValues, venmoUsername, financeMessage } = boardData;
 
 	const [financeData, setFinanceData] = useState({
 		squarePrice,
 		maxSquares,
 		payoutSliderValues,
-		adminPaymentLink,
+		venmoUsername,
 		financeMessage,
 	});
 
@@ -22,7 +22,7 @@ export default function FinanceDialog({ onClose, onSave }) {
 
 	const handleDataChange = (updatedFinanceData) => {
 		const hasValueChanged =
-			updatedFinanceData.adminPaymentLink !== adminPaymentLink ||
+			updatedFinanceData.venmoUsername !== venmoUsername ||
 			updatedFinanceData.financeMessage !== financeMessage ||
 			updatedFinanceData.maxSquares !== maxSquares ||
 			updatedFinanceData.squarePrice !== squarePrice ||
