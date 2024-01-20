@@ -6,22 +6,16 @@ import VerifiedIcon from '@mui/icons-material/Verified';
 import AppContext from '../App/AppContext';
 
 export default function SmsContent({ initials, onChange, onIsSubscribed, phoneNumber, showHelper, error }) {
-	const { boardUser, boardData } = useContext(AppContext);
-	const { boardName } = boardData;
-	const { isAdmin } = boardUser;
+	const { boardUser, boardData, getSubscribedNumber } = useContext(AppContext);
 
-	const storedNumber = (() => {
-		const storedSubscriptions = JSON.parse(localStorage.getItem('squares-subscriptions')) || {};
-		// _ADMIN is set in LandingPage upon create, other subscriptions stored by initials in InitialsBox.js
-		return isAdmin ? storedSubscriptions?.[boardName]?.['_ADMIN'] : storedSubscriptions?.[boardName]?.[initials];
-	})();
+	const subscribedNumber = getSubscribedNumber(initials);
 
-	if (storedNumber) {
-		onIsSubscribed(storedNumber);
+	if (subscribedNumber) {
+		onIsSubscribed(subscribedNumber);
 		return (
 			<DialogContentText sx={{ mt: '10px ' }}>
 				<VerifiedIcon color='primary' sx={{ mb: '-5px', pr: 1 }} />
-				<strong>{storedNumber}</strong> is subscribed.
+				<strong>{subscribedNumber}</strong> is subscribed.
 			</DialogContentText>
 		);
 	}

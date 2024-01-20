@@ -5,6 +5,21 @@ const AppContextProvider = ({ children }) => {
 	const [boardUser, setBoardUser] = useState({});
 	const [boardData, setBoardData] = useState({});
 	const [boardInsights, setBoardInsights] = useState({});
+	const [subscriptions, setSubscriptions] = useState(JSON.parse(localStorage.getItem('squares-subscriptions')) || {});
+
+	const updateSubscriptions = (initials, phoneNumber) => {
+		const { id } = boardData;
+		subscriptions[id] = subscriptions[id] || {};
+		subscriptions[id][initials] = phoneNumber;
+		localStorage.setItem('squares-subscriptions', JSON.stringify(subscriptions));
+		setSubscriptions({ ...subscriptions });
+	};
+
+	// ToDo: Build this into boardUser once initials are handled
+	const getSubscribedNumber = (initials) => {
+		const { id } = boardData;
+		return subscriptions?.[id]?.[initials];
+	};
 
 	const handleBoardDataChange = (updatedData) => {
 		if (!updatedData || (updatedData && !updatedData.id)) {
@@ -43,6 +58,8 @@ const AppContextProvider = ({ children }) => {
 				boardUser,
 				setBoardUser,
 				boardInsights,
+				updateSubscriptions,
+				getSubscribedNumber,
 				boardData,
 				setBoardData: handleBoardDataChange,
 			}}

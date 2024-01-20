@@ -17,7 +17,7 @@ import AppContext from '../App/AppContext';
 import { subscribeNumberToBoard } from '../api';
 
 export default function InfoDialog({ onClose, isIntro }) {
-	const { boardData } = useContext(AppContext);
+	const { boardData, updateSubscriptions } = useContext(AppContext);
 	const { id, boardName, squarePrice, maxSquares, financeMessage } = boardData;
 
 	const [initials, setInitials] = useLocalStorage('squares-initials', '');
@@ -45,11 +45,9 @@ export default function InfoDialog({ onClose, isIntro }) {
 	};
 
 	const handleSmsSave = async () => {
-		const { msg } = await subscribeNumberToBoard({ id, boardName, phoneNumber: phoneNumber.replace(/\s/g, '') });
-		const storedSubscriptions = JSON.parse(localStorage.getItem('squares-subscriptions')) || {};
-		storedSubscriptions[boardName] = storedSubscriptions[boardName] || {};
-		storedSubscriptions[boardName][initials] = phoneNumber;
-		localStorage.setItem('squares-subscriptions', JSON.stringify(storedSubscriptions));
+		const trimmed = phoneNumber.replace(/\s/g, '');
+		const { msg } = await subscribeNumberToBoard({ id, boardName, phoneNumber: trimmed });
+		updateSubscriptions(initials, trimmed);
 	};
 
 	const steps = [

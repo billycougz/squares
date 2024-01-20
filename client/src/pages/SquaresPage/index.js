@@ -21,7 +21,7 @@ const hideOnLandscapeStyles = {
 };
 
 export default function SquaresPage({}) {
-	const { boardData, setBoardData, boardUser, boardInsights } = useContext(AppContext);
+	const { boardData, setBoardData, boardUser, boardInsights, getSubscribedNumber } = useContext(AppContext);
 	const { id, gridData, boardName, results, anchor, adminPaymentLink } = boardData;
 	const { isAdmin } = boardUser;
 
@@ -49,17 +49,24 @@ export default function SquaresPage({}) {
 		}
 	}, [boardData]);
 
-	useEffect(() => {
-		// Handle intro flows (admin and non-admin)
-		if (boardData.adminIntro) {
-			// ToDo: Handle transient adminIntro better
-			delete boardData.adminIntro;
+	// ToDo: Account for admin accessing without initials or phone
+	// ToDo: Remove showAdminIntroDialog checks in rendering if not needed
+	const handleIntroFlows = () => {
+		if (boardUser.isAdmin && !boardData.adminIntroComplete) {
+			// If admin and adminIntro not complete, show adminIntro
 			setShowAdminIntroDialog(true);
-			setBoardData(boardData);
-		} else if (!showAdminIntroDialog && (!initials || !boardInsights?.getClaimCount(initials))) {
-			// ToDo: Handle better
+		} else if (!initials) {
+			// If initials not set, show the full intro
 			setShowInfoDialog({ intro: true });
+		} else if (!boardInsights?.getClaimCount(initials)) {
+			// If no claims, show either full intro or info only dependent on whether subscribed
+			const isSubscribed = Boolean(getSubscribedNumber(initials));
+			setShowInfoDialog({ intro: !isSubscribed });
 		}
+	};
+
+	useEffect(() => {
+		handleIntroFlows();
 	}, []);
 
 	const highlightColor = '#1876d1';
@@ -247,9 +254,7 @@ export default function SquaresPage({}) {
 				onClose={() => setSnackbarMessage('')}
 				message={snackbarMessage}
 			/>
-			{showInfoDialog && !showAdminIntroDialog && (
-				<InfoDialog onClose={() => setShowInfoDialog(false)} isIntro={showInfoDialog?.intro} />
-			)}
+			{showInfoDialog && <InfoDialog onClose={() => setShowInfoDialog(false)} isIntro={showInfoDialog?.intro} />}
 			{showAdminIntroDialog && (
 				<AdminIntroDialog setSnackbarMessage={setSnackbarMessage} onClose={() => setShowAdminIntroDialog(false)} />
 			)}

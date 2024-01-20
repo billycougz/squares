@@ -6,8 +6,10 @@ import TextField from '@mui/material/TextField';
 import { useContext, useState } from 'react';
 import { subscribeNumberToBoard } from '../../api';
 import SmsDialog from '../../components/SmsDialog';
+import AppContext from '../../App/AppContext';
 
 export default function InitialsBox({ initials, onChange, id, boardName, setSnackbarMessage }) {
+	const { updateSubscriptions } = useContext(AppContext);
 	const [isSmsDialogOpen, setIsSmsDialogOpen] = useState(false);
 	const [initialsUnderChange, setInitialsUnderChange] = useState(initials);
 
@@ -18,10 +20,7 @@ export default function InitialsBox({ initials, onChange, id, boardName, setSnac
 
 	const handleSmsSave = async ({ phoneNumber }) => {
 		const { msg } = await subscribeNumberToBoard({ id, boardName, phoneNumber: phoneNumber.replace(/\s/g, '') });
-		const storedSubscriptions = JSON.parse(localStorage.getItem('squares-subscriptions')) || {};
-		storedSubscriptions[boardName] = storedSubscriptions[boardName] || {};
-		storedSubscriptions[boardName][initials] = phoneNumber;
-		localStorage.setItem('squares-subscriptions', JSON.stringify(storedSubscriptions));
+		updateSubscriptions(initials, phoneNumber);
 		setSnackbarMessage(msg);
 		setIsSmsDialogOpen(false);
 	};

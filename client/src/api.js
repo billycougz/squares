@@ -15,6 +15,12 @@ export const createBoard = async ({ boardName, teams, phoneNumber }) => {
 	}
 };
 
+/**
+ * @param {Object} updateData
+ * @param {string} updateData.id
+ * @param {string} updateData.operation
+ * @param {Object} updateData.value
+ */
 export const updateBoard = async (updateData) => {
 	try {
 		const { data } = await axios.put(BASE_URL, updateData);

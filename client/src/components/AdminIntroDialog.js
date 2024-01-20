@@ -14,7 +14,7 @@ import { AccountCircle } from '@mui/icons-material';
 import { useLocalStorage } from 'usehooks-ts';
 
 export default function AdminMessageDialog({ onClose, setSnackbarMessage }) {
-	const { boardData, setBoardData } = useContext(AppContext);
+	const { boardData, setBoardData, updateSubscriptions, boardUser } = useContext(AppContext);
 	const {
 		id,
 		boardName,
@@ -222,6 +222,17 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }) {
 		setStepIndex(stepIndex + direction);
 	};
 
+	const handleStart = async () => {
+		const value = {
+			adminIntroComplete: true,
+		};
+		await updateBoard({ id, operation: 'update', value });
+		if (boardUser.adminPhoneNumber) {
+			updateSubscriptions(initials, boardUser.adminPhoneNumber);
+		}
+		onClose();
+	};
+
 	return (
 		<Dialog open={true} onClose={null}>
 			<DialogTitle>{steps[stepIndex].title}</DialogTitle>
@@ -229,7 +240,7 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }) {
 			<DialogActions sx={{ marginTop: '-1em' }}>
 				{Boolean(stepIndex) && <Button onClick={() => handleStepChange(-1)}>Back</Button>}
 				{stepIndex < steps.length - 1 && <Button onClick={() => handleStepChange(1)}>Next</Button>}
-				{stepIndex === steps.length - 1 && <Button onClick={onClose}>Get Started</Button>}
+				{stepIndex === steps.length - 1 && <Button onClick={handleStart}>Get Started</Button>}
 			</DialogActions>
 		</Dialog>
 	);

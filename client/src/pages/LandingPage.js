@@ -43,7 +43,7 @@ const TitleContainer = styled.div`
 export default function LandingPage({}) {
 	useDocumentTitle('Squares');
 
-	const { setBoardData, setBoardUser } = useContext(AppContext);
+	const { setBoardData, setBoardUser, updateSubscriptions } = useContext(AppContext);
 
 	const [recentSquares, setRecentSquares] = useLocalStorage('recent-squares', []);
 
@@ -104,16 +104,13 @@ export default function LandingPage({}) {
 	const handleCreate = async () => {
 		setIsLoading(true);
 		const boardData = await createBoard(formData);
-		const { error, subscribedPhoneNumber, boardName } = boardData;
+		const { error, subscribedPhoneNumber } = boardData;
 		if (!error) {
-			if (subscribedPhoneNumber) {
-				const storedSubscriptions = JSON.parse(localStorage.getItem('squares-subscriptions')) || {};
-				storedSubscriptions[boardName] = storedSubscriptions[boardName] || {};
-				storedSubscriptions[boardName]['_ADMIN'] = subscribedPhoneNumber;
-				localStorage.setItem('squares-subscriptions', JSON.stringify(storedSubscriptions));
-			}
-			// ToDo: Handle adminCode better
-			handleBoardReady({ boardData, adminCode: boardData.adminCode, adminIntro: true });
+			handleBoardReady({
+				boardData,
+				adminCode: boardData.adminCode,
+				adminPhoneNumber: subscribedPhoneNumber,
+			});
 		} else {
 			alert(boardData.error);
 		}
@@ -137,7 +134,7 @@ export default function LandingPage({}) {
 	/**
 	 * Called both after a board is created and after a board is loaded
 	 */
-	const handleBoardReady = ({ boardData, adminCode, anchor, adminIntro }) => {
+	const handleBoardReady = ({ boardData, adminCode, adminPhoneNumber, anchor }) => {
 		const recentBoard = recentSquares.find(({ id }) => id === boardData.id);
 		// adminCode can be provided as a param or preexist if found in recentSquares
 		// recentSquares scenario occurs on clicking link sent upon results
@@ -147,9 +144,10 @@ export default function LandingPage({}) {
 			delete boardData.adminCode;
 		}
 		updateRecentSquares(boardData);
-		// ToDo: anchor and adminIntro are transient properties that should be handled separately
-		setBoardData({ ...boardData, anchor, adminIntro });
-		setBoardUser({ isAdmin: Boolean(adminCode) });
+		// adminPhoneNumber passed onCreate to enable storing the subscription once initials set
+		setBoardUser({ isAdmin: Boolean(adminCode), adminPhoneNumber });
+		// ToDo: anchor is transient and should be handled separately
+		setBoardData({ ...boardData, anchor });
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	};
 

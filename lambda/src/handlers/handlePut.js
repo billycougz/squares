@@ -54,6 +54,9 @@ const updateBoard = async (event) => {
 			// Might want to handle this better
 			Item = { ...Item, ...value };
 			break;
+		case 'update':
+			Item = { ...Item, ...value };
+			break;
 		default:
 			break;
 	}
