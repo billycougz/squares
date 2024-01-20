@@ -9,6 +9,6 @@ module.exports.dynamo = new AWS.DynamoDB.DocumentClient();
 module.exports.sns = new AWS.SNS();
 
 module.exports.AWS_CONSTANTS = {
-	SQUARES_TABLE_NAME: 'SquaresTable-v2',
+	SQUARES_TABLE_NAME: 'SquaresTable',
 	BASE_FRONTEND_URL: 'https://squares-lviii.com',
 };

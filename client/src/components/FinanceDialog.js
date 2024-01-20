@@ -8,12 +8,11 @@ import AppContext from '../App/AppContext';
 
 export default function FinanceDialog({ onClose, onSave }) {
 	const { boardData } = useContext(AppContext);
-	const { squarePrice, maxSquares, paymentMethod, payoutSliderValues, adminPaymentLink, financeMessage } = boardData;
+	const { squarePrice, maxSquares, payoutSliderValues, adminPaymentLink, financeMessage } = boardData;
 
 	const [financeData, setFinanceData] = useState({
 		squarePrice,
 		maxSquares,
-		paymentMethod,
 		payoutSliderValues,
 		adminPaymentLink,
 		financeMessage,

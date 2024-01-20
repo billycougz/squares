@@ -5,9 +5,10 @@ const BASE_URL =
 		? 'http://192.168.254.27:8080'
 		: 'https://16ivlqrume.execute-api.us-east-1.amazonaws.com/default/squares-function';
 
-export const createBoard = async ({ boardName, teams, phoneNumber }) => {
+export const createBoard = async (formData) => {
+	// { boardName, teams, phoneNumber, test } = formData;
 	try {
-		const body = { data: { boardName, teams, phoneNumber }, operation: 'create' };
+		const body = { data: formData, operation: 'create' };
 		const { data } = await axios.post(BASE_URL, body);
 		return data;
 	} catch (e) {

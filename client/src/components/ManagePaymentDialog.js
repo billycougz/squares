@@ -12,7 +12,6 @@ export default function ManagePaymentDialog({ onClose }) {
 	const { setIsLoading } = useAppServices();
 
 	const [paymentInfoData, setPaymentInfoData] = useState({
-		paymentMethod: boardData.paymentMethod,
 		adminPaymentLink: boardData.adminPaymentLink,
 		financeMessage: boardData.financeMessage,
 	});
@@ -24,7 +23,6 @@ export default function ManagePaymentDialog({ onClose }) {
 	};
 
 	const isSaveDisabled =
-		paymentInfoData.paymentMethod === boardData.paymentMethod &&
 		paymentInfoData.adminPaymentLink === boardData.adminPaymentLink &&
 		paymentInfoData.financeMessage === boardData.financeMessage;
 

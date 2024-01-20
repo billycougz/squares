@@ -77,9 +77,10 @@ export default function LandingPage({}) {
 				// Set test create params
 				setFormData({
 					...formData,
-					boardName: `WPC Test ${new Date().toLocaleString()}`,
+					boardName: new Date().toLocaleString(),
 					// Needs to be passed as +1 xxx xxx xxxx
 					phoneNumber: searchParams.get('phoneNumber'),
+					test: true,
 				});
 			}
 		};

@@ -20,7 +20,7 @@ function validateVenmoUrl(inputString) {
 }
 
 export default function ManagePaymentInfoContent({ paymentInfoData, onDataChange }) {
-	const { paymentMethod, adminPaymentLink, financeMessage } = paymentInfoData;
+	const { adminPaymentLink, financeMessage } = paymentInfoData;
 
 	const [errors, setErrors] = useState({});
 
@@ -42,23 +42,6 @@ export default function ManagePaymentInfoContent({ paymentInfoData, onDataChange
 				</Typography>
 			</DialogContentText>
 
-			{/** Disabling this */}
-			{false && (
-				<FormControl sx={{ m: 1, minWidth: 120, ml: 0 }} size='small'>
-					<InputLabel>Payment Method</InputLabel>
-					<Select
-						label='Payment Method'
-						value={paymentMethod}
-						onChange={(e) => handleDataChange('paymentMethod', e.target.value || '')}
-					>
-						<MenuItem value='Venmo'>Venmo</MenuItem>
-						<MenuItem value='cash'>Cash</MenuItem>
-						<MenuItem value='Venmo or cash'>Venmo or Cash</MenuItem>
-						<MenuItem value='other'>Other</MenuItem>
-					</Select>
-				</FormControl>
-			)}
-
 			<TextField
 				multiline
 				fullWidth
@@ -77,29 +60,27 @@ export default function ManagePaymentInfoContent({ paymentInfoData, onDataChange
 				}}
 			/>
 
-			{paymentMethod.includes('Venmo') && (
-				<TextField
-					error={errors.adminPaymentLink}
-					fullWidth
-					sx={{ input: { fontSize: '14px' } }}
-					size='small'
-					label={['Venmo', 'Venmo or cash'].includes(paymentMethod) ? 'Venmo Link' : 'Custom Method'}
-					helperText={
-						errors.adminPaymentLink ? (
-							'Make sure you paste your full Venmo link.'
-						) : (
-							<span>Optional. In the Venmo app, tap Me, tap your photo, tap the share button, tap Copy.</span>
-						)
-					}
-					type='text'
-					placeholder='https://venmo.com/u/username'
-					value={adminPaymentLink}
-					onChange={(e) => handleDataChange('adminPaymentLink', e.target.value || '')}
-					InputProps={{
-						startAdornment: <InputAdornment position='start'>{renderVenmoSVG()}</InputAdornment>,
-					}}
-				/>
-			)}
+			<TextField
+				error={errors.adminPaymentLink}
+				fullWidth
+				sx={{ input: { fontSize: '14px' } }}
+				size='small'
+				label='Venmo Link'
+				helperText={
+					errors.adminPaymentLink ? (
+						'Make sure you paste your full Venmo link.'
+					) : (
+						<span>Optional. In the Venmo app, tap Me, tap your photo, tap the share button, tap Copy.</span>
+					)
+				}
+				type='text'
+				placeholder='https://venmo.com/u/username'
+				value={adminPaymentLink}
+				onChange={(e) => handleDataChange('adminPaymentLink', e.target.value || '')}
+				InputProps={{
+					startAdornment: <InputAdornment position='start'>{renderVenmoSVG()}</InputAdornment>,
+				}}
+			/>
 		</Box>
 	);
 }

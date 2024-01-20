@@ -15,22 +15,12 @@ import { useLocalStorage } from 'usehooks-ts';
 
 export default function AdminMessageDialog({ onClose, setSnackbarMessage }) {
 	const { boardData, setBoardData, updateSubscriptions, boardUser } = useContext(AppContext);
-	const {
-		id,
-		boardName,
-		squarePrice,
-		maxSquares,
-		paymentMethod,
-		payoutSliderValues,
-		adminPaymentLink,
-		financeMessage,
-	} = boardData;
+	const { id, boardName, squarePrice, maxSquares, payoutSliderValues, adminPaymentLink, financeMessage } = boardData;
 
 	// ToDo: This is currently handling finance and paymentInfo, this can be handled better
 	const [financeData, setFinanceData] = useState({
 		squarePrice,
 		maxSquares,
-		paymentMethod,
 		payoutSliderValues,
 		adminPaymentLink,
 		financeMessage,
