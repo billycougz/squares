@@ -6,6 +6,20 @@ import AppContextProvider from './AppContextProvider';
 import Router from './AppRouter';
 import { AppServicesProvider } from './AppServices';
 
+const handleAppVersion = () => {
+	const currentVersion = '1.0.0';
+	const versionKey = 'squares-version';
+	const lastAccessedVersion = window.localStorage.getItem(versionKey);
+	if (currentVersion !== lastAccessedVersion) {
+		window.localStorage.clear();
+		console.log('Storage cleared');
+	}
+	console.log(`App Version: ${currentVersion}`);
+	window.localStorage.setItem(versionKey, currentVersion);
+};
+
+handleAppVersion();
+
 export default function App() {
 	return (
 		<AppContextProvider>
