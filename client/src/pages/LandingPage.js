@@ -81,13 +81,13 @@ export default function LandingPage({}) {
 			const vertical = nflTeams.find((team) => team.code === teams?.vertical);
 			if (horizontal && vertical) {
 				setGames(games);
-				setFormData({
-					...formData,
+				setFormData((prevState) => ({
+					...prevState,
 					teams: {
 						horizontal,
 						vertical,
 					},
-				});
+				}));
 			}
 		}
 	};
@@ -301,12 +301,12 @@ export default function LandingPage({}) {
 				)}
 
 				<Paper sx={{ padding: '1em', marginTop: '1em' }}>
-					<Typography variant='h5' sx={{ opacity: '.69', textAlign: 'left', marginBottom: '12px' }}>
+					<Typography variant='h5' sx={{ opacity: '.69', textAlign: 'left', marginBottom: '10px' }}>
 						Create Squares
 					</Typography>
 
 					{games?.[0]?.title && (
-						<Alert severity='success' color='info' sx={{ mb: '12px' }}>
+						<Alert severity='success' color='info' sx={{ mb: '16px' }}>
 							{games?.[0]?.title}
 						</Alert>
 					)}
