@@ -1,11 +1,11 @@
-import { Avatar, Chip } from '@mui/material';
+import { Avatar, Chip, DialogContentText } from '@mui/material';
 import CustomAccordion from '../../components/Accordion';
 import CustomTable from '../../components/Table';
 
 export default function SummaryPanel({ boardData, initials, squareMap }) {
 	const { squarePrice } = boardData;
 	return (
-		<CustomAccordion title='Square Summary'>
+		<CustomAccordion title='Player Square Summary'>
 			<Chip
 				sx={{
 					margin: '0 1em 1em 0',
@@ -65,15 +65,21 @@ export default function SummaryPanel({ boardData, initials, squareMap }) {
 				</>
 			)}
 
-			<CustomTable
-				initials={initials}
-				highlightProperty='Initials'
-				headers={['Initials', 'Squares', squarePrice && 'Amount']}
-				rows={Object.keys(squareMap)
-					.sort()
-					.filter((key) => key !== '_remaining')
-					.map((key) => ({ Initials: key, Squares: squareMap[key], Amount: `$${squareMap[key] * squarePrice}` }))}
-			/>
+			{squareMap['_remaining'] === 100 ? (
+				<DialogContentText sx={{ textAlign: 'center' }}>
+					The number of squares each player has claimed will show here.
+				</DialogContentText>
+			) : (
+				<CustomTable
+					initials={initials}
+					highlightProperty='Initials'
+					headers={['Initials', 'Squares', squarePrice && 'Amount']}
+					rows={Object.keys(squareMap)
+						.sort()
+						.filter((key) => key !== '_remaining')
+						.map((key) => ({ Initials: key, Squares: squareMap[key], Amount: `$${squareMap[key] * squarePrice}` }))}
+				/>
+			)}
 		</CustomAccordion>
 	);
 }
