@@ -10,6 +10,7 @@ import {
 	TextField,
 	Box,
 	FormGroup,
+	Alert,
 } from '@mui/material';
 import { useDocumentTitle, useLocalStorage } from 'usehooks-ts';
 import { createBoard, loadBoard } from '../api';
@@ -52,6 +53,7 @@ export default function LandingPage({}) {
 	const [fadeIn, setFadeIn] = useState(false);
 	const [showInfo, setShowInfo] = useState(false);
 	const [showPhoneNumberWarning, setShowPhoneNumberWarning] = useState(false);
+	const [games, setGames] = useState([]);
 
 	const [formData, setFormData] = useState({
 		boardName: '',
@@ -62,7 +64,36 @@ export default function LandingPage({}) {
 		},
 	});
 
+	const fetchConfig = async () => {
+		const gistUrl = 'https://api.github.com/gists/150875f37c1e5ecf493794eefd168278';
+		const gist = await fetch(gistUrl).then((res) => res.json());
+		const gistContent = gist?.files['squares-config.json']?.content;
+		if (gistContent) {
+			handleConfig(gistContent);
+		}
+	};
+
+	const handleConfig = (gistContent) => {
+		const { games } = JSON.parse(gistContent);
+		if (games && games.length) {
+			const { teams } = games[0];
+			const horizontal = nflTeams.find((team) => team.code === teams?.horizontal);
+			const vertical = nflTeams.find((team) => team.code === teams?.vertical);
+			if (horizontal && vertical) {
+				setGames(games);
+				setFormData({
+					...formData,
+					teams: {
+						horizontal,
+						vertical,
+					},
+				});
+			}
+		}
+	};
+
 	useEffect(() => {
+		fetchConfig();
 		const handleUrlParams = () => {
 			const { searchParams } = new URL(document.location.href);
 			if (searchParams.get('id')) {
@@ -270,9 +301,15 @@ export default function LandingPage({}) {
 				)}
 
 				<Paper sx={{ padding: '1em', marginTop: '1em' }}>
-					<Typography variant='h5' sx={{ opacity: '.69', textAlign: 'left', marginBottom: '8px' }}>
+					<Typography variant='h5' sx={{ opacity: '.69', textAlign: 'left', marginBottom: '12px' }}>
 						Create Squares
 					</Typography>
+
+					{games?.[0]?.title && (
+						<Alert severity='success' color='info' sx={{ mb: '12px' }}>
+							{games?.[0]?.title}
+						</Alert>
+					)}
 
 					<FormGroup>
 						<TextField
