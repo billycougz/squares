@@ -3,7 +3,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { Button, InputAdornment, Link, TextField, Typography } from '@mui/material';
+import { Button, Divider, InputAdornment, Link, TextField, Typography } from '@mui/material';
 import { useContext, useState } from 'react';
 import ManageFinanceContent from './ManageFinanceContent';
 import ManagePaymentInfoContent from './ManagePaymentInfoContent';
@@ -50,12 +50,17 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }) {
 
 	const Admin = () => (
 		<DialogContentText>
-			<Typography>You as the Squares board creator have the following administrative responsibilities.</Typography>
+			<Typography>You as the Squares board creator will administer the game.</Typography>
 			<Typography sx={{ mt: '1em' }}>
 				<strong>Before the game begins:</strong>
 				<ul style={{ paddingLeft: '25px' }}>
 					<li>Set the square finances</li>
 					<li>Invite your participants</li>
+				</ul>
+			</Typography>
+			<Typography sx={{ mt: '1em' }}>
+				<strong>Once all squares are claimed:</strong>
+				<ul style={{ paddingLeft: '25px' }}>
 					<li>Set the board numbers</li>
 				</ul>
 			</Typography>
@@ -84,11 +89,11 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }) {
 
 	const Share = () => (
 		<DialogContentText sx={{ '> *': { marginTop: '10px' }, '> p:first-child': { marginTop: '0' } }}>
-			<Typography>Your finances are set and your board is ready to be shared with your participants!</Typography>
 			<Typography>
-				Tap the button below to copy your board's unique share link. Send this link to everyone that you want to invite
-				to play.
+				Your board is ready to be shared with your participants! Copy your board's unique share link and send it out to
+				everyone that you want to invite.
 			</Typography>
+			<Typography></Typography>
 			<Button
 				sx={{ marginTop: '10px' }}
 				variant='contained'
@@ -104,16 +109,26 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }) {
 
 	const Outro = () => (
 		<DialogContentText sx={{ '> *': { marginTop: '10px' } }}>
+			<Divider sx={{ mt: '-10px' }} />
 			<Typography>
-				<strong>Board Numbers: </strong>Once all squares are claimed, go to the Admin tab to set the board numbers.
+				<strong>To Play: </strong>Simply tap any square to instantly claim it with your initials.
+			</Typography>
+			<Divider sx={{ mt: '10px' }} />
+			<Typography variant='h6'>Administration</Typography>
+			<Typography sx={{ fontSize: '12px' }}>Find the following controls in the Admin tab.</Typography>
+			<Typography>
+				<strong>Board Numbers: </strong>Once all squares are claimed, set the board numbers.
 			</Typography>
 			<Typography>
-				<strong>Quarterly Results: </strong>At the end of each quarter, go to the Admin tab to enter the results.
+				<strong>Quarterly Results: </strong>At the end of each quarter, enter the results.
 			</Typography>
 			<Typography>
-				<strong>Share & Finances: </strong>Go to the Admin tab at any time to copy the participant link or update the
-				finances.
+				<strong>Invite Participants: </strong>Copy the participant link at any time.
 			</Typography>
+			<Typography>
+				<strong>Finances: </strong>Update the finances and payment info.
+			</Typography>
+			<Divider sx={{ mt: '10px' }} />
 			<Typography>
 				<strong>Feedback: </strong>Report any feedback to{' '}
 				<Link href='mailto:couganapps@gmail.com' underline='none'>
@@ -121,6 +136,7 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }) {
 				</Link>
 				.
 			</Typography>
+			<Divider sx={{ mt: '10px' }} />
 		</DialogContentText>
 	);
 
@@ -131,8 +147,8 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }) {
 			Component: () => (
 				<DialogContentText>
 					<Typography variant='body1' sx={{ marginBottom: '1em' }}>
-						Squares is the easiest way to play Football Squares with friends and family regardless of where everyone
-						is located!
+						Squares is the easiest way to play Football Squares with friends and family regardless of where everyone is
+						located!
 					</Typography>
 
 					<Typography variant='body1' sx={{ marginBottom: '1em' }}>
@@ -156,9 +172,6 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }) {
 							),
 						}}
 					/>
-					<Typography variant='body1'>
-						To play, simply tap any square to instantly claim it with your initials.
-					</Typography>
 				</DialogContentText>
 			),
 		},
@@ -167,7 +180,7 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }) {
 			Component: () => <Admin />,
 		},
 		{
-			title: 'Set Square Finances',
+			title: 'Square Finances',
 			isFinance: true,
 			Component: () => <ManageFinanceContent financeData={financeData} onDataChange={setFinanceData} />,
 		},
@@ -182,7 +195,7 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }) {
 			),
 		},
 		{
-			title: 'Share With Participants',
+			title: 'Invite Your Participants',
 			Component: () => <Share />,
 		},
 		{
