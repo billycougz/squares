@@ -7,8 +7,7 @@ import TagIcon from '@mui/icons-material/Tag';
 export default function ManageFinanceContent({ financeData, onDataChange }) {
 	const { squarePrice, maxSquares, payoutSliderValues } = financeData;
 
-	const handlePayoutSliderChange = async (e) => {
-		const { value } = e.target;
+	const handlePayoutSliderChange = async (e, value) => {
 		// Force Q4 to remain at 100
 		if (value[3] === 100) {
 			handleDataChange('payoutSliderValues', value);
