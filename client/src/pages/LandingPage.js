@@ -30,6 +30,7 @@ const FadeContainer = styled.div`
 	max-width: 500px;
 	margin: auto;
 	margin-bottom: 150px;
+	margin-top: -20px;
 `;
 
 const TitleContainer = styled.div`
@@ -42,7 +43,7 @@ const TitleContainer = styled.div`
 `;
 
 export default function LandingPage({}) {
-	useDocumentTitle('Squares');
+	useDocumentTitle('Squares • Digital Football Squares');
 
 	const { setBoardData, setBoardUser } = useContext(AppContext);
 
@@ -264,13 +265,7 @@ export default function LandingPage({}) {
 			<Loader open={isLoading} />
 
 			<TitleContainer $fadeIn={fadeIn}>
-				<img src='/kara-logo-plays.png' alt='Squares Logo' height='100' />
-				<Typography variant='h1' sx={{ mt: '-30px' }}>
-					Squares
-				</Typography>
-				<Typography sx={{ letterSpacing: '3px', textTransform: 'uppercase', marginTop: '' }}>
-					Digital football squares
-				</Typography>
+				<img src='/Squares_LogosSVGLogo.svg' alt='Squares Logo' />
 			</TitleContainer>
 
 			<FadeContainer $fadeIn={fadeIn}>

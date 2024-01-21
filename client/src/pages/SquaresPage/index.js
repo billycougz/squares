@@ -37,7 +37,7 @@ export default function SquaresPage({}) {
 	const hasMobileWidth = useMediaQuery('(max-height:600px)');
 	const isMobile = hasMobileHeight || hasMobileWidth;
 
-	useDocumentTitle(`${boardName} | Squares`);
+	useDocumentTitle(`${boardName}`);
 
 	useEffect(() => {
 		// Handle results anchor
