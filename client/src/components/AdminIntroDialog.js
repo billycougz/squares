@@ -78,7 +78,8 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }) {
 	const handleCopyShareLink = () => {
 		const { origin } = document.location;
 		const link = `${origin}/?id=${id}`;
-		navigator.clipboard.writeText(encodeURI(link));
+		const msg = `Join my Football Squares pool for Super Bowl LVIII!\n\n${encodeURI(link)}`;
+		navigator.clipboard.writeText(msg);
 		setSnackbarMessage('Participant link copied to clipboard.');
 	};
 
@@ -136,7 +137,6 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }) {
 				</Link>
 				.
 			</Typography>
-			<Divider sx={{ mt: '10px' }} />
 		</DialogContentText>
 	);
 
