@@ -57,8 +57,8 @@ export default function InfoDialog({ onClose, isIntro }) {
 			Component: () => (
 				<>
 					<DialogContentText sx={{ marginBottom: '1em' }}>
-						Squares is the easiest way to play Super Bowl Squares with friends and family regardless of where everyone
-						is located!
+						Squares is the easiest way to play Football Squares with friends and family regardless of where everyone is
+						located!
 					</DialogContentText>
 					<DialogContentText sx={{ marginBottom: '1em' }}>Get started by entering your initials.</DialogContentText>
 					<TextField

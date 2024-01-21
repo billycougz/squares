@@ -13,7 +13,7 @@ const steps = [
 		content: (
 			<Box sx={{ '> *': { marginBottom: '1em !important' } }}>
 				<Typography>
-					Squares is the easiest way to play Super Bowl Squares with friends and family regardless of where everyone is
+					Squares is the easiest way to play Football Squares with friends and family regardless of where everyone is
 					located!
 				</Typography>
 				<Typography>
@@ -22,11 +22,11 @@ const steps = [
 				</Typography>
 				<Typography>
 					Once every square is claimed, the Squares board creator randomly assigns a number 0-9 across both grid axes.
-					The axes correspond to the two teams in the Super Bowl.
+					Each axis corresponds to one of the two teams in the game.
 				</Typography>
 				<Typography>
-					At the end of each Super Bowl quarter, one square will correspond to the last digit of each team's score. The
-					owner of this square wins the payout set by the Squares board creator for the given quarter.
+					At the end of each quarter, one square will correspond to the last digit of each team's score. The owner of
+					this square wins the payout set by the Squares board creator for the given quarter.
 				</Typography>
 				<Typography>
 					Squares is a free platform. The Squares board creator determines how participants will exchange funds to pay

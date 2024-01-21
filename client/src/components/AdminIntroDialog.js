@@ -131,7 +131,7 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }) {
 			Component: () => (
 				<DialogContentText>
 					<Typography variant='body1' sx={{ marginBottom: '1em' }}>
-						Squares is the easiest way to play Super Bowl Squares with friends and family regardless of where everyone
+						Squares is the easiest way to play Football Squares with friends and family regardless of where everyone
 						is located!
 					</Typography>
 
