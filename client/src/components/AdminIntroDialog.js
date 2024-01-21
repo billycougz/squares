@@ -85,7 +85,7 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }) {
 
 	const handleInitialsChange = (value) => {
 		setErrors({ ...errors, initials: false });
-		setInitialsUnderChange(value);
+		setInitialsUnderChange(value.toUpperCase());
 	};
 
 	const Share = () => (

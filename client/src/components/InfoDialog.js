@@ -41,7 +41,7 @@ export default function InfoDialog({ onClose, isIntro }) {
 
 	const handleInitialsChange = (value) => {
 		setErrors({ ...errors, initials: false });
-		setInitialsUnderChange(value);
+		setInitialsUnderChange(value.toUpperCase());
 	};
 
 	const handleSmsSave = async () => {
