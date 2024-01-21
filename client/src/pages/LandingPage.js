@@ -265,7 +265,7 @@ export default function LandingPage({}) {
 			<Loader open={isLoading} />
 
 			<TitleContainer $fadeIn={fadeIn}>
-				<img src='/Squares_LogosSVGLogo.svg' alt='Squares Logo' />
+				<img src='/Squares_SiteLogo2.svg' alt='Squares Logo' />
 			</TitleContainer>
 
 			<FadeContainer $fadeIn={fadeIn}>
