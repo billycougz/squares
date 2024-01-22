@@ -22,7 +22,7 @@ export default function ManagePaymentInfoContent({ paymentInfoData, onDataChange
 				<Typography sx={{ mb: '5px' }}>
 					Funds are not exchanged through the Squares platform. Tell your participants how to pay for squares.
 				</Typography>
-				<Typography sx={{ mb: '5px' }}>If you use Venmo, make it easy by providing your link.</Typography>
+				<Typography sx={{ mb: '5px' }}>If you use Venmo, make it easy by providing your username.</Typography>
 			</DialogContentText>
 
 			<TextField
