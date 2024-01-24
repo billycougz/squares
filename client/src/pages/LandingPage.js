@@ -10,7 +10,8 @@ import {
 	TextField,
 	Box,
 	FormGroup,
-	Alert,
+	InputBase,
+	InputAdornment,
 } from '@mui/material';
 import { useDocumentTitle, useLocalStorage } from 'usehooks-ts';
 import { createBoard, loadBoard } from '../api';
@@ -20,6 +21,7 @@ import LandingInfoDialog from '../components/LandingInfoDialog';
 import { MuiTelInput } from 'mui-tel-input';
 import PhoneNumberWarning from '../components/PhoneNumberWarning';
 import AppContext from '../App/AppContext';
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
 
 const FadeContainer = styled.div`
 	opacity: ${({ $fadeIn }) => ($fadeIn ? 1 : 0)};
@@ -55,6 +57,7 @@ export default function LandingPage({}) {
 	const [showInfo, setShowInfo] = useState(false);
 	const [showPhoneNumberWarning, setShowPhoneNumberWarning] = useState(false);
 	const [games, setGames] = useState([]);
+	const [selectedGame, setSelectedGame] = useState(null);
 
 	const [formData, setFormData] = useState({
 		boardName: '',
@@ -78,18 +81,24 @@ export default function LandingPage({}) {
 		const { games } = JSON.parse(gistContent);
 		if (games && games.length) {
 			const { teams } = games[0];
-			const horizontal = nflTeams.find((team) => team.code === teams?.horizontal);
-			const vertical = nflTeams.find((team) => team.code === teams?.vertical);
-			if (horizontal && vertical) {
-				setGames(games);
-				setFormData((prevState) => ({
-					...prevState,
-					teams: {
-						horizontal,
-						vertical,
-					},
-				}));
-			}
+			setGames(games);
+			setSelectedGame(games[0]);
+			updateSelectedTeams(teams);
+		}
+	};
+
+	// ToDo: Eventually handle game together with teams
+	const updateSelectedTeams = (teams) => {
+		const horizontal = nflTeams.find((team) => team.code === teams?.horizontal);
+		const vertical = nflTeams.find((team) => team.code === teams?.vertical);
+		if (horizontal && vertical) {
+			setFormData((prevState) => ({
+				...prevState,
+				teams: {
+					horizontal,
+					vertical,
+				},
+			}));
 		}
 	};
 
@@ -122,6 +131,12 @@ export default function LandingPage({}) {
 		}, 2000);
 		return () => clearTimeout(timer);
 	}, []);
+
+	const handleGameChange = (e) => {
+		const game = games.find((game) => game.title === e.target.value);
+		updateSelectedTeams(game.teams);
+		setSelectedGame(game);
+	};
 
 	const phoneIsValidOrEmpty = (value) => {
 		return !value || (value && value.length === 15);
@@ -300,10 +315,35 @@ export default function LandingPage({}) {
 						Create Squares
 					</Typography>
 
-					{games?.[0]?.title && (
-						<Alert severity='success' color='info' sx={{ mb: '16px' }}>
-							{games?.[0]?.title}
-						</Alert>
+					{Boolean(games?.length) && (
+						<FormControl fullWidth>
+							<Select
+								value={selectedGame?.title || ''}
+								onChange={handleGameChange}
+								sx={{
+									color: 'rgb(1, 67, 97)',
+									background: 'rgb(229, 246, 253)',
+									mb: '20px',
+									fontSize: '14px',
+									padding: '10px',
+								}}
+								input={
+									<InputBase
+										startAdornment={
+											<InputAdornment position='start'>
+												<TaskAltIcon sx={{ color: '#0288d1', fontSize: '20px' }} />
+											</InputAdornment>
+										}
+									/>
+								}
+							>
+								{games.map((game) => (
+									<MenuItem key={game.title} value={game.title}>
+										{game.title}
+									</MenuItem>
+								))}
+							</Select>
+						</FormControl>
 					)}
 
 					<FormGroup>
