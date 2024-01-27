@@ -35,7 +35,7 @@ export const createBoard = ({ boardName, teams, phoneNumber }) => {
 
 export const loadBoard = ({ id, adminCode }) => {
 	const records = getLocalDb();
-	const boardData = records.find((record) => record.id === id);
+	const boardData = records.find((record) => String(record.id) === String(id));
 	if (boardData && !adminCode) {
 		delete boardData.adminCode;
 	}
