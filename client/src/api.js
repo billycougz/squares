@@ -1,4 +1,7 @@
 import axios from 'axios';
+import * as MOCK from './__mocks__/api';
+
+const DO_MOCK = false;
 
 const BASE_URL =
 	window.location.hostname === 'localhost' && window.location.hostname === '192.168.254.27'
@@ -6,6 +9,9 @@ const BASE_URL =
 		: 'https://16ivlqrume.execute-api.us-east-1.amazonaws.com/default/squares-function';
 
 export const createBoard = async (formData) => {
+	if (DO_MOCK) {
+		return MOCK.createBoard(formData);
+	}
 	// { boardName, teams, phoneNumber, test } = formData;
 	try {
 		const body = { data: formData, operation: 'create' };
@@ -23,6 +29,9 @@ export const createBoard = async (formData) => {
  * @param {Object} updateData.value
  */
 export const updateBoard = async (updateData) => {
+	if (DO_MOCK) {
+		return MOCK.updateBoard(updateData);
+	}
 	try {
 		const { data } = await axios.put(BASE_URL, updateData);
 		return data;
@@ -32,6 +41,9 @@ export const updateBoard = async (updateData) => {
 };
 
 export const loadBoard = async ({ id, adminCode }) => {
+	if (DO_MOCK) {
+		return MOCK.loadBoard({ id, adminCode });
+	}
 	try {
 		let url = `${BASE_URL}?id=${id}`;
 		if (adminCode) {
