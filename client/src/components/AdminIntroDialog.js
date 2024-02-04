@@ -91,7 +91,7 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }) {
 	const Share = () => (
 		<DialogContentText sx={{ '> *': { marginTop: '10px' }, '> p:first-child': { marginTop: '0' } }}>
 			<Typography>
-				Your board is ready to be shared with your participants! Copy your board's unique share link and send it out to
+				Your board is ready to be shared with your participants! Copy your board's invitation message and send it out to
 				everyone that you want to invite.
 			</Typography>
 			<Typography></Typography>
@@ -103,7 +103,7 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }) {
 				fullWidth
 				startIcon={<IosShareIcon />}
 			>
-				Copy link for participants
+				Copy invitation message
 			</Button>
 		</DialogContentText>
 	);
