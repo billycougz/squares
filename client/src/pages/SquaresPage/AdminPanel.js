@@ -2,7 +2,7 @@ import { useContext, useState } from 'react';
 import BorderStyleIcon from '@mui/icons-material/BorderStyle';
 import EditIcon from '@mui/icons-material/Edit';
 import IosShareIcon from '@mui/icons-material/IosShare';
-import { Button, DialogContentText, Divider, FormControl } from '@mui/material';
+import { Button, DialogContentText, Divider, FormControl, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import CustomAccordion from '../../components/Accordion';
 import FinanceDialog from '../../components/FinanceDialog';
@@ -14,6 +14,9 @@ import { useAppServices } from '../../App/AppServices';
 import InfoIcon from '@mui/icons-material/Info';
 import ManagePaymentDialog from '../../components/ManagePaymentDialog';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import SettingsIcon from '@mui/icons-material/Settings';
+import AddTaskIcon from '@mui/icons-material/AddTask';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 export default function AdminPanel({ setSnackbarMessage, setView }) {
 	const { boardData, boardInsights, setBoardData } = useContext(AppContext);
@@ -95,6 +98,9 @@ export default function AdminPanel({ setSnackbarMessage, setView }) {
 		<CustomAccordion title='Admin Controls'>
 			<FormControl>
 				<Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: '-1em' }}>
+					<Typography>
+						<ContentCopyIcon fontSize='small' /> Board Access
+					</Typography>
 					<Button
 						variant='contained'
 						size='small'
@@ -115,7 +121,9 @@ export default function AdminPanel({ setSnackbarMessage, setView }) {
 						Copy administration link
 					</Button>
 
-					<Divider />
+					<Typography sx={{ mt: '10px' }}>
+						<SettingsIcon fontSize='small' /> Board Settings
+					</Typography>
 
 					<Button
 						size='small'
@@ -142,7 +150,9 @@ export default function AdminPanel({ setSnackbarMessage, setView }) {
 
 					{activeDialog === 'paymentInfo' && <ManagePaymentDialog onClose={() => setActiveDialog('')} />}
 
-					<Divider />
+					<Typography sx={{ mt: '10px' }}>
+						<AddTaskIcon fontSize='small' /> Board Actions
+					</Typography>
 
 					{!boardInsights.areNumbersSet && (
 						<Button

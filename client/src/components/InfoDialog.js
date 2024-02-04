@@ -6,6 +6,7 @@ import {
 	DialogActions,
 	DialogContentText,
 	InputAdornment,
+	Link,
 	TextField,
 	Typography,
 } from '@mui/material';
@@ -18,7 +19,7 @@ import { subscribeNumberToBoard } from '../api';
 
 export default function InfoDialog({ onClose, isIntro }) {
 	const { boardData, updateSubscriptions } = useContext(AppContext);
-	const { id, boardName, squarePrice, maxSquares, financeMessage } = boardData;
+	const { id, boardName, squarePrice, maxSquares, financeMessage, venmoUsername } = boardData;
 
 	const [initials, setInitials] = useLocalStorage('squares-initials', '');
 	const [initialsUnderChange, setInitialsUnderChange] = useState(initials);
@@ -92,24 +93,40 @@ export default function InfoDialog({ onClose, isIntro }) {
 		},
 		{
 			title: 'Squares Is Simple',
-			Component: () => (
-				<DialogContentText>
-					<Typography sx={{ marginBottom: '1em' }}>
-						Tap any square to instantly claim it with your initials. Once a square is claimed you cannot unclaim it.
-					</Typography>
-					<Typography sx={{ marginBottom: '1em' }}>
-						Your Squares administrator has set the price at ${squarePrice} per square.
-						{maxSquares ? ` You can claim a maximum of ${maxSquares} squares.` : ''}
-					</Typography>
+			Component: () => {
+				const link = !venmoUsername
+					? ''
+					: venmoUsername.toLowerCase().includes('https://venmo.com')
+					? venmoUsername
+					: `https://venmo.com/u/${venmoUsername}`;
 
-					{financeMessage && (
-						<Alert variant='outlined' severity='info' sx={{ margin: '1em 0 0 0', background: 'white' }} icon={false}>
-							<strong style={{ display: 'block', marginBottom: '5px' }}>A Message From Your Admin</strong>
-							{financeMessage}
-						</Alert>
-					)}
-				</DialogContentText>
-			),
+				return (
+					<DialogContentText>
+						<Typography sx={{ marginBottom: '1em' }}>
+							Tap any square to instantly claim it with your initials. Once a square is claimed you cannot unclaim it.
+						</Typography>
+						<Typography sx={{ marginBottom: '1em' }}>
+							Your Squares administrator has set the price at ${squarePrice} per square.
+							{maxSquares ? ` You can claim a maximum of ${maxSquares} squares.` : ''}
+						</Typography>
+
+						{financeMessage && (
+							<Alert variant='outlined' severity='info' color='warning'>
+								<strong style={{ display: 'block', marginBottom: '5px' }}>A Message From Your Admin</strong>
+								<Typography>{financeMessage}</Typography>
+								{link && (
+									<>
+										<br />
+										<Link href={link} target='_BLANK' sx={{ fontWeight: 'bold' }}>
+											Open Venmo
+										</Link>
+									</>
+								)}
+							</Alert>
+						)}
+					</DialogContentText>
+				);
+			},
 		},
 	];
 

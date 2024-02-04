@@ -94,16 +94,17 @@ export default function SquaresPage({}) {
 		if (!venmoUsername) {
 			return null;
 		}
+		const isFullLink = venmoUsername.toLowerCase().includes('https://venmo.com');
 		return (
 			<Button
 				sx={{ mt: '1rem' }}
 				variant='contained'
 				fullWidth
-				href={`https://venmo.com/u/${venmoUsername}`}
+				href={isFullLink ? venmoUsername : `https://venmo.com/u/${venmoUsername}`}
 				target='_BLANK'
 				startIcon={<img src='/venmo.svg' width='24' height='24' />}
 			>
-				{boardUser.isAdmin ? `Open Venmo` : `Venmo @${venmoUsername}`}
+				{boardUser.isAdmin || isFullLink ? `Open Venmo` : `Venmo @${venmoUsername}`}
 			</Button>
 		);
 	};
@@ -130,6 +131,12 @@ export default function SquaresPage({}) {
 					<ResultsPanel boardData={boardData} initials={initials} anchor={anchor} />
 				</Grid>
 			</Grid>
+			{venmoUsername && (
+				<Grid sx={{ margin: '-1em 0 10px 0', textAlign: 'center' }}>
+					<PaymentLink />
+				</Grid>
+			)}
+
 			{isAdmin && (
 				<Grid
 					xs={12}
