@@ -17,7 +17,8 @@ const handlePost = async (event) => {
 const handleSubscribe = async ({ id, phoneNumber, boardName }) => {
 	const response = await subscribeToBoard(id, phoneNumber);
 	if (response.msg === 'Successfully subscribed to board notifications.') {
-		const msg = `You've successfully subscribed to Squares notifications for ${boardName}.\n\nConsider adding this phone number to your contacts.`;
+		const userLink = encodeURI(`${AWS_CONSTANTS.BASE_FRONTEND_URL}/?id=${id}`);
+		const msg = `You've successfully subscribed to Squares notifications for ${boardName}. Consider adding this phone number to your contacts. ${userLink}`;
 		await sendSmsMessage(phoneNumber, msg);
 	}
 	return response;
