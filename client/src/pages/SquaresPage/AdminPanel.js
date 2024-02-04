@@ -2,7 +2,7 @@ import { useContext, useState } from 'react';
 import BorderStyleIcon from '@mui/icons-material/BorderStyle';
 import EditIcon from '@mui/icons-material/Edit';
 import IosShareIcon from '@mui/icons-material/IosShare';
-import { Button, DialogContentText, FormControl } from '@mui/material';
+import { Button, DialogContentText, Divider, FormControl } from '@mui/material';
 import Box from '@mui/material/Box';
 import CustomAccordion from '../../components/Accordion';
 import FinanceDialog from '../../components/FinanceDialog';
@@ -12,8 +12,8 @@ import AppContext from '../../App/AppContext';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import { useAppServices } from '../../App/AppServices';
 import InfoIcon from '@mui/icons-material/Info';
-import ManagePaymentInfoContent from '../../components/ManagePaymentInfoContent';
 import ManagePaymentDialog from '../../components/ManagePaymentDialog';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 
 export default function AdminPanel({ setSnackbarMessage, setView }) {
 	const { boardData, boardInsights, setBoardData } = useContext(AppContext);
@@ -22,12 +22,18 @@ export default function AdminPanel({ setSnackbarMessage, setView }) {
 
 	const [activeDialog, setActiveDialog] = useState('');
 
-	const handleCopyShareLink = () => {
+	const handleCopyLink = (name) => {
 		const { origin } = document.location;
-		const link = `${origin}/?id=${id}`;
-		const msg = `Join my Football Squares pool for Super Bowl LVIII!\n\n${encodeURI(link)}`;
-		navigator.clipboard.writeText(msg);
-		setSnackbarMessage('Participant link copied to clipboard.');
+		let link = encodeURI(`${origin}/?id=${id}`);
+		if (name === 'admin') {
+			link += `&adminCode=${boardData.adminCode}`;
+			navigator.clipboard.writeText(link);
+			setSnackbarMessage('Administration link copied. This link enables access to the admin controls.');
+		} else {
+			const msg = `Join my Football Squares pool for Super Bowl LVIII!\n\n${link}`;
+			navigator.clipboard.writeText(msg);
+			setSnackbarMessage("Invitation message copied. Send this message to any many people as you'd like.");
+		}
 	};
 
 	const handleSetNumbersClick = async () => {
@@ -89,9 +95,27 @@ export default function AdminPanel({ setSnackbarMessage, setView }) {
 		<CustomAccordion title='Admin Controls'>
 			<FormControl>
 				<Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: '-1em' }}>
-					<Button variant='contained' size='small' onClick={handleCopyShareLink} fullWidth startIcon={<IosShareIcon />}>
-						Copy link for participants
+					<Button
+						variant='contained'
+						size='small'
+						onClick={() => handleCopyLink('share')}
+						fullWidth
+						startIcon={<IosShareIcon />}
+					>
+						Invite participants
 					</Button>
+
+					<Button
+						variant='contained'
+						size='small'
+						onClick={() => handleCopyLink('admin')}
+						fullWidth
+						startIcon={<AdminPanelSettingsIcon />}
+					>
+						Copy administration link
+					</Button>
+
+					<Divider />
 
 					<Button
 						size='small'
@@ -117,6 +141,8 @@ export default function AdminPanel({ setSnackbarMessage, setView }) {
 					</Button>
 
 					{activeDialog === 'paymentInfo' && <ManagePaymentDialog onClose={() => setActiveDialog('')} />}
+
+					<Divider />
 
 					{!boardInsights.areNumbersSet && (
 						<Button
