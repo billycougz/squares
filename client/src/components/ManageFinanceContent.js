@@ -8,7 +8,7 @@ export default function ManageFinanceContent({ financeData, onDataChange }) {
 	const { squarePrice, maxSquares, payoutSliderValues } = financeData;
 
 	const handlePayoutSliderChange = async (e, value) => {
-		// Force Q4 to remain at 100
+		// Force Q4 (final) to remain at 100
 		if (value[3] === 100) {
 			handleDataChange('payoutSliderValues', value);
 		}
@@ -23,7 +23,7 @@ export default function ManageFinanceContent({ financeData, onDataChange }) {
 
 	const { amountRow, percentRow } = payoutSliderValues.reduce(
 		(rows, value, index) => {
-			const quarter = `Q${index + 1}`;
+			const quarter = index === 3 ? 'Final' : `Q${index + 1}`;
 			const previousValue = index ? payoutSliderValues[index - 1] : 0;
 			const difference = value - previousValue;
 			const amount = squarePrice * difference;
@@ -137,7 +137,7 @@ export default function ManageFinanceContent({ financeData, onDataChange }) {
 							marks
 						/>
 					</FormControl>
-					<CustomTable headers={['Q1', 'Q2', 'Q3', 'Q4']} rows={[percentRow, amountRow]} />
+					<CustomTable headers={['Q1', 'Q2', 'Q3', 'Final']} rows={[percentRow, amountRow]} />
 				</>
 			)}
 		</Box>

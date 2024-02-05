@@ -22,7 +22,7 @@ export default function ResultsPanel({ boardData, initials, anchor }) {
 				highlightProperty='Winner'
 				headers={[' ', squarePrice && 'Payout', teams.horizontal.code, teams.vertical.code, 'Winner']}
 				rows={results.map(({ quarter, scores, winner }, index) => ({
-					' ': quarter,
+					' ': quarter === 'Q4' ? 'Final' : quarter, // ToDo: This replaces Q4 with Final - handle better
 					Winner: winner,
 					[teams.horizontal.code]: scores?.horizontal,
 					[teams.vertical.code]: scores?.vertical,

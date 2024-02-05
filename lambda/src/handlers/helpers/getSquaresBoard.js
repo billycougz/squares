@@ -20,6 +20,8 @@ const handleModelChanges = async (Item) => {
 	if (propertyAdded) {
 		await dynamo.put({ TableName: AWS_CONSTANTS.SQUARES_TABLE_NAME, Item }).promise();
 	}
+	// ToDo: Added Feb 2024 - last minute hack to account for swap from Q4 to final
+	Item.results[3].quarter = 'Final';
 	return Item;
 };
 

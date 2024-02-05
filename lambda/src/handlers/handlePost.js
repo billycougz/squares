@@ -42,7 +42,7 @@ const handleCreate = async (boardData) => {
 	boardData.squarePrice = 0;
 	boardData.maxSquares = 0;
 	boardData.payoutSliderValues = [25, 50, 75, 100];
-	boardData.results = [{ quarter: 'Q1' }, { quarter: 'Q2' }, { quarter: 'Q3' }, { quarter: 'Q4' }];
+	boardData.results = [{ quarter: 'Q1' }, { quarter: 'Q2' }, { quarter: 'Q3' }, { quarter: 'Final' }];
 
 	// Create the board
 	await dynamo

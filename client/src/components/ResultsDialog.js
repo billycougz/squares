@@ -45,7 +45,7 @@ export default function ResultsDialog({ onClose, onSave, gridData, teams, result
 			<DialogTitle>Enter Results</DialogTitle>
 			<DialogContent>
 				<RadioGroup row value={quarterIndex} onChange={(e) => setQuarterIndex(e.target.value)}>
-					{['Q1', 'Q2', 'Q3', 'Q4'].map((quarter, index) => (
+					{['Q1', 'Q2', 'Q3', 'Final'].map((quarter, index) => (
 						<FormControlLabel key={quarter} value={index} control={<Radio />} label={quarter} />
 					))}
 				</RadioGroup>
