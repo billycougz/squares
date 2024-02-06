@@ -32,24 +32,24 @@ export default function HeaderMenu({ anchorEl, onClose, onInfoClick }) {
 	};
 	return (
 		<Menu anchorEl={anchorEl} open={open} onClose={onClose} dense>
-			<MenuList dense>
+			<MenuList dense sx={{ padding: 0 }}>
 				<MenuItem onClick={() => handleClick('info')}>
 					<ListItemIcon>
-						<InfoIcon fontSize='small' />
+						<InfoIcon color='info' fontSize='small' />
 					</ListItemIcon>
-					<ListItemText>Intro Information</ListItemText>
+					<ListItemText>Introduction</ListItemText>
 				</MenuItem>
 				<Divider />
 				<MenuItem onClick={() => handleClick('feedback')}>
 					<ListItemIcon>
-						<ThumbUpAltIcon fontSize='small' />
+						<ThumbUpAltIcon color='info' fontSize='small' />
 					</ListItemIcon>
 					<ListItemText>Provide Feedback</ListItemText>
 				</MenuItem>
 				<Divider />
 				<MenuItem onClick={() => handleClick('coffee')}>
 					<ListItemIcon>
-						<LocalCafeIcon fontSize='small' />
+						<LocalCafeIcon color='info' fontSize='small' />
 					</ListItemIcon>
 					<ListItemText>Buy Me A Coffee</ListItemText>
 				</MenuItem>
@@ -57,3 +57,4 @@ export default function HeaderMenu({ anchorEl, onClose, onInfoClick }) {
 		</Menu>
 	);
 }
+//  sx={{ color: '#fed200' }}
