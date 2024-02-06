@@ -135,6 +135,10 @@ export default function ManageFinanceContent({ financeData, onDataChange }) {
 							valueLabelFormat={getSliderLabel}
 							step={5}
 							marks
+							sx={{
+								'.MuiSlider-mark': { background: 'white' },
+								'.MuiSlider-rail': { opacity: '1', border: '1px solid currentColor' },
+							}}
 						/>
 					</FormControl>
 					<CustomTable headers={['Q1', 'Q2', 'Q3', 'Final']} rows={[percentRow, amountRow]} />
