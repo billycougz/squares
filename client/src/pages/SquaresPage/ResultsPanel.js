@@ -3,7 +3,7 @@ import CustomAccordion from '../../components/Accordion';
 import CustomTable from '../../components/Table';
 
 export default function ResultsPanel({ boardData, initials, anchor }) {
-	const { squarePrice, results, teams, payoutSliderValues } = boardData;
+	const { squarePrice, results, teams, payoutSliderValues, retainAmount } = boardData;
 
 	const getPayoutValue = (quarterIndex) => {
 		if (!squarePrice) {
@@ -12,7 +12,7 @@ export default function ResultsPanel({ boardData, initials, anchor }) {
 		const previousValue = quarterIndex ? payoutSliderValues[quarterIndex - 1] : 0;
 		const currentValue = payoutSliderValues[quarterIndex];
 		const difference = currentValue - previousValue;
-		return `$${squarePrice * difference}`;
+		return `$${difference * (squarePrice - retainAmount / 100)}`;
 	};
 
 	return (

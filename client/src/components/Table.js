@@ -5,7 +5,7 @@ import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 
-export default function CustomTable({ headers, rows, initials, highlightProperty }) {
+export default function CustomTable({ headers, hasHeaderCol, rows, initials, highlightProperty }) {
 	const getColor = (row) => (highlightProperty ? (row[highlightProperty] === initials ? '#1876d1' : '') : '');
 	// The parent component can prevent a conditional attribute from rendering by passing a falsy header value
 	const headerValues = headers.filter((header) => header);
@@ -23,9 +23,9 @@ export default function CustomTable({ headers, rows, initials, highlightProperty
 				<TableBody>
 					{rows.map((row, index) => (
 						<TableRow key={`${row[headers[0]]}-${index}`}>
-							{headerValues.map((header) => (
+							{headerValues.map((header, colIndex) => (
 								<TableCell key={`${header}-${row[header]}`} sx={{ color: getColor(row) }}>
-									{row[header]}
+									{hasHeaderCol && !colIndex ? <strong>{row[header]}</strong> : row[header]}
 								</TableCell>
 							))}
 						</TableRow>
