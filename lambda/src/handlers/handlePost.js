@@ -36,6 +36,7 @@ const handleCreate = async (boardData) => {
 
 	// Initialize the board
 	boardData.createdAt = Date.now();
+	boardData.lastUpdated = Date.now();
 	boardData.id = uuidv4();
 	boardData.adminCode = uuidv4();
 	boardData.gridData = initializeGrid();

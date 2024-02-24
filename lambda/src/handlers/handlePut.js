@@ -60,6 +60,7 @@ const updateBoard = async (event) => {
 		default:
 			break;
 	}
+	Item.lastUpdated = Date.now();
 	const updateRequest = {
 		TableName: AWS_CONSTANTS.SQUARES_TABLE_NAME,
 		Item,

@@ -15,6 +15,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import FeedbackIcon from '@mui/icons-material/Feedback';
 import LocalCafeIcon from '@mui/icons-material/LocalCafe';
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
+import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 
 export default function HeaderMenu({ anchorEl, onClose, onInfoClick }) {
 	const open = Boolean(anchorEl);
@@ -44,14 +45,14 @@ export default function HeaderMenu({ anchorEl, onClose, onInfoClick }) {
 					<ListItemIcon>
 						<ThumbUpAltIcon color='info' fontSize='small' />
 					</ListItemIcon>
-					<ListItemText>Provide Feedback</ListItemText>
+					<ListItemText>Feedback</ListItemText>
 				</MenuItem>
 				<Divider />
 				<MenuItem onClick={() => handleClick('coffee')}>
 					<ListItemIcon>
-						<LocalCafeIcon color='info' fontSize='small' />
+						<VolunteerActivismIcon color='info' fontSize='small' />
 					</ListItemIcon>
-					<ListItemText>Buy Me A Coffee</ListItemText>
+					<ListItemText>Support</ListItemText>
 				</MenuItem>
 			</MenuList>
 		</Menu>
