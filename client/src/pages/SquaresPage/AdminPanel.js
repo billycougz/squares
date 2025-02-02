@@ -33,7 +33,7 @@ export default function AdminPanel({ setSnackbarMessage, setView }) {
 			navigator.clipboard.writeText(link);
 			setSnackbarMessage('Administration link copied. This link enables access to the admin controls.');
 		} else {
-			const msg = `Join my Football Squares pool for Super Bowl LVIII!\n\n${link}`;
+			const msg = `Join my Squares pool!\n\n${link}`;
 			navigator.clipboard.writeText(msg);
 			setSnackbarMessage("Invitation message copied. Send this message to any many people as you'd like.");
 		}

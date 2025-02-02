@@ -10,5 +10,5 @@ module.exports.sns = new AWS.SNS();
 
 module.exports.AWS_CONSTANTS = {
 	SQUARES_TABLE_NAME: 'SquaresTable',
-	BASE_FRONTEND_URL: 'https://squares-lviii.com',
+	BASE_FRONTEND_URL: 'https://squares.billycougan.com',
 };
