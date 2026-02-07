@@ -1,20 +1,23 @@
-import { AccountCircle } from '@mui/icons-material';
+import { AccountCircle, Refresh } from '@mui/icons-material';
 import SmsIcon from '@mui/icons-material/Sms';
-import { Divider, IconButton } from '@mui/material';
+import { IconButton } from '@mui/material';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { subscribeNumberToBoard } from '../../api';
 import SmsDialog from '../../components/SmsDialog';
 import AppContext from '../../App/AppContext';
 
-export default function InitialsBox({ initials, onChange, id, boardName, setSnackbarMessage }) {
+export default function InitialsBox({ initials, onChange, id, boardName, setSnackbarMessage, onRefresh }) {
 	const { updateSubscriptions } = useContext(AppContext);
 	const [isSmsDialogOpen, setIsSmsDialogOpen] = useState(false);
 	const [initialsUnderChange, setInitialsUnderChange] = useState(initials);
 
-	const handleInitialsChange = (e) => {
-		const { value } = e.target;
+	useEffect(() => {
+		setInitialsUnderChange(initials);
+	}, [initials]);
+
+	const handleInitialsChange = () => {
 		onChange(initialsUnderChange);
 	};
 
@@ -25,22 +28,46 @@ export default function InitialsBox({ initials, onChange, id, boardName, setSnac
 		setIsSmsDialogOpen(false);
 	};
 
+	const panelStyles = {
+		bgcolor: 'white',
+		borderRadius: '5px',
+		height: '48px',
+		display: 'flex',
+		alignItems: 'center',
+	};
+
 	return (
-		<Box sx={{ display: 'flex', alignItems: 'flex-end' }} id='initial-box'>
-			<AccountCircle sx={{ color: 'action.active', ml: '12px', my: '12px' }} />
-			<TextField
-				// ToDo: Handle conflict with onLoad info dialog autoFocus={!initials}
-				placeholder='Enter your initials...'
-				fullWidth
-				variant='outlined'
-				value={initialsUnderChange}
-				onChange={(e) => setInitialsUnderChange(e.target.value.toUpperCase())}
-				onBlur={handleInitialsChange}
-			/>
-			<Divider sx={{ height: '35px', mb: '5px' }} orientation='vertical' />
-			<IconButton color='primary' sx={{ p: '10px' }} onClick={() => setIsSmsDialogOpen(true)}>
-				<SmsIcon />
-			</IconButton>
+		<Box sx={{ display: 'flex', gap: 1 }}>
+			<Box id='initial-box' sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
+				<AccountCircle sx={{ color: 'action.active', ml: '12px', my: '12px' }} />
+				<TextField
+					placeholder='Enter your initials...'
+					fullWidth
+					variant='standard'
+					InputProps={{ disableUnderline: true }}
+					value={initialsUnderChange}
+					onChange={(e) => setInitialsUnderChange(e.target.value.toUpperCase())}
+					onBlur={handleInitialsChange}
+					onKeyDown={(e) => {
+						if (e.key === 'Enter') {
+							e.target.blur();
+						}
+					}}
+				/>
+			</Box>
+
+			<Box sx={{ ...panelStyles, width: '48px', justifyContent: 'center' }}>
+				<IconButton color='primary' onClick={() => setIsSmsDialogOpen(true)}>
+					<SmsIcon />
+				</IconButton>
+			</Box>
+
+			<Box sx={{ ...panelStyles, width: '48px', justifyContent: 'center' }}>
+				<IconButton color='primary' onClick={onRefresh}>
+					<Refresh />
+				</IconButton>
+			</Box>
+
 			{isSmsDialogOpen && (
 				<SmsDialog
 					open={isSmsDialogOpen}

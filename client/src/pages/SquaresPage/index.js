@@ -3,6 +3,7 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Unstable_Grid2';
 import { useContext, useEffect, useState } from 'react';
 import { useDocumentTitle, useLocalStorage } from 'usehooks-ts';
+import { loadBoard } from '../../api';
 import AdminPanel from './AdminPanel';
 import InitialsBox from './InitialsBox';
 import ResultsPanel from './ResultsPanel';
@@ -20,7 +21,7 @@ const hideOnLandscapeStyles = {
 	},
 };
 
-export default function SquaresPage({}) {
+export default function SquaresPage({ }) {
 	const { boardData, setBoardData, boardUser, boardInsights, getSubscribedNumber } = useContext(AppContext);
 	const { id, gridData, boardName, results, anchor, venmoUsername } = boardData;
 	const { isAdmin } = boardUser;
@@ -90,6 +91,16 @@ export default function SquaresPage({}) {
 		{ _remaining: 0 }
 	);
 
+	const getLatestBoardData = async () => {
+		const data = await loadBoard({ id });
+		if (data && !data.error) {
+			setBoardData(data);
+			setSnackbarMessage('Board refreshed successfully');
+		} else {
+			setSnackbarMessage('Failed to refresh board');
+		}
+	};
+
 	const PaymentLink = () => {
 		if (!venmoUsername) {
 			return null;
@@ -119,6 +130,7 @@ export default function SquaresPage({}) {
 						boardName={boardName}
 						onChange={setInitials}
 						setSnackbarMessage={setSnackbarMessage}
+						onRefresh={getLatestBoardData}
 					/>
 				</Grid>
 				<Grid xs={12} sm={7} display={isAdmin ? '' : 'none'}>
@@ -166,6 +178,7 @@ export default function SquaresPage({}) {
 		</Box>
 	);
 
+	// ... existing code ...
 	const MobileView = () => (
 		<>
 			<Box sx={{ flexGrow: 1, padding: '1em' }}>
@@ -196,10 +209,12 @@ export default function SquaresPage({}) {
 								boardName={boardName}
 								onChange={setInitials}
 								setSnackbarMessage={setSnackbarMessage}
+								onRefresh={getLatestBoardData}
 							/>
 						</Box>
 						<PaymentLink />
 						{isAdmin && (
+							// ... existing code ...
 							<Grid
 								xs={12}
 								component={Paper}
