@@ -192,7 +192,16 @@ export default function SquaresPage({ }) {
 	// ... existing code ...
 	const MobileView = () => (
 		<>
-			<Box sx={{ flexGrow: 1, padding: '1em' }}>
+			<Box
+				sx={{
+					flexGrow: 1,
+					padding: '1em',
+					paddingBottom: '80px',
+					'@media only screen and (orientation: landscape)': {
+						paddingBottom: '1em',
+					},
+				}}
+			>
 				<Grid container spacing={2}>
 					{view === 'admin' && (
 						<Grid xs={12}>
