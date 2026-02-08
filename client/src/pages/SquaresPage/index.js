@@ -99,6 +99,11 @@ export default function SquaresPage({ }) {
 		}
 	}, []);
 
+	// Scroll to top when view changes
+	useEffect(() => {
+		window.scrollTo(0, 0);
+	}, [view]);
+
 	const highlightColor = '#1876d1';
 
 	const squareMap = gridData.reduce(

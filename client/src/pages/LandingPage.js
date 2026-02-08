@@ -129,6 +129,7 @@ export default function LandingPage({ }) {
 	};
 
 	useEffect(() => {
+		window.scrollTo(0, 0);
 		fetchConfig();
 		const handleUrlParams = () => {
 			const { searchParams } = new URL(document.location.href);

@@ -24,7 +24,7 @@ export default function CustomHeader({ boardName, onHomeClick, onInfoClick, onRe
 		setMenuAnchor(event.currentTarget);
 	};
 	return (
-		<AppBar position='static' sx={{ background: 'radial-gradient(circle at top left, #1e40af, #1e3a8a, #172554)' }}>
+		<AppBar position='sticky' sx={{ top: 0, zIndex: (theme) => theme.zIndex.appBar, background: 'radial-gradient(circle at top left, #1e40af, #1e3a8a, #172554)' }}>
 			<Toolbar variant='dense' sx={{ justifyContent: 'space-between' }}>
 				<IconButton size='large' edge='start' color='inherit' aria-label='Home' onClick={onHomeClick}>
 					<HomeIcon />
