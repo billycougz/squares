@@ -9,6 +9,7 @@ function Router() {
 
 	const [lastActiveTime, setLastActiveTime] = useState(null);
 
+	// TODO: 2/7/2026 - Do we still want this on top of new refresh with messaging?
 	// Everything in this useEffect handles logic to refresh the data after the page has been inactive
 	useEffect(() => {
 		const handleVisibilityChange = async () => {
