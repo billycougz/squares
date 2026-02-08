@@ -1,7 +1,7 @@
 import axios from 'axios';
 import * as MOCK from './__mocks__/api';
 
-const DO_MOCK = false;
+const DO_MOCK = process.env.REACT_APP_DO_MOCK === 'true';
 
 const BASE_URL =
 	window.location.hostname === 'localhost' && window.location.hostname === '192.168.254.27'
