@@ -54,13 +54,13 @@ export default function ManagePaymentInfoContent({ paymentInfoData, onDataChange
 					errors.venmoUsername ? (
 						'Make sure you paste your full Venmo link.'
 					) : (
-						<span>Optional. A link to pay you through Venmo will be provided to your participants.</span>
+						<span>Optional. A link to pay you through Venmo will be provided to your participants. Do not include the @ symbol.</span>
 					)
 				}
 				type='text'
 				placeholder='Username'
 				value={venmoUsername}
-				onChange={(e) => handleDataChange('venmoUsername', e.target.value || '')}
+				onChange={(e) => handleDataChange('venmoUsername', (e.target.value || '').replace('@', ''))}
 				InputProps={{
 					startAdornment: <InputAdornment position='start'>{renderVenmoSVG()}</InputAdornment>,
 				}}

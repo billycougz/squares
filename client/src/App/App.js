@@ -6,6 +6,8 @@ import AppContextProvider from './AppContextProvider';
 import Router from './AppRouter';
 import { AppServicesProvider } from './AppServices';
 
+import MockBanner from '../components/MockBanner';
+
 const handleAppVersion = () => {
 	const currentVersion = '1.0.0';
 	const versionKey = 'squares-version';
@@ -21,10 +23,13 @@ const handleAppVersion = () => {
 handleAppVersion();
 
 export default function App() {
+	const showMockBanner = process.env.REACT_APP_DO_MOCK === 'true';
+
 	return (
 		<AppContextProvider>
 			<ThemeProvider theme={theme}>
 				<AppServicesProvider>
+					{showMockBanner && <MockBanner />}
 					<Box sx={{ flexGrow: 1 }}>
 						<Router />
 					</Box>
