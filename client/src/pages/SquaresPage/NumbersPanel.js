@@ -26,8 +26,8 @@ export default function NumbersPanel({ boardData, initials, squareMap, onRefresh
                 if (c === 0) return;
                 if (cell === player) {
                     numbers.push({
-                        h: gridData[0][c],
-                        v: gridData[r][0]
+                        h: gridData[r][0],
+                        v: gridData[0][c]
                     });
                 }
             });
