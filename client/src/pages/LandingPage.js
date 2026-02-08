@@ -25,26 +25,52 @@ import TaskAltIcon from '@mui/icons-material/TaskAlt';
 
 const FadeContainer = styled.div`
 	opacity: ${({ $fadeIn }) => ($fadeIn ? 1 : 0)};
-	transition: opacity 1s ease-in-out;
-	transition-delay: 1s;
-	top: 30px;
+	transform: translateY(${({ $fadeIn }) => ($fadeIn ? '0' : '20px')});
+	transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+	transition-delay: 1.2s;
 	position: relative;
-	max-width: 500px;
+	max-width: 450px;
 	margin: auto;
-	margin-bottom: 150px;
-	margin-top: -20px;
+	padding: 0 20px;
+	margin-bottom: 100px;
+	margin-top: 10px;
 `;
 
 const TitleContainer = styled.div`
 	position: relative;
-	top: ${({ $fadeIn }) => ($fadeIn ? 2 : 50)}%;
+	top: ${({ $fadeIn }) => ($fadeIn ? 5 : 40)}%;
 	left: 50%;
 	transform: ${({ $fadeIn }) => ($fadeIn ? 'translateX(-50%)' : 'translate(-50%, -50%)')};
-	transition: top 1s ease-out, transform 1s ease-out;
+	transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
 	width: 100vw;
+	img {
+		width: 100%;
+		max-width: 320px;
+		filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2));
+	}
 `;
 
-export default function LandingPage({}) {
+const FormCard = styled(Paper)`
+	background: rgba(255, 255, 255, 0.95) !important;
+	backdrop-filter: blur(10px);
+	border-radius: 24px !important;
+	padding: 24px !important;
+	box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important;
+	border: 1px solid rgba(255, 255, 255, 0.3) !important;
+	text-align: left;
+`;
+
+const RecentBoardsCard = styled(Paper)`
+	background: rgba(255, 255, 255, 0.1) !important;
+	backdrop-filter: blur(10px);
+	border-radius: 20px !important;
+	padding: 16px !important;
+	border: 1px solid rgba(255, 255, 255, 0.2) !important;
+	margin-bottom: 24px !important;
+	color: white !important;
+`;
+
+export default function LandingPage({ }) {
 	useDocumentTitle('Squares • Digital Football Squares');
 
 	const { setBoardData, setBoardUser } = useContext(AppContext);
@@ -200,7 +226,7 @@ export default function LandingPage({}) {
 			// ToDo: Handle adminCode better - don't send from API if not admin
 			delete boardData.adminCode;
 		}
-		updateRecentSquares(boardData);
+		updateRecentSquares(boardData, adminCode);
 		// adminPhoneNumber passed onCreate to enable storing the subscription once initials set
 		setBoardUser({ isAdmin: Boolean(adminCode), adminPhoneNumber });
 		// ToDo: anchor is transient and should be handled separately
@@ -208,11 +234,11 @@ export default function LandingPage({}) {
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	};
 
-	const updateRecentSquares = (loadedBoard) => {
+	const updateRecentSquares = (loadedBoard, adminCode) => {
 		const mostRecentBoard = {
 			id: loadedBoard.id,
 			boardName: loadedBoard.boardName,
-			adminCode: loadedBoard.adminCode,
+			adminCode: adminCode,
 		};
 		const additionalRecentBoards = recentSquares.filter(({ id }) => id !== loadedBoard.id);
 		setRecentSquares([mostRecentBoard, ...additionalRecentBoards]);
@@ -266,36 +292,71 @@ export default function LandingPage({}) {
 	};
 
 	return (
-		<Paper
+		<Box
 			sx={{
 				textAlign: 'center',
-				padding: '1em',
 				borderRadius: '0',
-				backgroundColor: 'rgb(25, 118, 210)',
+				background: 'radial-gradient(circle at top left, #1e40af, #1e3a8a, #172554)',
 				color: 'white',
-				height: '100vh',
-				overflow: 'scroll',
+				minHeight: '100vh',
+				height: '100dvh',
+				overflow: 'auto',
+				position: 'fixed',
+				width: '100%',
+				top: 0,
+				left: 0,
+				'&::before': {
+					content: '""',
+					position: 'absolute',
+					top: 0,
+					left: 0,
+					right: 0,
+					bottom: 0,
+					background: 'url("https://www.transparenttextures.com/patterns/carbon-fibre.png")',
+					opacity: 0.05,
+					pointerEvents: 'none'
+				}
 			}}
 		>
 			<Loader open={isLoading} />
+
 
 			<TitleContainer $fadeIn={fadeIn}>
 				<img src='/Squares_SiteLogo.svg' alt='Squares Logo' />
 			</TitleContainer>
 
 			<FadeContainer $fadeIn={fadeIn}>
-				<Button variant='outlined' sx={{ color: 'white', borderColor: 'white' }} onClick={() => setShowInfo(true)}>
-					How to play
-				</Button>
 				{showInfo && <LandingInfoDialog onClose={() => setShowInfo(false)} />}
-				{Boolean(recentSquares.length) && (
-					<Paper sx={{ padding: '1em', marginTop: '1em' }}>
-						<Typography variant='h5' sx={{ opacity: '.69', textAlign: 'left', marginBottom: '8px' }}>
-							Your Squares
+				{recentSquares.length > 0 ? (
+					<RecentBoardsCard>
+						<Typography
+							variant='overline'
+							sx={{
+								opacity: 0.8,
+								display: 'block',
+								textAlign: 'left',
+								mb: 1.5,
+								fontWeight: 700,
+								letterSpacing: 2
+							}}
+						>
+							Your Recent Boards
 						</Typography>
 						<FormControl fullWidth size='small'>
-							<InputLabel sx={{ fontSize: '.8rem', marginTop: '3px' }}>SHOW RECENT SQUARES</InputLabel>
-							<Select value='' size='small'>
+							<Select
+								value=''
+								displayEmpty
+								renderValue={() => <span style={{ color: 'white' }}>Select a recent board...</span>}
+								sx={{
+									backgroundColor: 'rgba(255,255,255,0.1)',
+									color: 'white',
+									borderRadius: '12px',
+									'& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.2)' },
+									'&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.4)' },
+									'&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'white' },
+									'& .MuiSvgIcon-root': { color: 'white' }
+								}}
+							>
 								{recentSquares.map((squaresData, index) => (
 									<MenuItem
 										key={`${squaresData.boardName}-${index}`}
@@ -307,12 +368,40 @@ export default function LandingPage({}) {
 								))}
 							</Select>
 						</FormControl>
-					</Paper>
+					</RecentBoardsCard>
+				) : (
+					<Button
+						variant='outlined'
+						sx={{
+							color: 'white',
+							borderColor: 'rgba(255,255,255,0.3)',
+							borderRadius: '12px',
+							textTransform: 'none',
+							mb: 3,
+							width: '100%',
+							py: 1.2,
+							fontSize: '0.9rem',
+							fontWeight: 600,
+							'&:hover': { borderColor: 'white', backgroundColor: 'rgba(255,255,255,0.1)' }
+						}}
+						onClick={() => setShowInfo(true)}
+					>
+						How it works
+					</Button>
 				)}
 
-				<Paper sx={{ padding: '1em', marginTop: '1em' }}>
-					<Typography variant='h5' sx={{ opacity: '.69', textAlign: 'left', marginBottom: '10px' }}>
-						Create Squares
+				<FormCard>
+					<Typography
+						variant='h5'
+						sx={{
+							color: '#1e3a8a',
+							fontWeight: 800,
+							mb: 3,
+							fontSize: '1.5rem',
+							letterSpacing: '-0.02em'
+						}}
+					>
+						Create New Board
 					</Typography>
 
 					{Boolean(games?.length) && (
@@ -325,12 +414,14 @@ export default function LandingPage({}) {
 									background: 'rgb(229, 246, 253)',
 									mb: '20px',
 									fontSize: '14px',
-									padding: '10px',
+									borderRadius: '12px',
+									'& .MuiOutlinedInput-notchedOutline': { border: 'none' },
+									padding: '4px',
 								}}
 								input={
 									<InputBase
 										startAdornment={
-											<InputAdornment position='start'>
+											<InputAdornment position='start' sx={{ ml: 1 }}>
 												<TaskAltIcon sx={{ color: '#0288d1', fontSize: '20px' }} />
 											</InputAdornment>
 										}
@@ -348,45 +439,69 @@ export default function LandingPage({}) {
 
 					<FormGroup>
 						<TextField
-							label='Squares Name'
+							label='Board Name'
 							value={formData.boardName}
-							helperText='Create a name for your Squares board.'
+							placeholder='e.g. Super Bowl LIX'
 							error={formErrors.boardName}
 							onChange={(e) => updateFormField('boardName', e.target.value)}
 							fullWidth
-							size='small'
+							variant='outlined'
+							sx={{
+								'& .MuiOutlinedInput-root': {
+									borderRadius: '12px',
+									backgroundColor: '#f8fafc'
+								}
+							}}
 						/>
 
 						{showPhoneNumberWarning && <PhoneNumberWarning onClose={handlePhoneNumberWarningClose} />}
 						<MuiTelInput
 							placeholder='Phone Number'
-							size='small'
 							defaultCountry='US'
 							forceCallingCode
 							disableDropdown
 							value={formData.phoneNumber}
 							error={formErrors.phoneNumber}
-							helperText={
-								<span>
-									Optional but recommended.
-									<br /> Squares uses your phone number to send you your unique board link and board event
-									notifications.
-								</span>
-							}
 							onChange={(value) => updateFormField('phoneNumber', value)}
 							fullWidth
-							sx={{ margin: '10px 0' }}
+							sx={{
+								margin: '16px 0',
+								'& .MuiOutlinedInput-root': {
+									borderRadius: '12px',
+									backgroundColor: '#f8fafc'
+								}
+							}}
 						/>
+
+						<Typography variant='caption' sx={{ color: '#64748b', mb: 3, display: 'block', px: 1 }}>
+							We'll text you a link to your board and notify you when the game starts.
+						</Typography>
 
 						{/* Disabled team selection */ false && <TeamSelectionMenu />}
 
-						<Button fullWidth variant='contained' onClick={handleCreateClick}>
-							Create
+						<Button
+							fullWidth
+							variant='contained'
+							onClick={handleCreateClick}
+							sx={{
+								borderRadius: '12px',
+								py: 1.5,
+								fontSize: '1rem',
+								fontWeight: 700,
+								textTransform: 'none',
+								boxShadow: '0 10px 15px -3px rgba(37, 99, 235, 0.4)',
+								background: 'linear-gradient(to right, #2563eb, #1d4ed8)',
+								'&:hover': {
+									background: 'linear-gradient(to right, #1d4ed8, #1e40af)',
+								}
+							}}
+						>
+							Create Board
 						</Button>
 					</FormGroup>
-				</Paper>
+				</FormCard>
 			</FadeContainer>
-		</Paper>
+		</Box>
 	);
 }
 

@@ -36,8 +36,16 @@ export const createBoard = ({ boardName, teams, phoneNumber }) => {
 export const loadBoard = ({ id, adminCode }) => {
 	const records = getLocalDb();
 	const boardData = records.find((record) => String(record.id) === String(id));
-	if (boardData && !adminCode) {
-		delete boardData.adminCode;
+	if (boardData) {
+		const isCorrectAdminCode = adminCode && String(boardData.adminCode) === String(adminCode);
+		if (adminCode && !isCorrectAdminCode) {
+			return { error: 'Admin code does not match.' };
+		}
+		if (!isCorrectAdminCode) {
+			const { adminCode: _, ...sanitizedBoard } = boardData;
+			console.warn('Board loaded locally (sanitized).');
+			return sanitizedBoard;
+		}
 	}
 	console.warn('Board loaded locally.');
 	return boardData ? boardData : { error: 'Board not found in local DB.' };
@@ -97,5 +105,6 @@ export const updateBoard = (updateData) => {
 	}
 	updateLocalDb(Item);
 	console.warn('Board updated locally.');
-	return { Item };
+	const { adminCode: _, ...sanitizedItem } = Item;
+	return { Item: sanitizedItem };
 };

@@ -10,18 +10,21 @@ import ContentCut from '@mui/icons-material/ContentCut';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 import ContentPaste from '@mui/icons-material/ContentPaste';
 import Cloud from '@mui/icons-material/Cloud';
-import { Menu } from '@mui/material';
+import { Menu, Box } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import FeedbackIcon from '@mui/icons-material/Feedback';
 import LocalCafeIcon from '@mui/icons-material/LocalCafe';
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 
-export default function HeaderMenu({ anchorEl, onClose, onInfoClick }) {
+export default function HeaderMenu({ anchorEl, onClose, onInfoClick, onMyBoardsClick }) {
 	const open = Boolean(anchorEl);
 	const handleClick = (item) => {
 		onClose();
 		switch (item) {
+			case 'myBoards':
+				return onMyBoardsClick();
 			case 'info':
 				return onInfoClick();
 			case 'feedback':
@@ -34,26 +37,39 @@ export default function HeaderMenu({ anchorEl, onClose, onInfoClick }) {
 	return (
 		<Menu anchorEl={anchorEl} open={open} onClose={onClose} dense>
 			<MenuList dense sx={{ padding: 0 }}>
+				<MenuItem onClick={() => handleClick('myBoards')}>
+					<ListItemIcon>
+						<DashboardIcon color='info' fontSize='small' />
+					</ListItemIcon>
+					<ListItemText>My Boards</ListItemText>
+				</MenuItem>
+				<Divider />
 				<MenuItem onClick={() => handleClick('info')}>
 					<ListItemIcon>
 						<InfoIcon color='info' fontSize='small' />
 					</ListItemIcon>
-					<ListItemText>Introduction</ListItemText>
+					<ListItemText>Board Introduction</ListItemText>
 				</MenuItem>
 				<Divider />
 				<MenuItem onClick={() => handleClick('feedback')}>
 					<ListItemIcon>
 						<ThumbUpAltIcon color='info' fontSize='small' />
 					</ListItemIcon>
-					<ListItemText>Feedback</ListItemText>
+					<ListItemText>App Feedback</ListItemText>
 				</MenuItem>
 				<Divider />
 				<MenuItem onClick={() => handleClick('coffee')}>
 					<ListItemIcon>
 						<VolunteerActivismIcon color='info' fontSize='small' />
 					</ListItemIcon>
-					<ListItemText>Support</ListItemText>
+					<ListItemText>Support the Developer</ListItemText>
 				</MenuItem>
+				<Divider />
+				<Box sx={{ px: 2, py: 0.5, backgroundColor: '#f1f5f9', mt: 0.5 }}>
+					<Typography variant="caption" sx={{ display: 'block', textAlign: 'center', fontSize: '0.65rem', color: '#475569', fontWeight: 600, letterSpacing: '0.05em' }}>
+						VERSION 02-08-2026
+					</Typography>
+				</Box>
 			</MenuList>
 		</Menu>
 	);

@@ -3,9 +3,12 @@ import LandingPage from '../pages/LandingPage';
 import AppContext from './AppContext';
 import SquaresPage from '../pages/SquaresPage';
 import { loadBoard } from '../api';
+import { useAppServices } from './AppServices';
+import { generateRefreshMessage } from '../utils/generateRefreshMessage';
 
 function Router() {
 	const { boardData, setBoardData } = useContext(AppContext);
+	const { showSnackbar } = useAppServices();
 
 	const [lastActiveTime, setLastActiveTime] = useState(null);
 
@@ -26,8 +29,14 @@ function Router() {
 				const refreshTimeout = 5; // in minutes
 				if (elapsedTime && elapsedTime > refreshTimeout) {
 					const updatedData = await loadBoard({ id: boardData.id });
-					setBoardData(updatedData);
-					console.log(`Board updated after becoming active at ${currentTime}.`);
+					if (updatedData && !updatedData.error) {
+						const message = generateRefreshMessage(boardData, updatedData);
+						if (message) {
+							showSnackbar(message);
+						}
+						setBoardData(updatedData);
+						console.log(`Board updated after becoming active at ${currentTime}.`);
+					}
 				}
 			}
 		};
@@ -35,7 +44,7 @@ function Router() {
 		return () => {
 			document.removeEventListener('visibilitychange', handleVisibilityChange);
 		};
-	}, [lastActiveTime]);
+	}, [lastActiveTime, boardData, setBoardData, showSnackbar]);
 
 	return boardData?.id ? <SquaresPage /> : <LandingPage />;
 }

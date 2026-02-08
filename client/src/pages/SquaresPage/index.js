@@ -1,4 +1,4 @@
-import { Button, Paper, Snackbar, Tab, Tabs, useMediaQuery } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Paper, Snackbar, Tab, Tabs, useMediaQuery } from '@mui/material';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Unstable_Grid2';
 import { useContext, useEffect, useState } from 'react';
@@ -9,11 +9,13 @@ import InitialsBox from './InitialsBox';
 import ResultsPanel from './ResultsPanel';
 import SquaresGrid from './SquaresGrid';
 import SummaryPanel from './SummaryPanel';
+import NumbersPanel from './NumbersPanel';
 import CustomHeader from '../../components/Header';
 import InfoDialog from '../../components/InfoDialog';
 import SimpleBottomNavigation from '../../components/BottomNav';
 import AppContext from '../../App/AppContext';
 import AdminIntroDialog from '../../components/AdminIntroDialog';
+import { generateRefreshMessage } from '../../utils/generateRefreshMessage';
 
 const hideOnLandscapeStyles = {
 	'@media only screen and (orientation: landscape)': {
@@ -22,7 +24,7 @@ const hideOnLandscapeStyles = {
 };
 
 export default function SquaresPage({ }) {
-	const { boardData, setBoardData, boardUser, boardInsights, getSubscribedNumber } = useContext(AppContext);
+	const { boardData, setBoardData, boardUser, setBoardUser, boardInsights, getSubscribedNumber } = useContext(AppContext);
 	const { id, gridData, boardName, results, anchor, venmoUsername } = boardData;
 	const { isAdmin } = boardUser;
 
@@ -32,6 +34,8 @@ export default function SquaresPage({ }) {
 	const [snackbarMessage, setSnackbarMessage] = useState('');
 	const [showInfoDialog, setShowInfoDialog] = useState(false);
 	const [showAdminIntroDialog, setShowAdminIntroDialog] = useState(false);
+	const [hasPaid, setHasPaid] = useState(false);
+	const [showPaymentDialog, setShowPaymentDialog] = useState(false);
 
 	// Ahhhhhhh, sorry to my future self about the mobile handling...
 	const hasMobileHeight = useMediaQuery('(max-width:600px)');
@@ -39,6 +43,21 @@ export default function SquaresPage({ }) {
 	const isMobile = hasMobileHeight || hasMobileWidth;
 
 	useDocumentTitle(`${boardName}`);
+
+	// Sync hasPaid state when board changes
+	useEffect(() => {
+		const storedValue = localStorage.getItem(`squares-paid-${id}`);
+		setHasPaid(storedValue === 'true');
+	}, [id, setHasPaid]);
+
+	// Sync admin status when board changes
+	useEffect(() => {
+		const recentBoards = JSON.parse(localStorage.getItem('recent-squares') || '[]');
+		const currentBoard = recentBoards.find(board => board.id === id);
+		if (currentBoard) {
+			setBoardUser({ isAdmin: Boolean(currentBoard.adminCode) });
+		}
+	}, [id, setBoardUser]);
 
 	useEffect(() => {
 		// Handle results anchor
@@ -112,22 +131,63 @@ export default function SquaresPage({ }) {
 		}
 	};
 
+	const handleSelectBoard = async (board) => {
+		const data = await loadBoard({ id: board.id, adminCode: board.adminCode });
+		if (data && !data.error) {
+			// Set admin status based on whether we have an adminCode for this board
+			setBoardUser({ isAdmin: Boolean(board.adminCode) });
+			setBoardData(data);
+			setSnackbarMessage(`Loaded board: ${board.boardName}`);
+		} else {
+			setSnackbarMessage('Failed to load board');
+		}
+	};
+
+	const handlePaymentConfirm = () => {
+		setHasPaid(true);
+		localStorage.setItem(`squares-paid-${id}`, 'true');
+		setShowPaymentDialog(false);
+		setSnackbarMessage('Payment status updated!');
+	};
+
 	const PaymentLink = () => {
 		if (!venmoUsername) {
 			return null;
 		}
 		const isFullLink = venmoUsername.toLowerCase().includes('https://venmo.com');
+		const venmoUrl = isFullLink ? venmoUsername : `https://venmo.com/u/${venmoUsername}`;
+
+		// Admins only see the minimized icon in InitialsBox
+		if (boardUser.isAdmin || hasPaid) {
+			return null;
+		}
+
 		return (
-			<Button
-				sx={{ mt: '1rem' }}
-				variant='contained'
-				fullWidth
-				href={isFullLink ? venmoUsername : `https://venmo.com/u/${venmoUsername}`}
-				target='_BLANK'
-				startIcon={<img src='/venmo.svg' width='24' height='24' />}
-			>
-				{boardUser.isAdmin || isFullLink ? `Open Venmo` : `Venmo @${venmoUsername}`}
-			</Button>
+			<Box sx={{ mt: '1rem', display: 'flex', gap: 1 }}>
+				<Button
+					sx={{ flex: 1 }}
+					variant='contained'
+					fullWidth
+					href={venmoUrl}
+					target='_BLANK'
+					startIcon={<img src='/venmo.svg' width='24' height='24' />}
+				>
+					{isFullLink ? `Open Venmo` : `Venmo @${venmoUsername}`}
+				</Button>
+				<Button
+					variant='contained'
+					onClick={() => setShowPaymentDialog(true)}
+					sx={{
+						minWidth: '120px',
+						backgroundColor: '#66bb6a',
+						'&:hover': {
+							backgroundColor: '#57a05a'
+						}
+					}}
+				>
+					Mark Paid
+				</Button>
+			</Box>
 		);
 	};
 
@@ -142,16 +202,37 @@ export default function SquaresPage({ }) {
 						onChange={setInitials}
 						setSnackbarMessage={setSnackbarMessage}
 						onRefresh={getLatestBoardData}
+						venmoUsername={venmoUsername}
+						hasPaid={hasPaid}
+						isAdmin={isAdmin}
 					/>
 				</Grid>
 				<Grid xs={12} sm={7} display={isAdmin ? '' : 'none'}>
 					<AdminPanel setView={setView} setSnackbarMessage={setSnackbarMessage} />
 				</Grid>
 				<Grid xs={12} sm={isAdmin ? 5 : 6}>
-					<SummaryPanel boardData={boardData} initials={initials} squareMap={squareMap} />
+					<SummaryPanel
+						boardData={boardData}
+						initials={initials}
+						squareMap={squareMap}
+						onRefresh={getLatestBoardData}
+					/>
+					<Box sx={{ mt: 2 }}>
+						<NumbersPanel
+							boardData={boardData}
+							initials={initials}
+							squareMap={squareMap}
+							onRefresh={getLatestBoardData}
+						/>
+					</Box>
 				</Grid>
 				<Grid xs={12} sm={isAdmin ? 7 : 12} md={isAdmin ? 7 : 6}>
-					<ResultsPanel boardData={boardData} initials={initials} anchor={anchor} />
+					<ResultsPanel
+						boardData={boardData}
+						initials={initials}
+						anchor={anchor}
+						onRefresh={getLatestBoardData}
+					/>
 				</Grid>
 			</Grid>
 			{venmoUsername && (
@@ -195,14 +276,16 @@ export default function SquaresPage({ }) {
 			<Box
 				sx={{
 					flexGrow: 1,
-					padding: '1em',
+					minHeight: '100vh',
+					bgcolor: view === 'players' || view === 'results' || view === 'numbers' || view === 'admin' ? 'white' : 'transparent',
+					padding: view === 'players' || view === 'results' || view === 'numbers' || view === 'admin' ? 0 : '1em',
 					paddingBottom: '80px',
 					'@media only screen and (orientation: landscape)': {
 						paddingBottom: '1em',
 					},
 				}}
 			>
-				<Grid container spacing={2}>
+				<Grid container spacing={view === 'players' || view === 'results' || view === 'numbers' || view === 'admin' ? 0 : 2}>
 					{view === 'admin' && (
 						<Grid xs={12}>
 							<AdminPanel setView={setView} setSnackbarMessage={setSnackbarMessage} />
@@ -210,12 +293,32 @@ export default function SquaresPage({ }) {
 					)}
 					{view === 'players' && (
 						<Grid xs={12}>
-							<SummaryPanel boardData={boardData} initials={initials} squareMap={squareMap} />
+							<SummaryPanel
+								boardData={boardData}
+								initials={initials}
+								squareMap={squareMap}
+								onRefresh={getLatestBoardData}
+							/>
+						</Grid>
+					)}
+					{view === 'numbers' && (
+						<Grid xs={12}>
+							<NumbersPanel
+								boardData={boardData}
+								initials={initials}
+								squareMap={squareMap}
+								onRefresh={getLatestBoardData}
+							/>
 						</Grid>
 					)}
 					{view === 'results' && (
 						<Grid xs={12}>
-							<ResultsPanel boardData={boardData} initials={initials} anchor={anchor} />
+							<ResultsPanel
+								boardData={boardData}
+								initials={initials}
+								anchor={anchor}
+								onRefresh={getLatestBoardData}
+							/>
 						</Grid>
 					)}
 				</Grid>
@@ -230,6 +333,9 @@ export default function SquaresPage({ }) {
 								onChange={setInitials}
 								setSnackbarMessage={setSnackbarMessage}
 								onRefresh={getLatestBoardData}
+								venmoUsername={venmoUsername}
+								hasPaid={hasPaid}
+								isAdmin={isAdmin}
 							/>
 						</Box>
 						<PaymentLink />
@@ -277,6 +383,8 @@ export default function SquaresPage({ }) {
 					boardName={boardName}
 					onHomeClick={() => setBoardData(null)}
 					onInfoClick={() => setShowInfoDialog({ intro: false })}
+					onRefresh={getLatestBoardData}
+					onSelectBoard={handleSelectBoard}
 				/>
 			</Box>
 
@@ -291,86 +399,33 @@ export default function SquaresPage({ }) {
 			{showAdminIntroDialog && (
 				<AdminIntroDialog setSnackbarMessage={setSnackbarMessage} onClose={() => setShowAdminIntroDialog(false)} />
 			)}
+			<Dialog open={showPaymentDialog} onClose={() => setShowPaymentDialog(false)}>
+				<DialogTitle>Confirm Payment</DialogTitle>
+				<DialogContent>
+					<DialogContentText>
+						Have you completed your payment via Venmo?
+					</DialogContentText>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={() => setShowPaymentDialog(false)}>Cancel</Button>
+					<Button
+						onClick={handlePaymentConfirm}
+						variant="contained"
+						autoFocus
+						sx={{
+							backgroundColor: '#66bb6a',
+							'&:hover': {
+								backgroundColor: '#57a05a'
+							}
+						}}
+					>
+						Yes, I've Paid
+					</Button>
+				</DialogActions>
+			</Dialog>
 			{isMobile ? <MobileView /> : <NonMobileView />}
 		</div>
 	);
 }
 
-function generateRefreshMessage(prevData, nextData) {
-	if (!nextData) {
-		return 'Board refreshed successfully.';
-	}
 
-	const { gridData: prevGrid, results: prevResults = [] } = prevData || {};
-	const { gridData: nextGrid, results: nextResults = [] } = nextData;
-
-	// Check for new winners
-	let newWinner = null;
-	for (let i = 0; i < nextResults.length; i++) {
-		const next = nextResults[i];
-		const prev = prevResults[i] || {};
-		// Check if a winner was added or changed in this refresh
-		if (next.winner && next.winner !== prev.winner) {
-			newWinner = next;
-		}
-	}
-
-	if (newWinner) {
-		const quarterLabel = newWinner.quarter === 'Q4' ? 'the Final' : newWinner.quarter;
-		return `Board refreshed. Congratulations ${newWinner.winner} for winning ${quarterLabel}.`;
-	}
-
-	// Check if game is over (Final winner already declared)
-	const finalResult = nextResults.find((r) => r.quarter === 'Q4');
-	const prevFinalResult = prevResults.find((r) => r.quarter === 'Q4');
-	if (finalResult?.winner && prevFinalResult?.winner === finalResult.winner) {
-		return 'What a game. Thanks for playing Squares!';
-	}
-
-	// Check if numbers were just set
-	const hasNumbers = (grid) => grid && grid[0] && grid[0][1] != null;
-	if (!hasNumbers(prevGrid) && hasNumbers(nextGrid)) {
-		return 'Board refreshed. The numbers have been set - good luck!';
-	}
-
-	// Check for additional square claims
-	const newClaimsMap = {};
-	let totalNewClaims = 0;
-
-	if (prevGrid && nextGrid) {
-		prevGrid.forEach((row, r) => {
-			if (r === 0) return; // Skip header row
-			row.forEach((val, c) => {
-				if (c === 0) return; // Skip header col
-				if (!val && nextGrid[r] && nextGrid[r][c]) {
-					const user = nextGrid[r][c];
-					newClaimsMap[user] = (newClaimsMap[user] || 0) + 1;
-					totalNewClaims += 1;
-				}
-			});
-		});
-	}
-
-	const claimers = Object.keys(newClaimsMap);
-	if (claimers.length > 1) {
-		return `Board refreshed. Multiple users have claimed additional squares. ${totalNewClaims} additional squares claimed.`;
-	} else if (claimers.length === 1) {
-		const user = claimers[0];
-		const count = newClaimsMap[user];
-		return `Board refreshed. ${user} claimed ${count} new square${count > 1 ? 's' : ''}.`;
-	}
-
-	// Check for no changes
-	if (
-		JSON.stringify(prevGrid) === JSON.stringify(nextGrid) &&
-		JSON.stringify(prevResults) === JSON.stringify(nextResults)
-	) {
-		return 'Board refreshed. No changes.';
-	}
-
-	if (!prevData) {
-		return null;
-	}
-
-	return 'Board refreshed successfully.';
-}

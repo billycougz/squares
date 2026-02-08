@@ -1,4 +1,4 @@
-import { AccountCircle, Refresh } from '@mui/icons-material';
+import { AccountCircle } from '@mui/icons-material';
 import SmsIcon from '@mui/icons-material/Sms';
 import { IconButton } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -8,7 +8,7 @@ import { subscribeNumberToBoard } from '../../api';
 import SmsDialog from '../../components/SmsDialog';
 import AppContext from '../../App/AppContext';
 
-export default function InitialsBox({ initials, onChange, id, boardName, setSnackbarMessage, onRefresh }) {
+export default function InitialsBox({ initials, onChange, id, boardName, setSnackbarMessage, onRefresh, venmoUsername, hasPaid, isAdmin }) {
 	const { updateSubscriptions } = useContext(AppContext);
 	const [isSmsDialogOpen, setIsSmsDialogOpen] = useState(false);
 	const [initialsUnderChange, setInitialsUnderChange] = useState(initials);
@@ -56,17 +56,25 @@ export default function InitialsBox({ initials, onChange, id, boardName, setSnac
 				/>
 			</Box>
 
+
 			<Box sx={{ ...panelStyles, width: '48px', justifyContent: 'center' }}>
 				<IconButton color='primary' onClick={() => setIsSmsDialogOpen(true)}>
 					<SmsIcon />
 				</IconButton>
 			</Box>
 
-			<Box sx={{ ...panelStyles, width: '48px', justifyContent: 'center' }}>
-				<IconButton color='primary' onClick={onRefresh}>
-					<Refresh />
-				</IconButton>
-			</Box>
+			{(isAdmin || hasPaid) && venmoUsername && (
+				<Box sx={{ width: '48px', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'primary.main', borderRadius: '5px' }}>
+					<IconButton
+						href={venmoUsername.toLowerCase().includes('https://venmo.com') ? venmoUsername : `https://venmo.com/u/${venmoUsername}`}
+						target='_BLANK'
+						component='a'
+						sx={{ color: 'white' }}
+					>
+						<img src='/venmo.svg' width='24' height='24' alt='Venmo' />
+					</IconButton>
+				</Box>
+			)}
 
 			{isSmsDialogOpen && (
 				<SmsDialog

@@ -8,12 +8,25 @@ export default function CustomAccordion({ title, children, defaultExpanded }) {
 	const hasMobileWidth = useMediaQuery('(max-height:600px)');
 	const isMobile = hasMobileHeight || hasMobileWidth;
 	return (
-		<Accordion sx={{ borderRadius: '5px' }} defaultExpanded={!isMobile ? defaultExpanded : true}>
-			<AccordionSummary expandIcon={!isMobile ? <ExpandMoreOutlined /> : null}>
-				<Typography>{title}</Typography>
-			</AccordionSummary>
+		<Accordion
+			sx={
+				isMobile
+					? {
+						borderRadius: 0,
+						boxShadow: 'none',
+						background: 'transparent',
+					}
+					: { borderRadius: '5px' }
+			}
+			defaultExpanded={!isMobile ? defaultExpanded : true}
+		>
+			{!isMobile && (
+				<AccordionSummary expandIcon={<ExpandMoreOutlined />}>
+					<Typography>{title}</Typography>
+				</AccordionSummary>
+			)}
 
-			<AccordionDetails>{children}</AccordionDetails>
+			<AccordionDetails sx={isMobile ? { p: 0 } : {}}>{children}</AccordionDetails>
 		</Accordion>
 	);
 }

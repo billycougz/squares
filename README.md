@@ -123,4 +123,15 @@ npm run deploy
 ```
 This runs `npm run build` in the client directory and pushes the build to the `gh-pages` branch.
 
-    ```
+## Security Notes
+
+### Admin Code Handling (Temporary Client-side Fix)
+There is currently a "quirky" behavior where the backend API may include the `adminCode` in the response for non-admin users (e.g., during board refresh or square updates). 
+
+A transient fix has been implemented in the frontend (`AppContextProvider.js`) to prevent this code from being saved to `localStorage`. The frontend now strictly adheres to the rule that it will only trust and persist an `adminCode` if it was already known locally or explicitly provided via an admin-linked initial load.
+
+### TODO: Server-side Security
+The long-term solution is to sanitize the API responses on the backend.
+- [ ] Update `lambda/src/handlers/handleGet.js` to strip `adminCode` if a valid one isn't provided/matched in the request.
+- [ ] Update `lambda/src/handlers/handlePut.js` to strip `adminCode` from all success responses.
+- [ ] Update documentation once Lambda functions are redeployed with these security enhancements.
