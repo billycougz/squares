@@ -166,7 +166,14 @@ export default function SquaresGrid({ initials, setSnackbarMessage, onUpdate, hi
 			<Alert
 				variant='outlined'
 				severity='warning'
-				sx={{ marginTop: '1em', background: 'white', display: { xs: 'flex', sm: 'none' } }}
+				sx={{
+					marginTop: '1em',
+					background: 'white',
+					display: { xs: 'flex', sm: 'none' },
+					'@media only screen and (orientation: landscape)': {
+						display: 'none',
+					},
+				}}
 			>
 				Flip to landscape for roomier squares.
 			</Alert>

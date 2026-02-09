@@ -286,7 +286,10 @@ export default function SquaresPage({ }) {
 					padding: view === 'players' || view === 'results' || view === 'numbers' || view === 'admin' ? 0 : '1em',
 					paddingBottom: '80px',
 					'@media only screen and (orientation: landscape)': {
-						paddingBottom: '1em',
+						padding: 0,
+						display: view === 'board' ? 'flex' : 'block',
+						flexDirection: 'column',
+						justifyContent: 'center',
 					},
 				}}
 			>
@@ -329,8 +332,13 @@ export default function SquaresPage({ }) {
 				</Grid>
 
 				{view === 'board' && (
-					<Box sx={{ marginTop: '1em' }}>
-						<Box sx={{ ...hideOnLandscapeStyles }}>
+					<Box sx={{
+						marginTop: '1em',
+						'@media only screen and (orientation: landscape)': {
+							mt: 0
+						}
+					}}>
+						<Box sx={hideOnLandscapeStyles}>
 							<InitialsBox
 								id={id}
 								initials={initials}
@@ -342,27 +350,26 @@ export default function SquaresPage({ }) {
 								hasPaid={hasPaid}
 								isAdmin={isAdmin}
 							/>
+							<PaymentLink />
+							{isAdmin && (
+								<Grid
+									xs={12}
+									component={Paper}
+									sx={{
+										mt: '1em',
+										display: 'flex',
+										flexWrap: 'wrap',
+										justifyContent: 'space-evenly',
+										border: `solid 1px rgb(133, 133, 133)`,
+									}}
+								>
+									<Tabs color='primary' value={clickMode} size='small' onChange={(e, v) => setClickMode(v)}>
+										<Tab label='Select' value='select' />
+										<Tab label='Remove' value='remove' />
+									</Tabs>
+								</Grid>
+							)}
 						</Box>
-						<PaymentLink />
-						{isAdmin && (
-							// ... existing code ...
-							<Grid
-								xs={12}
-								component={Paper}
-								sx={{
-									mt: '1em',
-									display: 'flex',
-									flexWrap: 'wrap',
-									justifyContent: 'space-evenly',
-									border: `solid 1px rgb(133, 133, 133)`,
-								}}
-							>
-								<Tabs color='primary' value={clickMode} size='small' onChange={(e, v) => setClickMode(v)}>
-									<Tab label='Select' value='select' />
-									<Tab label='Remove' value='remove' />
-								</Tabs>
-							</Grid>
-						)}
 						<SquaresGrid
 							boardData={boardData}
 							initials={initials}
