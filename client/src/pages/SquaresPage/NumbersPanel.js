@@ -162,8 +162,8 @@ export default function NumbersPanel({ boardData, initials, squareMap, onRefresh
                     <List disablePadding>
                         <ListItem sx={{ bgcolor: 'grey.50', py: 1, borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
                             <Grid container alignItems='center'>
-                                <TableHeader label={horizontalCode} xs={6} />
                                 <TableHeader label={verticalCode} xs={6} />
+                                <TableHeader label={horizontalCode} xs={6} />
                             </Grid>
                         </ListItem>
                         {playerNumbers.map((pair, i) => (
