@@ -26,8 +26,8 @@ export default function NumbersPanel({ boardData, initials, squareMap, onRefresh
                 if (c === 0) return;
                 if (cell === player) {
                     numbers.push({
-                        h: gridData[r][0],
-                        v: gridData[0][c]
+                        h: gridData[0][c],
+                        v: gridData[r][0]
                     });
                 }
             });
@@ -241,8 +241,8 @@ export default function NumbersPanel({ boardData, initials, squareMap, onRefresh
                             <ListItem sx={{ bgcolor: 'grey.50', py: 1.5 }}>
                                 <Grid container alignItems='center'>
                                     <TableHeader label='PLAYER' xs={4} />
-                                    <TableHeader label={horizontalCode} xs={4} />
                                     <TableHeader label={verticalCode} xs={4} />
+                                    <TableHeader label={horizontalCode} xs={4} />
                                 </Grid>
                             </ListItem>
                             <Divider />
