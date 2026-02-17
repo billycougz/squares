@@ -2,7 +2,6 @@ import { useContext, useEffect, useState } from 'react';
 import {
 	Button,
 	FormControl,
-	InputLabel,
 	MenuItem,
 	Paper,
 	Select,
@@ -22,6 +21,8 @@ import { MuiTelInput } from 'mui-tel-input';
 import PhoneNumberWarning from '@/components/PhoneNumberWarning';
 import AppContext from '@/contexts/AppContext';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
+import { nflTeams } from '@/lib/constants';
+import TeamSelectionMenu from '@/components/TeamSelectionMenu';
 
 const FadeContainer = styled.div`
 	opacity: ${({ $fadeIn }) => ($fadeIn ? 1 : 0)};
@@ -128,6 +129,82 @@ export default function LandingPage({ }) {
 		}
 	};
 
+	function updateRecentSquares(loadedBoard, adminCode) {
+		const mostRecentBoard = {
+			id: loadedBoard.id,
+			boardName: loadedBoard.boardName,
+			adminCode: adminCode,
+		};
+		const additionalRecentBoards = recentSquares.filter(({ id }) => id !== loadedBoard.id);
+		setRecentSquares([mostRecentBoard, ...additionalRecentBoards]);
+	}
+
+	/**
+	 * Called both after a board is created and after a board is loaded
+	 */
+	function handleBoardReady({ boardData, adminCode, adminPhoneNumber, anchor }) {
+		const recentBoard = recentSquares.find(({ id }) => id === boardData.id);
+		// adminCode can be provided as a param or preexist if found in recentSquares
+		// recentSquares scenario occurs on clicking link sent upon results
+		adminCode = adminCode || recentBoard?.adminCode;
+		if (!adminCode) {
+			// ToDo: Handle adminCode better - don't send from API if not admin
+			delete boardData.adminCode;
+		}
+		updateRecentSquares(boardData, adminCode);
+		// adminPhoneNumber passed onCreate to enable storing the subscription once initials set
+		setBoardUser({ isAdmin: Boolean(adminCode), adminPhoneNumber });
+		// ToDo: anchor is transient and should be handled separately
+		setBoardData({ ...boardData, anchor });
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	}
+
+	/**
+	 * Called both on load by URL and on select of a recent board
+	 */
+	async function handleLoad({ id, adminCode, anchor }) {
+		setIsLoading(true);
+		const boardData = await loadBoard({ id, adminCode });
+		if (boardData.error) {
+			alert(boardData.error);
+		} else {
+			handleBoardReady({ boardData, adminCode, anchor });
+		}
+		setIsLoading(false);
+	}
+
+	async function handleCreate() {
+		setIsLoading(true);
+		const boardData = await createBoard(formData);
+		const { error, subscribedPhoneNumber } = boardData;
+		if (!error) {
+			handleBoardReady({
+				boardData,
+				adminCode: boardData.adminCode,
+				adminPhoneNumber: subscribedPhoneNumber,
+			});
+		} else {
+			alert(boardData.error);
+		}
+		setIsLoading(false);
+	}
+
+	async function handleCreateClick() {
+		const errors = {
+			boardName: !Boolean(formData.boardName),
+			phoneNumber: !phoneIsValidOrEmpty(formData.phoneNumber),
+		};
+		if (Object.values(errors).some((value) => value)) {
+			setFormErrors(errors);
+			return;
+		}
+		if (!formData.phoneNumber) {
+			setShowPhoneNumberWarning(true);
+			return;
+		}
+		handleCreate();
+	}
+
 	useEffect(() => {
 		window.scrollTo(0, 0);
 		fetchConfig();
@@ -157,6 +234,7 @@ export default function LandingPage({ }) {
 			setFadeIn(true);
 		}, 2000);
 		return () => clearTimeout(timer);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const handleGameChange = (e) => {
@@ -169,81 +247,7 @@ export default function LandingPage({ }) {
 		return !value || (value && value.length === 15);
 	};
 
-	const handleCreateClick = async () => {
-		const errors = {
-			boardName: !Boolean(formData.boardName),
-			phoneNumber: !phoneIsValidOrEmpty(formData.phoneNumber),
-		};
-		if (Object.values(errors).some((value) => value)) {
-			setFormErrors(errors);
-			return;
-		}
-		if (!formData.phoneNumber) {
-			setShowPhoneNumberWarning(true);
-			return;
-		}
-		handleCreate();
-	};
 
-	const handleCreate = async () => {
-		setIsLoading(true);
-		const boardData = await createBoard(formData);
-		const { error, subscribedPhoneNumber } = boardData;
-		if (!error) {
-			handleBoardReady({
-				boardData,
-				adminCode: boardData.adminCode,
-				adminPhoneNumber: subscribedPhoneNumber,
-			});
-		} else {
-			alert(boardData.error);
-		}
-		setIsLoading(false);
-	};
-
-	/**
-	 * Called both on load by URL and on select of a recent board
-	 */
-	const handleLoad = async ({ id, adminCode, anchor }) => {
-		setIsLoading(true);
-		const boardData = await loadBoard({ id, adminCode });
-		if (boardData.error) {
-			alert(boardData.error);
-		} else {
-			handleBoardReady({ boardData, adminCode, anchor });
-		}
-		setIsLoading(false);
-	};
-
-	/**
-	 * Called both after a board is created and after a board is loaded
-	 */
-	const handleBoardReady = ({ boardData, adminCode, adminPhoneNumber, anchor }) => {
-		const recentBoard = recentSquares.find(({ id }) => id === boardData.id);
-		// adminCode can be provided as a param or preexist if found in recentSquares
-		// recentSquares scenario occurs on clicking link sent upon results
-		adminCode = adminCode || recentBoard?.adminCode;
-		if (!adminCode) {
-			// ToDo: Handle adminCode better - don't send from API if not admin
-			delete boardData.adminCode;
-		}
-		updateRecentSquares(boardData, adminCode);
-		// adminPhoneNumber passed onCreate to enable storing the subscription once initials set
-		setBoardUser({ isAdmin: Boolean(adminCode), adminPhoneNumber });
-		// ToDo: anchor is transient and should be handled separately
-		setBoardData({ ...boardData, anchor });
-		window.scrollTo({ top: 0, behavior: 'smooth' });
-	};
-
-	const updateRecentSquares = (loadedBoard, adminCode) => {
-		const mostRecentBoard = {
-			id: loadedBoard.id,
-			boardName: loadedBoard.boardName,
-			adminCode: adminCode,
-		};
-		const additionalRecentBoards = recentSquares.filter(({ id }) => id !== loadedBoard.id);
-		setRecentSquares([mostRecentBoard, ...additionalRecentBoards]);
-	};
 
 	const handlePhoneNumberWarningClose = (proceed) => {
 		if (proceed) {
@@ -261,36 +265,7 @@ export default function LandingPage({ }) {
 		setFormErrors({ ...formErrors, [field]: false });
 	};
 
-	const TeamSelectionMenu = () => {
-		<Box sx={{ width: '100%' }}>
-			{['horizontal', 'vertical'].map((teamSide) => (
-				<FormControl variant='filled' fullWidth sx={{ mb: 1, mt: 1 }} size='small'>
-					<InputLabel sx={{ color: 'white !important', textTransform: 'capitalize' }}>{teamSide} Team</InputLabel>
-					<Select
-						value={formData.teams[teamSide].name}
-						label={`${teamSide} Team`}
-						sx={{ backgroundColor: `${formData.teams[teamSide].color} !important`, color: 'white' }}
-					>
-						{nflTeams.map(({ code, location, name, color }) => (
-							<MenuItem
-								sx={{ backgroundColor: color, color: 'white', '&:hover': { color } }}
-								key={name}
-								value={name}
-								onClick={() =>
-									setFormData({
-										...formData,
-										teams: { ...formData.teams, [teamSide]: { code, location, name, color } },
-									})
-								}
-							>
-								{`${location} ${name}`}
-							</MenuItem>
-						))}
-					</Select>
-				</FormControl>
-			))}
-		</Box>;
-	};
+
 
 	/* Hydration Fix: Ensure we only render localStorage dependent UI on client */
 	const [hasMounted, setHasMounted] = useState(false);
@@ -476,10 +451,10 @@ export default function LandingPage({ }) {
 						/>
 
 						<Typography variant='caption' sx={{ color: '#64748b', mb: 3, display: 'block', px: 1 }}>
-							We'll text you a link to your board and notify you when the game starts.
+							We&apos;ll text you a link to your board and notify you when the game starts.
 						</Typography>
 
-						{/* Disabled team selection */ false && <TeamSelectionMenu />}
+						{/* Disabled team selection */ false && <TeamSelectionMenu formData={formData} setFormData={setFormData} nflTeams={nflTeams} />}
 
 						<Button
 							fullWidth
@@ -507,37 +482,4 @@ export default function LandingPage({ }) {
 	);
 }
 
-const nflTeams = [
-	{ code: 'ARI', name: 'Cardinals', location: 'Arizona', color: '#97233F' },
-	{ code: 'ATL', name: 'Falcons', location: 'Atlanta', color: '#A71930' },
-	{ code: 'BAL', name: 'Ravens', location: 'Baltimore', color: '#241773' },
-	{ code: 'BUF', name: 'Bills', location: 'Buffalo', color: '#00338D' },
-	{ code: 'CAR', name: 'Panthers', location: 'Carolina', color: '#0085CA' },
-	{ code: 'CHI', name: 'Bears', location: 'Chicago', color: '#0B162A' },
-	{ code: 'CIN', name: 'Bengals', location: 'Cincinnati', color: '#FB4F14' },
-	{ code: 'CLE', name: 'Browns', location: 'Cleveland', color: '#311D00' },
-	{ code: 'DAL', name: 'Cowboys', location: 'Dallas', color: '#041E42' },
-	{ code: 'DEN', name: 'Broncos', location: 'Denver', color: '#FB4F14' },
-	{ code: 'DET', name: 'Lions', location: 'Detroit', color: '#0076B6' },
-	{ code: 'GB', name: 'Packers', location: 'Green Bay', color: '#203731' },
-	{ code: 'HOU', name: 'Texans', location: 'Houston', color: '#03202F' },
-	{ code: 'IND', name: 'Colts', location: 'Indianapolis', color: '#002C5F' },
-	{ code: 'JAX', name: 'Jaguars', location: 'Jacksonville', color: '#006778' },
-	{ code: 'KC', name: 'Chiefs', location: 'Kansas City', color: '#E31837', default: 'horizontal' },
-	{ code: 'LV', name: 'Raiders', location: 'Las Vegas', color: '#000000' },
-	{ code: 'LAC', name: 'Chargers', location: 'Los Angeles', color: '#002A5E' },
-	{ code: 'LAR', name: 'Rams', location: 'Los Angeles', color: '#002244' },
-	{ code: 'MIA', name: 'Dolphins', location: 'Miami', color: '#008E97' },
-	{ code: 'MIN', name: 'Vikings', location: 'Minnesota', color: '#4F2683' },
-	{ code: 'NE', name: 'Patriots', location: 'New England', color: '#002244' },
-	{ code: 'NO', name: 'Saints', location: 'New Orleans', color: '#D3BC8D' },
-	{ code: 'NYG', name: 'Giants', location: 'New York', color: '#0B2265' },
-	{ code: 'NYJ', name: 'Jets', location: 'New York', color: '#203731' },
-	{ code: 'PHI', name: 'Eagles', location: 'Philadelphia', color: '#004C54' },
-	{ code: 'PIT', name: 'Steelers', location: 'Pittsburgh', color: '#FFB612' },
-	{ code: 'SF', name: '49ers', location: 'San Francisco', color: '#AA0000', default: 'vertical' },
-	{ code: 'SEA', name: 'Seahawks', location: 'Seattle', color: '#002244' },
-	{ code: 'TB', name: 'Buccaneers', location: 'Tampa Bay', color: '#D50A0A' },
-	{ code: 'TEN', name: 'Titans', location: 'Tennessee', color: '#0C2340' },
-	{ code: 'WAS', name: 'Commanders', location: 'Washington', color: '#773141' },
-];
+
