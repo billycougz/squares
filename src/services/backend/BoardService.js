@@ -1,6 +1,6 @@
 import { BoardModel } from '../../models/BoardModel';
-import { AWS_CONSTANTS } from '../../lib/aws/AWS';
-import { subscribeToBoard, sendSmsMessage, publishMessage } from '../../lib/aws/sns';
+import { appConfig } from '../../lib/config';
+import { NotificationService } from './NotificationService';
 import { v4 as uuidv4 } from 'uuid';
 
 export const BoardService = {
@@ -58,13 +58,13 @@ export const BoardService = {
 
         if (phoneNumber) {
             const { id, boardName, adminCode } = newBoard;
-            const userLink = `${AWS_CONSTANTS.BASE_FRONTEND_URL}/?id=${id}`;
+            const userLink = `${appConfig.baseUrl}/?id=${id}`;
             const adminLink = `${userLink}&adminCode=${adminCode}`;
             const message = `Your Squares board ${boardName} is ready!\n\nUse this link to administer your board (keep it to yourself):\n\n${adminLink}\n\nShare this link with your participants:\n\n${userLink}.`;
 
             try {
-                await sendSmsMessage(phoneNumber, message);
-                await subscribeToBoard(id, phoneNumber);
+                await NotificationService.sendSmsMessage(phoneNumber, message);
+                await NotificationService.subscribeToBoard(id, phoneNumber);
                 // We could update the board with subscribedPhoneNumber if needed, strictly following original logic
                 // boardData.subscribedPhoneNumber = phoneNumber; 
                 // avoiding re-save for now unless critical
@@ -83,12 +83,12 @@ export const BoardService = {
         const board = await BoardModel.findById(id);
         if (!board) throw new Error('Board not found');
 
-        const response = await subscribeToBoard(id, phoneNumber);
+        const response = await NotificationService.subscribeToBoard(id, phoneNumber);
 
         if (response.msg === 'Successfully subscribed to board notifications.') {
-            const userLink = encodeURI(`${AWS_CONSTANTS.BASE_FRONTEND_URL}/?id=${id}`);
+            const userLink = encodeURI(`${appConfig.baseUrl}/?id=${id}`);
             const msg = `You've successfully subscribed to Squares notifications for ${board.boardName}. Consider adding this phone number to your contacts. ${userLink}`;
-            await sendSmsMessage(phoneNumber, msg);
+            await NotificationService.sendSmsMessage(phoneNumber, msg);
         }
         return response;
     },
@@ -151,13 +151,7 @@ export const BoardService = {
             // rowIndex > 0
             const verticalValue = vertical[rowIndex];
             const newRow = [...rowItem];
-            newRow[0] = verticalValue;
-            // Careful: original logic was:
-            // roww.shift(); return [verticalValue, ...roww]; 
-            // which implies it removes the first element (old vertical number) and adds new one.
-            // My logic above: newRow[0] = verticalValue checks out equivalent if we treat index 0 as header col.
-
-            // Let's stick closer to original logic to be safe:
+            // Safe logic 
             const [, ...rest] = rowItem; // remove first
             return [verticalValue, ...rest];
         });
@@ -186,11 +180,11 @@ export const BoardService = {
 
         await BoardModel.update(board);
 
-        const boardDeepLink = encodeURI(`${AWS_CONSTANTS.BASE_FRONTEND_URL}?id=${id}&anchor=results`);
+        const boardDeepLink = encodeURI(`${appConfig.baseUrl}?id=${id}&anchor=results`);
         const smsMessage = `The ${quarter} Squares results for ${board.boardName} are in. With a score of ${board.teams.horizontal.name}: ${scores.horizontal}, ${board.teams.vertical.name}: ${scores.vertical}, the win goes to ${winner}!\n\nTap the following link to open your Squares board. ${boardDeepLink}`;
 
         try {
-            await publishMessage(smsMessage, id);
+            await NotificationService.publishMessage(smsMessage, id);
         } catch (error) {
             console.error('Failed to publish result SMS:', error);
         }

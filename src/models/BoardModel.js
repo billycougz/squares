@@ -1,4 +1,5 @@
-import { dynamo, AWS_CONSTANTS } from '../lib/aws/AWS';
+import { dynamo } from '../lib/aws';
+import { awsConfig } from '../lib/config';
 
 export const BoardModel = {
     /**
@@ -8,10 +9,10 @@ export const BoardModel = {
      */
     findById: async (id) => {
         const params = {
-            TableName: AWS_CONSTANTS.SQUARES_TABLE_NAME,
+            TableName: awsConfig.tableName,
             Key: { id },
         };
-        const { Item } = await dynamo.get(params).promise();
+        const { Item } = await dynamo.get(params);
         return Item || null;
     },
 
@@ -22,10 +23,10 @@ export const BoardModel = {
      */
     create: async (item) => {
         const params = {
-            TableName: AWS_CONSTANTS.SQUARES_TABLE_NAME,
+            TableName: awsConfig.tableName,
             Item: item,
         };
-        await dynamo.put(params).promise();
+        await dynamo.put(params);
         return item;
     },
 
@@ -39,10 +40,10 @@ export const BoardModel = {
         item.lastUpdated = Date.now();
 
         const params = {
-            TableName: AWS_CONSTANTS.SQUARES_TABLE_NAME,
+            TableName: awsConfig.tableName,
             Item: item,
         };
-        await dynamo.put(params).promise();
+        await dynamo.put(params);
         return item;
     }
 };

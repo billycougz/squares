@@ -31,11 +31,22 @@ The `pages/api` directory is mapped to `/api/*`. Files in this directory are tre
 > [!WARNING]
 > **SECURITY ALERT**: Never commit your `AWS_ACCESS_KEY_ID` or `AWS_SECRET_ACCESS_KEY` to git, not even in a private repository. Always use your hosting provider's environment variable configuration system (e.g., Vercel Project Settings > Environment Variables).
 
-## Known Issues & Future Improvements (TODOs)
+## Project Structure
 
-- **Hardcoded Frontend URL**: The file `src/lib/aws/AWS.js` contains a hardcoded `BASE_FRONTEND_URL` (`https://squares.billycougan.com`). This is used for generating links in SNS notifications.
-    - **TODO**: Refactor this to use an environment variable (e.g., `NEXT_PUBLIC_BASE_URL`) so it works correctly in preview deployments and other environments.
-- **SNS Integration**: `src/lib/aws/sns.js` uses a hardcoded `TopicArn`. This is specific to the original AWS account and region.
-    - **TODO**: Move the ARN to an environment variable or dynamically query it.
-- **API CORS Policy**: `src/pages/api/squares.js` currently allows all origins (`Access-Control-Allow-Origin: *`).
-    - **TODO**: Restrict this to your specific domains for better security in production.
+The project follows a standard Next.js architecture with separation of concerns between the frontend, backend API, and business logic.
+
+- **`src/pages/`**:
+  - **`_app.js`**, **`index.js`**: Main entry points and frontend routing.
+  - **`api/`**: Next.js API Routes. served at `/api/*`. These act as the backend controllers.
+- **`src/services/`**:
+  - **`backend/`**: Contains business logic used by API routes.
+    - `BoardService.js`: Manages board operations (CRUD, game logic).
+    - `NotificationService.js`: Encapsulates SNS notification logic.
+- **`src/models/`**:
+  - `BoardModel.js`: Data access layer for DynamoDB. Handles reading/writing to the database.
+- **`src/lib/`**:
+  - `config.js`: **Centralized Configuration**. Validates and exports environment variables (`appConfig`, `awsConfig`).
+  - `aws.js`: **Infrastructure**. Initializes AWS clients (`dynamo`, `snsClient`) using the config.
+  - `api.js`: Frontend API client helper (axios wrapper).
+- **`src/components/`**: Reusable React components (`Board`, `Header`, `SquaresGrid`, etc.).
+- **`src/contexts/`**: React Contexts for global state management (`AppContext`, etc.).
