@@ -5,17 +5,12 @@ import Grid from '@mui/material/Grid';
 import { useContext, useEffect, useState } from 'react';
 import { useDocumentTitle, useLocalStorage } from 'usehooks-ts';
 import { loadBoard } from '@/lib/api';
-import AdminPanel from './AdminPanel';
-import InitialsBox from './InitialsBox';
-import ResultsPanel from './ResultsPanel';
-import SquaresGrid from './SquaresGrid';
-import SummaryPanel from './SummaryPanel';
-import NumbersPanel from './NumbersPanel';
+import AppContext from '@/contexts/AppContext';
+import MobileView from './MobileView';
+import NonMobileView from './NonMobileView';
+import AdminIntroDialog from '@/components/AdminIntroDialog';
 import CustomHeader from '@/components/Header';
 import InfoDialog from '@/components/InfoDialog';
-import SimpleBottomNavigation from '@/components/BottomNav';
-import AppContext from '@/contexts/AppContext';
-import AdminIntroDialog from '@/components/AdminIntroDialog';
 import { generateRefreshMessage } from '@/utils/generateRefreshMessage';
 
 const hideOnLandscapeStyles = {
@@ -49,6 +44,7 @@ export default function SquaresPage({ }) {
 	useEffect(() => {
 		const storedValue = localStorage.getItem(`squares-paid-${id}`);
 		setHasPaid(storedValue === 'true');
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [id, setHasPaid]);
 
 	// Sync admin status when board changes
@@ -67,7 +63,9 @@ export default function SquaresPage({ }) {
 			if (winner === initials) {
 				setSnackbarMessage('Congratulations, you won the latest squares quarter!');
 			}
+
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [boardData]);
 
 	// ToDo: Account for admin accessing without initials or phone
@@ -97,7 +95,9 @@ export default function SquaresPage({ }) {
 			if (message) {
 				setSnackbarMessage(message);
 			}
+
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	// Scroll to top when view changes
@@ -156,238 +156,7 @@ export default function SquaresPage({ }) {
 		setSnackbarMessage('Payment status updated!');
 	};
 
-	const PaymentLink = () => {
-		if (!venmoUsername) {
-			return null;
-		}
-		const isFullLink = venmoUsername.toLowerCase().includes('https://venmo.com');
-		const venmoUrl = isFullLink ? venmoUsername : `https://venmo.com/u/${venmoUsername}`;
 
-		// Admins only see the minimized icon in InitialsBox
-		if (boardUser.isAdmin || hasPaid) {
-			return null;
-		}
-
-		return (
-			<Box sx={{ mt: '1rem', display: 'flex', gap: 1 }}>
-				<Button
-					sx={{ flex: 1 }}
-					variant='contained'
-					fullWidth
-					href={venmoUrl}
-					target='_BLANK'
-					startIcon={<img src='/venmo.svg' width='24' height='24' />}
-				>
-					{isFullLink ? `Open Venmo` : `Venmo @${venmoUsername}`}
-				</Button>
-				<Button
-					variant='contained'
-					onClick={() => setShowPaymentDialog(true)}
-					sx={{
-						minWidth: '120px',
-						backgroundColor: '#66bb6a',
-						'&:hover': {
-							backgroundColor: '#57a05a'
-						}
-					}}
-				>
-					Mark Paid
-				</Button>
-			</Box>
-		);
-	};
-
-	const NonMobileView = () => (
-		<Box sx={{ margin: '1em' }}>
-			<Grid container spacing={2} sx={{ marginBottom: '5px' }}>
-				<Grid size={{ xs: 12, sm: isAdmin ? 5 : 6 }}>
-					<InitialsBox
-						id={id}
-						initials={initials}
-						boardName={boardName}
-						onChange={setInitials}
-						setSnackbarMessage={setSnackbarMessage}
-						onRefresh={getLatestBoardData}
-						venmoUsername={venmoUsername}
-						hasPaid={hasPaid}
-						isAdmin={isAdmin}
-					/>
-				</Grid>
-				<Grid size={{ xs: 12, sm: 7 }} display={isAdmin ? '' : 'none'}>
-					<AdminPanel setView={setView} setSnackbarMessage={setSnackbarMessage} />
-				</Grid>
-				<Grid size={{ xs: 12, sm: isAdmin ? 5 : 6 }}>
-					<SummaryPanel
-						boardData={boardData}
-						initials={initials}
-						squareMap={squareMap}
-						onRefresh={getLatestBoardData}
-					/>
-					<Box sx={{ mt: 2 }}>
-						<NumbersPanel
-							boardData={boardData}
-							initials={initials}
-							squareMap={squareMap}
-							onRefresh={getLatestBoardData}
-						/>
-					</Box>
-				</Grid>
-				<Grid size={{ xs: 12, sm: isAdmin ? 7 : 12, md: isAdmin ? 7 : 6 }}>
-					<ResultsPanel
-						boardData={boardData}
-						initials={initials}
-						anchor={anchor}
-						onRefresh={getLatestBoardData}
-					/>
-				</Grid>
-			</Grid>
-			{venmoUsername && (
-				<Grid sx={{ margin: '-1em 0 10px 0', textAlign: 'center' }}>
-					<PaymentLink />
-				</Grid>
-			)}
-
-			{isAdmin && (
-				<Grid
-					size={{ xs: 12 }}
-					component={Paper}
-					sx={{
-						display: 'flex',
-						flexWrap: 'wrap',
-						justifyContent: 'space-evenly',
-						border: `solid 1px rgb(133, 133, 133)`,
-					}}
-				>
-					<Tabs color='primary' value={clickMode} size='small' onChange={(e, v) => setClickMode(v)}>
-						<Tab label='Select' value='select' />
-						<Tab label='Remove' value='remove' />
-					</Tabs>
-				</Grid>
-			)}
-			<SquaresGrid
-				boardData={boardData}
-				initials={initials}
-				onUpdate={setBoardData}
-				setSnackbarMessage={setSnackbarMessage}
-				squareMap={squareMap}
-				highlightColor={highlightColor}
-				clickMode={clickMode}
-			/>
-		</Box>
-	);
-
-	// ... existing code ...
-	const MobileView = () => (
-		<>
-			<Box
-				sx={{
-					flexGrow: 1,
-					minHeight: '100vh',
-					bgcolor: view === 'players' || view === 'results' || view === 'numbers' || view === 'admin' ? 'white' : 'transparent',
-					padding: view === 'players' || view === 'results' || view === 'numbers' || view === 'admin' ? 0 : '1em',
-					paddingBottom: '80px',
-					'@media only screen and (orientation: landscape)': {
-						padding: 0,
-						display: view === 'board' ? 'flex' : 'block',
-						flexDirection: 'column',
-						justifyContent: 'center',
-					},
-				}}
-			>
-				<Grid container spacing={view === 'players' || view === 'results' || view === 'numbers' || view === 'admin' ? 0 : 2} sx={{ width: '100%', m: 0 }}>
-					{view === 'admin' && (
-						<Grid size={{ xs: 12 }} sx={{ width: '100%', maxWidth: '100%' }}>
-							<AdminPanel setView={setView} setSnackbarMessage={setSnackbarMessage} />
-						</Grid>
-					)}
-					{view === 'players' && (
-						<Grid size={{ xs: 12 }} sx={{ width: '100%', maxWidth: '100%' }}>
-							<SummaryPanel
-								boardData={boardData}
-								initials={initials}
-								squareMap={squareMap}
-								onRefresh={getLatestBoardData}
-							/>
-						</Grid>
-					)}
-					{view === 'numbers' && (
-						<Grid size={{ xs: 12 }} sx={{ width: '100%', maxWidth: '100%' }}>
-							<NumbersPanel
-								boardData={boardData}
-								initials={initials}
-								squareMap={squareMap}
-								onRefresh={getLatestBoardData}
-							/>
-						</Grid>
-					)}
-					{view === 'results' && (
-						<Grid size={{ xs: 12 }} sx={{ width: '100%', maxWidth: '100%' }}>
-							<ResultsPanel
-								boardData={boardData}
-								initials={initials}
-								anchor={anchor}
-								onRefresh={getLatestBoardData}
-							/>
-						</Grid>
-					)}
-				</Grid>
-
-				{view === 'board' && (
-					<Box sx={{
-						marginTop: '1em',
-						'@media only screen and (orientation: landscape)': {
-							mt: 0
-						}
-					}}>
-						<Box sx={hideOnLandscapeStyles}>
-							<InitialsBox
-								id={id}
-								initials={initials}
-								boardName={boardName}
-								onChange={setInitials}
-								setSnackbarMessage={setSnackbarMessage}
-								onRefresh={getLatestBoardData}
-								venmoUsername={venmoUsername}
-								hasPaid={hasPaid}
-								isAdmin={isAdmin}
-							/>
-							<PaymentLink />
-							{isAdmin && (
-								<Grid
-									size={{ xs: 12 }}
-									component={Paper}
-									sx={{
-										mt: '1em',
-										display: 'flex',
-										flexWrap: 'wrap',
-										justifyContent: 'space-evenly',
-										border: `solid 1px rgb(133, 133, 133)`,
-									}}
-								>
-									<Tabs color='primary' value={clickMode} size='small' onChange={(e, v) => setClickMode(v)}>
-										<Tab label='Select' value='select' />
-										<Tab label='Remove' value='remove' />
-									</Tabs>
-								</Grid>
-							)}
-						</Box>
-						<SquaresGrid
-							boardData={boardData}
-							initials={initials}
-							onUpdate={setBoardData}
-							setSnackbarMessage={setSnackbarMessage}
-							squareMap={squareMap}
-							highlightColor={highlightColor}
-							clickMode={clickMode}
-						/>
-					</Box>
-				)}
-			</Box>
-			<Box sx={hideOnLandscapeStyles}>
-				<SimpleBottomNavigation onViewChange={setView} view={view} />
-			</Box>
-		</>
-	);
 
 	return (
 		<div>
@@ -432,11 +201,56 @@ export default function SquaresPage({ }) {
 							}
 						}}
 					>
-						Yes, I've Paid
+						Yes, I&apos;ve Paid
 					</Button>
 				</DialogActions>
 			</Dialog>
-			{isMobile ? <MobileView /> : <NonMobileView />}
+			{isMobile ? (
+				<MobileView
+					view={view}
+					setView={setView}
+					setSnackbarMessage={setSnackbarMessage}
+					boardData={boardData}
+					initials={initials}
+					setInitials={setInitials}
+					squareMap={squareMap}
+					getLatestBoardData={getLatestBoardData}
+					anchor={anchor}
+					id={id}
+					boardName={boardName}
+					venmoUsername={venmoUsername}
+					hasPaid={hasPaid}
+					isAdmin={isAdmin}
+					boardUser={boardUser}
+					setShowPaymentDialog={setShowPaymentDialog}
+					clickMode={clickMode}
+					setClickMode={setClickMode}
+					setBoardData={setBoardData}
+					highlightColor={highlightColor}
+				/>
+			) : (
+				<NonMobileView
+					id={id}
+					initials={initials}
+					setInitials={setInitials}
+					boardName={boardName}
+					setSnackbarMessage={setSnackbarMessage}
+					getLatestBoardData={getLatestBoardData}
+					venmoUsername={venmoUsername}
+					hasPaid={hasPaid}
+					isAdmin={isAdmin}
+					setView={setView}
+					boardData={boardData}
+					squareMap={squareMap}
+					anchor={anchor}
+					boardUser={boardUser}
+					setShowPaymentDialog={setShowPaymentDialog}
+					clickMode={clickMode}
+					setClickMode={setClickMode}
+					setBoardData={setBoardData}
+					highlightColor={highlightColor}
+				/>
+			)}
 		</div>
 	);
 }
