@@ -10,9 +10,16 @@ const dynamo = new AWS.DynamoDB.DocumentClient();
 const sns = new AWS.SNS();
 
 const AWS_CONSTANTS = {
-    SQUARES_TABLE_NAME: 'SquaresTable',
-    BASE_FRONTEND_URL: 'https://squares.billycougan.com', // ToDo: Make this dynamic or env var
+    SQUARES_TABLE_NAME: process.env.SQUARES_TABLE_NAME,
+    BASE_FRONTEND_URL: process.env.BASE_FRONTEND_URL,
 };
+
+if (!AWS_CONSTANTS.SQUARES_TABLE_NAME) {
+    throw new Error('SQUARES_TABLE_NAME environment variable is not defined');
+}
+if (!AWS_CONSTANTS.BASE_FRONTEND_URL) {
+    throw new Error('BASE_FRONTEND_URL environment variable is not defined');
+}
 
 export {
     AWS,

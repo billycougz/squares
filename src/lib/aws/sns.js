@@ -1,7 +1,11 @@
 import { sns } from './AWS';
 
 // ToDo: Env var for TopicArn
-const TopicArn = 'arn:aws:sns:us-east-1:210534634664:SquaresTopic';
+const TopicArn = process.env.SNS_TOPIC_ARN;
+
+if (!TopicArn) {
+    throw new Error('SNS_TOPIC_ARN environment variable is not defined');
+}
 
 async function publishMessage(Message, id) {
     const params = {

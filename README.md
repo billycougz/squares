@@ -24,6 +24,9 @@ The `pages/api` directory is mapped to `/api/*`. Files in this directory are tre
 | `AWS_REGION` | The AWS region where your DynamoDB and SNS are hosted (e.g., `us-east-1`). | **SECRET** |
 | `AWS_ACCESS_KEY_ID` | Your AWS IAM Access Key ID. | **SECRET** |
 | `AWS_SECRET_ACCESS_KEY` | Your AWS IAM Secret Access Key. | **SECRET** |
+| `SQUARES_TABLE_NAME` | The DynamoDB table name (e.g., `SquaresTable`). | **SECRET** |
+| `BASE_FRONTEND_URL` | The base URL of the frontend (e.g., `https://squares.billycougan.com`). | Server-side |
+| `SNS_TOPIC_ARN` | The ARN of the SNS topic for notifications. | **SECRET** |
 
 > [!WARNING]
 > **SECURITY ALERT**: Never commit your `AWS_ACCESS_KEY_ID` or `AWS_SECRET_ACCESS_KEY` to git, not even in a private repository. Always use your hosting provider's environment variable configuration system (e.g., Vercel Project Settings > Environment Variables).
