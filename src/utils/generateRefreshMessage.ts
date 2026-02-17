@@ -1,5 +1,15 @@
 
-export function generateRefreshMessage(prevData, nextData) {
+interface Result {
+    winner?: string;
+    quarter: string;
+}
+
+interface BoardData {
+    gridData?: (string | null)[][];
+    results?: Result[];
+}
+
+export function generateRefreshMessage(prevData: BoardData | null, nextData: BoardData | null): string | null {
     if (!nextData) {
         return 'Board refreshed successfully.';
     }
@@ -8,10 +18,10 @@ export function generateRefreshMessage(prevData, nextData) {
     const { gridData: nextGrid, results: nextResults = [] } = nextData;
 
     // Check for new winners
-    let newWinner = null;
-    for (let i = 0; i < nextResults.length; i++) {
-        const next = nextResults[i];
-        const prev = prevResults[i] || {};
+    let newWinner: Result | null = null;
+    for (let i = 0; i < (nextResults?.length || 0); i++) {
+        const next = nextResults![i];
+        const prev = prevResults?.[i] || {} as Result;
         // Check if a winner was added or changed in this refresh
         if (next.winner && next.winner !== prev.winner) {
             newWinner = next;
@@ -24,20 +34,20 @@ export function generateRefreshMessage(prevData, nextData) {
     }
 
     // Check if game is over (Final winner already declared)
-    const finalResult = nextResults.find((r) => r.quarter === 'Q4');
-    const prevFinalResult = prevResults.find((r) => r.quarter === 'Q4');
+    const finalResult = nextResults?.find((r) => r.quarter === 'Q4');
+    const prevFinalResult = prevResults?.find((r) => r.quarter === 'Q4');
     if (finalResult?.winner && prevFinalResult?.winner === finalResult.winner) {
         return 'What a game. Thanks for playing Squares!';
     }
 
     // Check if numbers were just set
-    const hasNumbers = (grid) => grid && grid[0] && grid[0][1] != null;
+    const hasNumbers = (grid: (string | null)[][] | undefined) => grid && grid[0] && grid[0][1] != null;
     if (!hasNumbers(prevGrid) && hasNumbers(nextGrid)) {
         return 'Board refreshed. The numbers have been set. Let the games begin!';
     }
 
     // Check for additional square claims
-    const newClaimsMap = {};
+    const newClaimsMap: Record<string, number> = {};
     let totalNewClaims = 0;
 
     if (prevGrid && nextGrid) {
@@ -46,7 +56,7 @@ export function generateRefreshMessage(prevData, nextData) {
             row.forEach((val, c) => {
                 if (c === 0) return; // Skip header col
                 if (!val && nextGrid[r] && nextGrid[r][c]) {
-                    const user = nextGrid[r][c];
+                    const user = nextGrid[r][c]!;
                     newClaimsMap[user] = (newClaimsMap[user] || 0) + 1;
                     totalNewClaims += 1;
                 }

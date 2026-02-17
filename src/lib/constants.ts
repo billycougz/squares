@@ -1,4 +1,12 @@
-export const nflTeams = [
+export interface NFLTeam {
+    code: string;
+    name: string;
+    location: string;
+    color: string;
+    default?: 'horizontal' | 'vertical';
+}
+
+export const nflTeams: NFLTeam[] = [
     { code: 'ARI', name: 'Cardinals', location: 'Arizona', color: '#97233F' },
     { code: 'ATL', name: 'Falcons', location: 'Atlanta', color: '#A71930' },
     { code: 'BAL', name: 'Ravens', location: 'Baltimore', color: '#241773' },
