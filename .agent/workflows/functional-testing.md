@@ -1,5 +1,5 @@
 ---
-description: How to test board creation and verify stability
+description: Test the application through the browser
 ---
 
 1. Navigate to the landing page (`http://localhost:3000`).
