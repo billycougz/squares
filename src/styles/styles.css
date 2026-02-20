@@ -1,40 +1,25 @@
 body {
-  position: absolute;
-  background: rgba(0, 0, 0, 0.1);
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
   margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-#initial-box {
-  background: white;
-  padding: 0px 0 0px 2px;
-  border-radius: 5px;
-  height: 48px;
+/* Custom scrollbar handling allows for a cleaner look on non-overlay scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-#initial-box input {
-  padding: 12px;
+::-webkit-scrollbar-track {
+  background: transparent; 
+}
+ 
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1; 
+  border-radius: 4px;
 }
 
-#initial-box .MuiFormLabel-root {
-  display: none;
-}
-
-#initial-box .MuiOutlinedInput-notchedOutline {
-  border-color: transparent;
-}
-
-.MuiTableCell-head {
-  font-weight: bolder !important;
-}
-
-.MuiFormLabel-root {
-  margin-bottom: 5px;
-}
-
-.MuiFormHelperText-root {
-  margin-left: 0px !important;
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8; 
 }

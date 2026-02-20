@@ -1,4 +1,4 @@
-import { Box, Grid, Paper, Tab, Tabs } from '@mui/material';
+import { Box, Grid, Paper, Tab, Tabs, useTheme } from '@mui/material';
 import AdminPanel from './AdminPanel';
 import SummaryPanel from './SummaryPanel';
 import NumbersPanel from './NumbersPanel';
@@ -36,31 +36,37 @@ export default function MobileView({
     setBoardData,
     highlightColor
 }) {
+    const theme = useTheme();
+    const isBoardView = view === 'board';
+    const isDataView = ['players', 'results', 'numbers', 'admin'].includes(view);
+
     return (
         <>
             <Box
                 sx={{
                     flexGrow: 1,
                     minHeight: '100vh',
-                    bgcolor: view === 'players' || view === 'results' || view === 'numbers' || view === 'admin' ? 'white' : 'transparent',
-                    padding: view === 'players' || view === 'results' || view === 'numbers' || view === 'admin' ? 0 : '1em',
+                    bgcolor: isDataView ? 'background.paper' : 'background.default',
+                    padding: isDataView ? 0 : 2,
                     paddingBottom: '80px',
                     '@media only screen and (orientation: landscape)': {
                         padding: 0,
-                        display: view === 'board' ? 'flex' : 'block',
+                        display: isBoardView ? 'flex' : 'block',
                         flexDirection: 'column',
-                        justifyContent: 'center',
+                        justifyContent: 'flex-start',
+                        bgcolor: 'background.default',
+                        overflow: 'auto',
                     },
                 }}
             >
-                <Grid container spacing={view === 'players' || view === 'results' || view === 'numbers' || view === 'admin' ? 0 : 2} sx={{ width: '100%', m: 0 }}>
+                <Grid container spacing={isDataView ? 0 : 2} sx={{ width: '100%', m: 0 }}>
                     {view === 'admin' && (
-                        <Grid size={{ xs: 12 }} sx={{ width: '100%', maxWidth: '100%' }}>
+                        <Grid size={{ xs: 12 }}>
                             <AdminPanel setView={setView} setSnackbarMessage={setSnackbarMessage} />
                         </Grid>
                     )}
                     {view === 'players' && (
-                        <Grid size={{ xs: 12 }} sx={{ width: '100%', maxWidth: '100%' }}>
+                        <Grid size={{ xs: 12 }}>
                             <SummaryPanel
                                 boardData={boardData}
                                 initials={initials}
@@ -70,7 +76,7 @@ export default function MobileView({
                         </Grid>
                     )}
                     {view === 'numbers' && (
-                        <Grid size={{ xs: 12 }} sx={{ width: '100%', maxWidth: '100%' }}>
+                        <Grid size={{ xs: 12 }}>
                             <NumbersPanel
                                 boardData={boardData}
                                 initials={initials}
@@ -80,7 +86,7 @@ export default function MobileView({
                         </Grid>
                     )}
                     {view === 'results' && (
-                        <Grid size={{ xs: 12 }} sx={{ width: '100%', maxWidth: '100%' }}>
+                        <Grid size={{ xs: 12 }}>
                             <ResultsPanel
                                 boardData={boardData}
                                 initials={initials}
@@ -91,11 +97,16 @@ export default function MobileView({
                     )}
                 </Grid>
 
-                {view === 'board' && (
+                {isBoardView && (
                     <Box sx={{
-                        marginTop: '1em',
+                        marginTop: 2,
                         '@media only screen and (orientation: landscape)': {
-                            mt: 0
+                            marginTop: 0,
+                            height: '100vh',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'flex-start',
+                            overflow: 'hidden' // Grid handles scrolling
                         }
                     }}>
                         <Box sx={hideOnLandscapeStyles}>
@@ -117,22 +128,27 @@ export default function MobileView({
                                 setShowPaymentDialog={setShowPaymentDialog}
                             />
                             {isAdmin && (
-                                <Grid
-                                    size={{ xs: 12 }}
-                                    component={Paper}
+                                <Paper
+                                    elevation={0}
                                     sx={{
-                                        mt: '1em',
+                                        mt: 2,
+                                        p: 0.5,
                                         display: 'flex',
-                                        flexWrap: 'wrap',
-                                        justifyContent: 'space-evenly',
-                                        border: `solid 1px rgb(133, 133, 133)`,
+                                        justifyContent: 'center',
+                                        border: `1px solid ${theme.palette.divider}`,
+                                        borderRadius: 2,
+                                        background: theme.palette.background.paper,
                                     }}
                                 >
-                                    <Tabs color='primary' value={clickMode} size='small' onChange={(e, v) => setClickMode(v)}>
-                                        <Tab label='Select' value='select' />
-                                        <Tab label='Remove' value='remove' />
+                                    <Tabs
+                                        value={clickMode}
+                                        onChange={(e, v) => setClickMode(v)}
+                                        sx={{ minHeight: 36 }}
+                                    >
+                                        <Tab label='Select' value='select' sx={{ minHeight: 36, py: 0.5 }} />
+                                        <Tab label='Remove' value='remove' sx={{ minHeight: 36, py: 0.5 }} />
                                     </Tabs>
-                                </Grid>
+                                </Paper>
                             )}
                         </Box>
                         <SquaresGrid
@@ -143,6 +159,7 @@ export default function MobileView({
                             squareMap={squareMap}
                             highlightColor={highlightColor}
                             clickMode={clickMode}
+                            sx={{ height: '100%' }}
                         />
                     </Box>
                 )}

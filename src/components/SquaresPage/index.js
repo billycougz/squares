@@ -1,7 +1,6 @@
 'use client';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Paper, Snackbar, Tab, Tabs, useMediaQuery } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Snackbar, useMediaQuery, useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
 import { useContext, useEffect, useState } from 'react';
 import { useDocumentTitle, useLocalStorage } from 'usehooks-ts';
 import { loadBoard } from '@/lib/api';
@@ -20,6 +19,7 @@ const hideOnLandscapeStyles = {
 };
 
 export default function SquaresPage({ }) {
+	const theme = useTheme();
 	const { boardData, setBoardData, boardUser, setBoardUser, boardInsights, getSubscribedNumber } = useContext(AppContext);
 	const { id, gridData, boardName, results, anchor, venmoUsername } = boardData;
 	const { isAdmin } = boardUser;
@@ -105,7 +105,7 @@ export default function SquaresPage({ }) {
 		window.scrollTo(0, 0);
 	}, [view]);
 
-	const highlightColor = '#1876d1';
+	const highlightColor = theme.palette.primary.main;
 
 	const squareMap = gridData.reduce(
 		(map, row, rowIndex) => {
@@ -156,10 +156,8 @@ export default function SquaresPage({ }) {
 		setSnackbarMessage('Payment status updated!');
 	};
 
-
-
 	return (
-		<div>
+		<Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
 			<Box sx={isMobile && hideOnLandscapeStyles}>
 				<CustomHeader
 					boardName={boardName}
@@ -194,12 +192,7 @@ export default function SquaresPage({ }) {
 						onClick={handlePaymentConfirm}
 						variant="contained"
 						autoFocus
-						sx={{
-							backgroundColor: '#66bb6a',
-							'&:hover': {
-								backgroundColor: '#57a05a'
-							}
-						}}
+						color="success"
 					>
 						Yes, I&apos;ve Paid
 					</Button>
@@ -251,7 +244,7 @@ export default function SquaresPage({ }) {
 					highlightColor={highlightColor}
 				/>
 			)}
-		</div>
+		</Box>
 	);
 }
 

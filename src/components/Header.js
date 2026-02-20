@@ -1,5 +1,5 @@
 'use client';
-import { AppBar, IconButton, Toolbar, Typography } from '@mui/material';
+import { AppBar, IconButton, Toolbar, Typography, useTheme } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import { Refresh } from '@mui/icons-material';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -10,27 +10,39 @@ import HeaderMenu from './HeaderMenu';
 import MyBoardsDialog from './MyBoardsDialog';
 
 function isMobile() {
-	return window.innerWidth <= 768;
+	return typeof window !== 'undefined' && window.innerWidth <= 768;
 }
 
 function isStandalone() {
-	return window.matchMedia('(display-mode: standalone)').matches;
+	return typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches;
 }
 
 export default function CustomHeader({ boardName, onHomeClick, onInfoClick, onRefresh, onSelectBoard }) {
+	const theme = useTheme();
 	const [showInstallDialog, setShowInstallDialog] = useState(false);
 	const [showMyBoardsDialog, setShowMyBoardsDialog] = useState(false);
 	const [menuAnchor, setMenuAnchor] = useState(null);
+
 	const handleMenuClick = (event) => {
 		setMenuAnchor(event.currentTarget);
 	};
+
 	return (
-		<AppBar position='sticky' sx={{ top: 0, zIndex: (theme) => theme.zIndex.appBar, background: 'radial-gradient(circle at top left, #1e40af, #1e3a8a, #172554)' }}>
+		<AppBar
+			position='sticky'
+			elevation={0}
+			sx={{
+				top: 0,
+				zIndex: (theme) => theme.zIndex.appBar,
+				backgroundColor: theme.palette.primary.main,
+				borderBottom: `1px solid ${theme.palette.primary.dark}`
+			}}
+		>
 			<Toolbar variant='dense' sx={{ justifyContent: 'space-between' }}>
 				<IconButton size='large' edge='start' color='inherit' aria-label='Home' onClick={onHomeClick}>
 					<HomeIcon />
 				</IconButton>
-				<Typography variant='h6'>{boardName}</Typography>
+				<Typography variant='h6' sx={{ fontWeight: 600 }}>{boardName}</Typography>
 				<div>
 					{onRefresh && (
 						<IconButton color='inherit' onClick={onRefresh}>

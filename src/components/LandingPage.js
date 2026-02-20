@@ -11,6 +11,7 @@ import {
 	FormGroup,
 	InputBase,
 	InputAdornment,
+	useTheme,
 } from '@mui/material';
 import { useDocumentTitle, useLocalStorage } from 'usehooks-ts';
 import { createBoard, loadBoard } from '@/lib/api';
@@ -72,6 +73,7 @@ const RecentBoardsCard = styled(Paper)`
 `;
 
 export default function LandingPage({ }) {
+	const theme = useTheme();
 	useDocumentTitle('Squares • Digital Football Squares');
 
 	const { setBoardData, setBoardUser } = useContext(AppContext);
@@ -247,8 +249,6 @@ export default function LandingPage({ }) {
 		return !value || (value && value.length === 15);
 	};
 
-
-
 	const handlePhoneNumberWarningClose = (proceed) => {
 		if (proceed) {
 			handleCreate();
@@ -265,8 +265,6 @@ export default function LandingPage({ }) {
 		setFormErrors({ ...formErrors, [field]: false });
 	};
 
-
-
 	/* Hydration Fix: Ensure we only render localStorage dependent UI on client */
 	const [hasMounted, setHasMounted] = useState(false);
 	useEffect(() => setHasMounted(true), []);
@@ -276,7 +274,7 @@ export default function LandingPage({ }) {
 			sx={{
 				textAlign: 'center',
 				borderRadius: '0',
-				background: 'radial-gradient(circle at top left, #1e40af, #1e3a8a, #172554)',
+				background: `radial-gradient(circle at top left, ${theme.palette.primary.main}, ${theme.palette.primary.dark}, #172554)`,
 				color: 'white',
 				minHeight: '100vh',
 				height: '100dvh',
@@ -371,7 +369,7 @@ export default function LandingPage({ }) {
 					<Typography
 						variant='h5'
 						sx={{
-							color: '#1e3a8a',
+							color: theme.palette.primary.dark,
 							fontWeight: 800,
 							mb: 3,
 							fontSize: '1.5rem',
@@ -387,8 +385,8 @@ export default function LandingPage({ }) {
 								value={selectedGame?.title || ''}
 								onChange={handleGameChange}
 								sx={{
-									color: 'rgb(1, 67, 97)',
-									background: 'rgb(229, 246, 253)',
+									color: theme.palette.primary.dark,
+									background: theme.palette.background.default,
 									mb: '20px',
 									fontSize: '14px',
 									borderRadius: '12px',
@@ -399,7 +397,7 @@ export default function LandingPage({ }) {
 									<InputBase
 										startAdornment={
 											<InputAdornment position='start' sx={{ ml: 1 }}>
-												<TaskAltIcon sx={{ color: '#0288d1', fontSize: '20px' }} />
+												<TaskAltIcon color="primary" sx={{ fontSize: '20px' }} />
 											</InputAdornment>
 										}
 									/>
@@ -426,7 +424,7 @@ export default function LandingPage({ }) {
 							sx={{
 								'& .MuiOutlinedInput-root': {
 									borderRadius: '12px',
-									backgroundColor: '#f8fafc'
+									backgroundColor: theme.palette.background.default
 								}
 							}}
 						/>
@@ -445,12 +443,12 @@ export default function LandingPage({ }) {
 								margin: '16px 0',
 								'& .MuiOutlinedInput-root': {
 									borderRadius: '12px',
-									backgroundColor: '#f8fafc'
+									backgroundColor: theme.palette.background.default
 								}
 							}}
 						/>
 
-						<Typography variant='caption' sx={{ color: '#64748b', mb: 3, display: 'block', px: 1 }}>
+						<Typography variant='caption' sx={{ color: theme.palette.text.secondary, mb: 3, display: 'block', px: 1 }}>
 							We&apos;ll text you a link to your board and notify you when the game starts.
 						</Typography>
 
@@ -467,9 +465,9 @@ export default function LandingPage({ }) {
 								fontWeight: 700,
 								textTransform: 'none',
 								boxShadow: '0 10px 15px -3px rgba(37, 99, 235, 0.4)',
-								background: 'linear-gradient(to right, #2563eb, #1d4ed8)',
+								background: `linear-gradient(to right, ${theme.palette.primary.light}, ${theme.palette.primary.main})`,
 								'&:hover': {
-									background: 'linear-gradient(to right, #1d4ed8, #1e40af)',
+									background: `linear-gradient(to right, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
 								}
 							}}
 						>

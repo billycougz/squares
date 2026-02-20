@@ -1,4 +1,4 @@
-import { Box, Grid, Paper, Tab, Tabs } from '@mui/material';
+import { Box, Grid, Paper, Tab, Tabs, useTheme } from '@mui/material';
 import AdminPanel from './AdminPanel';
 import SummaryPanel from './SummaryPanel';
 import NumbersPanel from './NumbersPanel';
@@ -28,9 +28,11 @@ export default function NonMobileView({
     setBoardData,
     highlightColor
 }) {
+    const theme = useTheme();
+
     return (
-        <Box sx={{ margin: '1em' }}>
-            <Grid container spacing={2} sx={{ marginBottom: '5px' }}>
+        <Box sx={{ margin: 2, maxWidth: '1600px', mx: 'auto' }}>
+            <Grid container spacing={3} sx={{ marginBottom: 2 }}>
                 <Grid size={{ xs: 12, sm: isAdmin ? 5 : 6 }}>
                     <InitialsBox
                         id={id}
@@ -54,7 +56,7 @@ export default function NonMobileView({
                         squareMap={squareMap}
                         onRefresh={getLatestBoardData}
                     />
-                    <Box sx={{ mt: 2 }}>
+                    <Box sx={{ mt: 3 }}>
                         <NumbersPanel
                             boardData={boardData}
                             initials={initials}
@@ -84,21 +86,30 @@ export default function NonMobileView({
             )}
 
             {isAdmin && (
-                <Grid
-                    size={{ xs: 12 }}
-                    component={Paper}
+                <Paper
+                    elevation={0}
                     sx={{
                         display: 'flex',
                         flexWrap: 'wrap',
-                        justifyContent: 'space-evenly',
-                        border: `solid 1px rgb(133, 133, 133)`,
+                        justifyContent: 'center',
+                        border: `1px solid ${theme.palette.divider}`,
+                        borderRadius: 2,
+                        mb: 2,
+                        p: 0.5,
+                        width: 'fit-content',
+                        mx: 'auto',
+                        background: theme.palette.background.paper,
                     }}
                 >
-                    <Tabs color='primary' value={clickMode} size='small' onChange={(e, v) => setClickMode(v)}>
-                        <Tab label='Select' value='select' />
-                        <Tab label='Remove' value='remove' />
+                    <Tabs
+                        value={clickMode}
+                        onChange={(e, v) => setClickMode(v)}
+                        sx={{ minHeight: 40 }}
+                    >
+                        <Tab label='Select' value='select' sx={{ minHeight: 40 }} />
+                        <Tab label='Remove' value='remove' sx={{ minHeight: 40 }} />
                     </Tabs>
-                </Grid>
+                </Paper>
             )}
             <SquaresGrid
                 boardData={boardData}

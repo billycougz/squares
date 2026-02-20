@@ -1,37 +1,11 @@
 'use client';
-import Grid from '@mui/material/Grid';
-import TextField from '@mui/material/TextField';
-import { styled } from '@mui/material/styles';
-import Paper from '@mui/material/Paper';
-import { Popover, Typography, useMediaQuery } from '@mui/material';
-import { useTheme } from '@emotion/react';
+import { Box, Paper, Popover, Typography, useMediaQuery, useTheme } from '@mui/material';
 import { useState } from 'react';
 
-const Item = styled(Paper)(({ theme }) => ({
-	backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-	...theme.typography.body2,
-	textAlign: 'center',
-	color: theme.palette.text.secondary,
-}));
-
-export default function Square({ value, location: [row, col], backgroundColor, onClick, resultQuarters }) {
+export default function Square({ value, location: [row, col], backgroundColor, onClick, resultQuarters, isHeader }) {
 	const theme = useTheme();
 	const isMedium = useMediaQuery(theme.breakpoints.up('md'));
-	const disabled = !row || !col;
 	const [popoverAnchor, setPopoverAnchor] = useState(null);
-
-	const inputStyle = {
-		textAlign: 'center',
-		padding: '0',
-		caretColor: 'transparent',
-		cursor: 'pointer',
-		backgroundColor,
-		// border: 'solid 2px transparent',
-		// borderColor: isResult ? '#ff9800' : 'transparent',
-		// boxSizing: 'border-box',
-		fontSize: isMedium ? '1.75rem' : '',
-		WebkitTextFillColor: backgroundColor ? 'white' : '',
-	};
 
 	const handleClick = (e) => {
 		onClick([row, col]);
@@ -40,17 +14,35 @@ export default function Square({ value, location: [row, col], backgroundColor, o
 		}
 	};
 
+	const startColor = theme.palette.mode === 'dark' ? '#1A2027' : '#fff';
+
 	return (
-		<Grid xs visibility={!row && !col ? 'hidden' : ''}>
-			<Item onClick={handleClick}>
-				<TextField
-					id={`${row}-${col}`}
-					variant='outlined'
-					value={value !== null ? value : ''}
-					disabled={disabled}
-					inputProps={{ style: inputStyle, readOnly: 'readonly', inputMode: 'none' }}
-				/>
-			</Item>
+		<>
+			<Box
+				component={Paper}
+				elevation={0}
+				onClick={handleClick}
+				sx={{
+					width: 48,
+					height: 48,
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
+					backgroundColor: backgroundColor || startColor,
+					color: backgroundColor ? theme.palette.getContrastText(backgroundColor) : theme.palette.text.secondary,
+					cursor: isHeader ? 'default' : 'pointer',
+					border: '1px solid',
+					borderColor: theme.palette.divider,
+					fontWeight: isHeader ? 700 : 400,
+					fontSize: isMedium ? '1rem' : '0.8rem',
+					userSelect: 'none',
+					'&:hover': {
+						backgroundColor: !isHeader && !backgroundColor ? theme.palette.action.hover : undefined,
+					},
+				}}
+			>
+				{value}
+			</Box>
 			<Popover
 				open={Boolean(popoverAnchor)}
 				anchorEl={popoverAnchor}
@@ -62,6 +54,6 @@ export default function Square({ value, location: [row, col], backgroundColor, o
 			>
 				<Typography sx={{ p: 1 }}>{resultQuarters}</Typography>
 			</Popover>
-		</Grid>
+		</>
 	);
 }
