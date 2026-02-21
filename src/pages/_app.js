@@ -3,25 +3,18 @@ import Script from 'next/script';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
-import { CacheProvider } from '@emotion/react';
-import createEmotionCache from '../utils/createEmotionCache';
 import theme from '../styles/theme';
 import '../styles/globals.css';
 import '../styles/styles.css';
 import AppContextProvider from '../contexts/AppContextProvider';
 import { AppServicesProvider } from '../services/AppServices';
 import MockBanner from '../components/MockBanner';
-import { useEffect } from 'react';
 
-// Client-side cache, shared for the whole session of the user in the browser.
-const clientSideEmotionCache = createEmotionCache();
-
-export default function MyApp(props) {
-    const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
+export default function MyApp({ Component, pageProps }) {
     const showMockBanner = process.env.NEXT_PUBLIC_DO_MOCK === 'true';
 
     return (
-        <CacheProvider value={emotionCache}>
+        <>
             <Head>
                 <title>Squares • Digital Football Squares</title>
                 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
@@ -60,6 +53,6 @@ export default function MyApp(props) {
                     </AppServicesProvider>
                 </AppContextProvider>
             </ThemeProvider>
-        </CacheProvider>
+        </>
     );
 }
