@@ -8,7 +8,7 @@ export default class MyDocument extends Document {
                 <Head>
                     {/* PWA primary color */}
                     <meta name="theme-color" content={theme.palette.primary.main} />
-                    <link rel="shortcut icon" href="/favicon.ico" />
+                    <link rel="shortcut icon" href="/SquaresFavicon.png" />
                     <link rel="preconnect" href="https://fonts.googleapis.com" />
                     <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
                     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
