@@ -6,7 +6,7 @@ import AdminPanel from './AdminPanel';
 import SummaryPanel from './SummaryPanel';
 import NumbersPanel from './NumbersPanel';
 import ResultsPanel from './ResultsPanel';
-import InitialsBox from './InitialsBox';
+
 import SquaresGrid from './SquaresGrid';
 import PaymentLink from './PaymentLink';
 
@@ -84,30 +84,17 @@ export default function NonMobileView({
                     boxShadow: '4px 0 24px rgba(0,0,0,0.05)',
                 }}
             >
-                {/* Pinned Header: Initials & Payment */}
-                <Box sx={{ p: 3, pb: 2, borderBottom: `1px solid ${theme.palette.divider}`, bgcolor: theme.palette.grey[50] }}>
-                    <Box sx={{ mb: venmoUsername ? 2 : 0 }}>
-                        <InitialsBox
-                            id={id}
-                            initials={initials}
-                            boardName={boardName}
-                            onChange={setInitials}
-                            setSnackbarMessage={setSnackbarMessage}
-                            onRefresh={getLatestBoardData}
-                            venmoUsername={venmoUsername}
-                            hasPaid={hasPaid}
-                            isAdmin={isAdmin}
-                        />
-                    </Box>
-                    {venmoUsername && (
+                {/* Pinned Header: Payment */}
+                {venmoUsername && !isAdmin && !hasPaid && (
+                    <Box sx={{ p: 3, pb: 2, borderBottom: `1px solid ${theme.palette.divider}`, bgcolor: theme.palette.grey[50] }}>
                         <PaymentLink
                             venmoUsername={venmoUsername}
                             boardUser={boardUser}
                             hasPaid={hasPaid}
                             setShowPaymentDialog={setShowPaymentDialog}
                         />
-                    )}
-                </Box>
+                    </Box>
+                )}
 
                 {/* Sub-navigation Tabs */}
                 <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 2, pt: 1 }}>

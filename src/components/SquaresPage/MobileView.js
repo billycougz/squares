@@ -3,7 +3,7 @@ import AdminPanel from './AdminPanel';
 import SummaryPanel from './SummaryPanel';
 import NumbersPanel from './NumbersPanel';
 import ResultsPanel from './ResultsPanel';
-import InitialsBox from './InitialsBox';
+
 import SquaresGrid from './SquaresGrid';
 import SimpleBottomNavigation from '@/components/BottomNav';
 import PaymentLink from './PaymentLink';
@@ -110,17 +110,7 @@ export default function MobileView({
                         }
                     }}>
                         <Box sx={hideOnLandscapeStyles}>
-                            <InitialsBox
-                                id={id}
-                                initials={initials}
-                                boardName={boardName}
-                                onChange={setInitials}
-                                setSnackbarMessage={setSnackbarMessage}
-                                onRefresh={getLatestBoardData}
-                                venmoUsername={venmoUsername}
-                                hasPaid={hasPaid}
-                                isAdmin={isAdmin}
-                            />
+
                             <PaymentLink
                                 venmoUsername={venmoUsername}
                                 boardUser={boardUser}
