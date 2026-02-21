@@ -8,14 +8,14 @@ const LoadingFallback = () => (
     <Box
         sx={{
             minHeight: '100vh',
-            bgcolor: '#1e40af',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
+            background: 'radial-gradient(circle at top left, #1e40af, #1e3a8a, #172554)',
+            position: 'fixed',
+            width: '100%',
+            top: 0,
+            left: 0,
+            zIndex: 9999
         }}
-    >
-        <CircularProgress sx={{ color: 'white' }} />
-    </Box>
+    />
 );
 
 const LandingPage = dynamic(() => import('@/components/LandingPage'), {

@@ -27,28 +27,39 @@ import TeamSelectionMenu from '@/components/TeamSelectionMenu';
 
 const FadeContainer = styled.div`
 	opacity: ${({ $fadeIn }) => ($fadeIn ? 1 : 0)};
-	transform: translateY(${({ $fadeIn }) => ($fadeIn ? '0' : '20px')});
-	transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
-	transition-delay: 1.2s;
+	transition: opacity 0.6s ease-out;
 	position: relative;
 	max-width: 450px;
-	margin: auto;
+	margin: -35px auto 0;
 	padding: 0 20px;
 	margin-bottom: 100px;
-	margin-top: 10px;
+
+	@media (min-width: 900px) {
+		margin: 0;
+		text-align: left;
+	}
 `;
 
 const TitleContainer = styled.div`
-	position: relative;
-	top: ${({ $fadeIn }) => ($fadeIn ? 5 : 40)}%;
-	left: 50%;
-	transform: ${({ $fadeIn }) => ($fadeIn ? 'translateX(-50%)' : 'translate(-50%, -50%)')};
-	transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-	width: 100vw;
+	padding: 5px 0 0;
+	width: 100%;
+	
+	@media (min-width: 900px) {
+		padding: 0;
+		text-align: left;
+	}
+
 	img {
+		display: block;
+		margin: 0 auto;
 		width: 100%;
-		max-width: 320px;
+		max-width: 280px;
 		filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2));
+
+		@media (min-width: 900px) {
+			max-width: 350px;
+			margin: 0;
+		}
 	}
 `;
 
@@ -116,7 +127,6 @@ export default function LandingPage({ }) {
 		}
 	};
 
-	// ToDo: Eventually handle game together with teams
 	const updateSelectedTeams = (teams) => {
 		const horizontal = nflTeams.find((team) => team.code === teams?.horizontal);
 		const vertical = nflTeams.find((team) => team.code === teams?.vertical);
@@ -141,29 +151,18 @@ export default function LandingPage({ }) {
 		setRecentSquares([mostRecentBoard, ...additionalRecentBoards]);
 	}
 
-	/**
-	 * Called both after a board is created and after a board is loaded
-	 */
 	function handleBoardReady({ boardData, adminCode, adminPhoneNumber, anchor }) {
 		const recentBoard = recentSquares.find(({ id }) => id === boardData.id);
-		// adminCode can be provided as a param or preexist if found in recentSquares
-		// recentSquares scenario occurs on clicking link sent upon results
 		adminCode = adminCode || recentBoard?.adminCode;
 		if (!adminCode) {
-			// ToDo: Handle adminCode better - don't send from API if not admin
 			delete boardData.adminCode;
 		}
 		updateRecentSquares(boardData, adminCode);
-		// adminPhoneNumber passed onCreate to enable storing the subscription once initials set
 		setBoardUser({ isAdmin: Boolean(adminCode), adminPhoneNumber });
-		// ToDo: anchor is transient and should be handled separately
 		setBoardData({ ...boardData, anchor });
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}
 
-	/**
-	 * Called both on load by URL and on select of a recent board
-	 */
 	async function handleLoad({ id, adminCode, anchor }) {
 		setIsLoading(true);
 		const boardData = await loadBoard({ id, adminCode });
@@ -221,21 +220,16 @@ export default function LandingPage({ }) {
 				window.history.replaceState({}, document.title, '/');
 			}
 			if (searchParams.get('wpc')) {
-				// Set test create params
 				setFormData({
 					...formData,
 					boardName: new Date().toLocaleString(),
-					// Needs to be passed as +1 xxx xxx xxxx
 					phoneNumber: searchParams.get('phoneNumber'),
 					test: true,
 				});
 			}
 		};
 		handleUrlParams();
-		const timer = setTimeout(() => {
-			setFadeIn(true);
-		}, 2000);
-		return () => clearTimeout(timer);
+		setFadeIn(true);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
@@ -258,14 +252,12 @@ export default function LandingPage({ }) {
 
 	const updateFormField = (field, value) => {
 		if (field === 'phoneNumber' && value === '+1') {
-			// Handles quirk where +1 remains in the value even after phone number completely deleted
 			value = '';
 		}
 		setFormData({ ...formData, [field]: value });
 		setFormErrors({ ...formErrors, [field]: false });
 	};
 
-	/* Hydration Fix: Ensure we only render localStorage dependent UI on client */
 	const [hasMounted, setHasMounted] = useState(false);
 	useEffect(() => setHasMounted(true), []);
 
@@ -274,7 +266,7 @@ export default function LandingPage({ }) {
 			sx={{
 				textAlign: 'center',
 				borderRadius: '0',
-				background: `radial-gradient(circle at top left, ${theme.palette.primary.main}, ${theme.palette.primary.dark}, #172554)`,
+				background: 'radial-gradient(circle at top left, #1e40af, #1e3a8a, #172554)',
 				color: 'white',
 				minHeight: '100vh',
 				height: '100dvh',
@@ -297,187 +289,222 @@ export default function LandingPage({ }) {
 			}}
 		>
 			<Loader open={isLoading} />
-			<TitleContainer $fadeIn={fadeIn}>
-				<img src='/Squares_SiteLogo.svg' alt='Squares Logo' />
-			</TitleContainer>
-			<FadeContainer $fadeIn={fadeIn}>
-				{showInfo && <LandingInfoDialog onClose={() => setShowInfo(false)} />}
-				{hasMounted && recentSquares.length > 0 ? (
-					<RecentBoardsCard>
-						<Typography
-							variant='overline'
-							sx={{
-								opacity: 0.8,
-								display: 'block',
-								textAlign: 'left',
-								mb: 1.5,
-								fontWeight: 700,
-								letterSpacing: 2
-							}}
-						>
-							Your Recent Boards
-						</Typography>
-						<FormControl fullWidth size='small'>
-							<Select
-								value=''
-								displayEmpty
-								renderValue={() => <span style={{ color: 'white' }}>Select a recent board...</span>}
-								sx={{
-									backgroundColor: 'rgba(255,255,255,0.1)',
-									color: 'white',
-									borderRadius: '12px',
-									'& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.2)' },
-									'&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.4)' },
-									'&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'white' },
-									'& .MuiSvgIcon-root': { color: 'white' }
-								}}
-							>
-								{recentSquares.map((squaresData, index) => (
-									<MenuItem
-										key={`${squaresData.boardName}-${index}`}
-										value={squaresData.boardName}
-										onClick={() => handleLoad(squaresData)}
-									>
-										{squaresData.boardName}
-									</MenuItem>
-								))}
-							</Select>
-						</FormControl>
-					</RecentBoardsCard>
-				) : (
-					<Button
-						variant='outlined'
-						sx={{
-							color: 'white',
-							borderColor: 'rgba(255,255,255,0.3)',
-							borderRadius: '12px',
-							textTransform: 'none',
-							mb: 3,
-							width: '100%',
-							py: 1.2,
-							fontSize: '0.9rem',
-							fontWeight: 600,
-							'&:hover': { borderColor: 'white', backgroundColor: 'rgba(255,255,255,0.1)' }
-						}}
-						onClick={() => setShowInfo(true)}
-					>
-						How it works
-					</Button>
-				)}
-
-				<FormCard>
+			<Box
+				sx={{
+					display: 'flex',
+					flexDirection: { xs: 'column', md: 'row' },
+					alignItems: 'center',
+					justifyContent: 'center',
+					minHeight: '100vh',
+					px: { xs: 0, md: 8 },
+					py: { xs: 0, md: 4 },
+					gap: { xs: 0, md: 12 },
+					position: 'relative',
+					zIndex: 1
+				}}
+			>
+				<Box sx={{ textAlign: { xs: 'center', md: 'left' }, maxWidth: { xs: '100%', md: 500 } }}>
+					<TitleContainer>
+						<img src='/Squares_SiteLogo.svg' alt='Squares Logo' />
+					</TitleContainer>
 					<Typography
-						variant='h5'
+						variant="h4"
 						sx={{
-							color: theme.palette.primary.dark,
-							fontWeight: 800,
-							mb: 3,
-							fontSize: '1.5rem',
-							letterSpacing: '-0.02em'
+							display: { xs: 'none', md: 'block' },
+							fontFamily: '"Outfit", sans-serif',
+							fontWeight: 400,
+							color: 'white',
+							opacity: 0.9,
+							mt: 2,
+							letterSpacing: '-0.02em',
+							lineHeight: 1.2
 						}}
 					>
-						Create New Board
+						The easiest way to play<br />
+						<Box component="span" sx={{ fontWeight: 800, color: '#60a5fa' }}>Football Squares</Box> with friends.
 					</Typography>
+				</Box>
 
-					{Boolean(games?.length) && (
-						<FormControl fullWidth>
-							<Select
-								value={selectedGame?.title || ''}
-								onChange={handleGameChange}
+				<FadeContainer $fadeIn={fadeIn}>
+					{showInfo && <LandingInfoDialog onClose={() => setShowInfo(false)} />}
+
+					{hasMounted && recentSquares.length > 0 ? (
+						<RecentBoardsCard>
+							<Typography
+								variant='overline'
 								sx={{
-									color: theme.palette.primary.dark,
-									background: theme.palette.background.default,
-									mb: '20px',
-									fontSize: '14px',
-									borderRadius: '12px',
-									'& .MuiOutlinedInput-notchedOutline': { border: 'none' },
-									padding: '4px',
+									opacity: 0.8,
+									display: 'block',
+									textAlign: 'left',
+									mb: 1.5,
+									fontWeight: 700,
+									letterSpacing: 2,
+									fontFamily: '"Outfit", sans-serif'
 								}}
-								input={
-									<InputBase
-										startAdornment={
-											<InputAdornment position='start' sx={{ ml: 1 }}>
-												<TaskAltIcon color="primary" sx={{ fontSize: '20px' }} />
-											</InputAdornment>
-										}
-									/>
-								}
 							>
-								{games.map((game) => (
-									<MenuItem key={game.title} value={game.title}>
-										{game.title}
-									</MenuItem>
-								))}
-							</Select>
-						</FormControl>
-					)}
-
-					<FormGroup>
-						<TextField
-							label='Board Name'
-							value={formData.boardName}
-							placeholder='e.g. Super Bowl LIX'
-							error={formErrors.boardName}
-							onChange={(e) => updateFormField('boardName', e.target.value)}
-							fullWidth
+								Your Recent Boards
+							</Typography>
+							<FormControl fullWidth size='small'>
+								<Select
+									value=''
+									displayEmpty
+									renderValue={() => <span style={{ color: 'white' }}>Select a recent board...</span>}
+									sx={{
+										backgroundColor: 'rgba(255,255,255,0.1)',
+										color: 'white',
+										borderRadius: '12px',
+										'& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.2)' },
+										'&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.4)' },
+										'&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'white' },
+										'& .MuiSvgIcon-root': { color: 'white' }
+									}}
+								>
+									{recentSquares.map((squaresData, index) => (
+										<MenuItem
+											key={`${squaresData.id}-${index}`}
+											value={squaresData.boardName}
+											onClick={() => handleLoad(squaresData)}
+										>
+											{squaresData.boardName}
+										</MenuItem>
+									))}
+								</Select>
+							</FormControl>
+						</RecentBoardsCard>
+					) : (
+						<Button
 							variant='outlined'
 							sx={{
-								'& .MuiOutlinedInput-root': {
-									borderRadius: '12px',
-									backgroundColor: theme.palette.background.default
-								}
-							}}
-						/>
-
-						{showPhoneNumberWarning && <PhoneNumberWarning onClose={handlePhoneNumberWarningClose} />}
-						<MuiTelInput
-							placeholder='Phone Number'
-							defaultCountry='US'
-							forceCallingCode
-							disableDropdown
-							value={formData.phoneNumber}
-							error={formErrors.phoneNumber}
-							onChange={(value) => updateFormField('phoneNumber', value)}
-							fullWidth
-							sx={{
-								margin: '16px 0',
-								'& .MuiOutlinedInput-root': {
-									borderRadius: '12px',
-									backgroundColor: theme.palette.background.default
-								}
-							}}
-						/>
-
-						<Typography variant='caption' sx={{ color: theme.palette.text.secondary, mb: 3, display: 'block', px: 1 }}>
-							We&apos;ll text you a link to your board and notify you when the game starts.
-						</Typography>
-
-						{/* Disabled team selection */ false && <TeamSelectionMenu formData={formData} setFormData={setFormData} nflTeams={nflTeams} />}
-
-						<Button
-							fullWidth
-							variant='contained'
-							onClick={handleCreateClick}
-							sx={{
+								color: 'white',
+								borderColor: 'rgba(255,255,255,0.3)',
 								borderRadius: '12px',
-								py: 1.5,
-								fontSize: '1rem',
-								fontWeight: 700,
 								textTransform: 'none',
-								boxShadow: '0 10px 15px -3px rgba(37, 99, 235, 0.4)',
-								background: `linear-gradient(to right, ${theme.palette.primary.light}, ${theme.palette.primary.main})`,
-								'&:hover': {
-									background: `linear-gradient(to right, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-								}
+								mb: 3,
+								width: '100%',
+								py: 1.2,
+								fontSize: '0.9rem',
+								fontWeight: 600,
+								fontFamily: '"Outfit", sans-serif',
+								'&:hover': { borderColor: 'white', backgroundColor: 'rgba(255,255,255,0.1)' }
+							}}
+							onClick={() => setShowInfo(true)}
+						>
+							How it works
+						</Button>
+					)}
+
+					<FormCard>
+						<Typography
+							variant='h5'
+							sx={{
+								color: theme.palette.primary.dark,
+								fontWeight: 800,
+								mb: 3,
+								fontSize: '1.5rem',
+								letterSpacing: '-0.02em',
+								fontFamily: '"Outfit", sans-serif'
 							}}
 						>
-							Create Board
-						</Button>
-					</FormGroup>
-				</FormCard>
-			</FadeContainer>
+							Create New Board
+						</Typography>
+
+						{Boolean(games?.length) && (
+							<FormControl fullWidth>
+								<Select
+									value={selectedGame?.title || ''}
+									onChange={handleGameChange}
+									sx={{
+										color: theme.palette.primary.dark,
+										background: theme.palette.background.default,
+										mb: '20px',
+										fontSize: '14px',
+										borderRadius: '12px',
+										'& .MuiOutlinedInput-notchedOutline': { border: 'none' },
+										padding: '4px',
+									}}
+									input={
+										<InputBase
+											startAdornment={
+												<InputAdornment position='start' sx={{ ml: 1 }}>
+													<TaskAltIcon color="primary" sx={{ fontSize: '20px' }} />
+												</InputAdornment>
+											}
+										/>
+									}
+								>
+									{games.map((game) => (
+										<MenuItem key={game.title} value={game.title}>
+											{game.title}
+										</MenuItem>
+									))}
+								</Select>
+							</FormControl>
+						)}
+
+						<FormGroup>
+							<TextField
+								label='Board Name'
+								value={formData.boardName}
+								placeholder='e.g. Super Bowl LIX'
+								error={formErrors.boardName}
+								onChange={(e) => updateFormField('boardName', e.target.value)}
+								fullWidth
+								variant='outlined'
+								sx={{
+									'& .MuiOutlinedInput-root': {
+										borderRadius: '12px',
+										backgroundColor: theme.palette.background.default
+									}
+								}}
+							/>
+
+							{showPhoneNumberWarning && <PhoneNumberWarning onClose={handlePhoneNumberWarningClose} />}
+							<MuiTelInput
+								placeholder='Phone Number'
+								defaultCountry='US'
+								forceCallingCode
+								disableDropdown
+								value={formData.phoneNumber}
+								error={formErrors.phoneNumber}
+								onChange={(value) => updateFormField('phoneNumber', value)}
+								fullWidth
+								sx={{
+									margin: '16px 0',
+									'& .MuiOutlinedInput-root': {
+										borderRadius: '12px',
+										backgroundColor: theme.palette.background.default
+									}
+								}}
+							/>
+
+							<Typography variant='caption' sx={{ color: theme.palette.text.secondary, mb: 3, display: 'block', px: 1 }}>
+								We&apos;ll text you a link to your board and notify you when the game starts.
+							</Typography>
+
+							<Button
+								fullWidth
+								variant='contained'
+								onClick={handleCreateClick}
+								sx={{
+									borderRadius: '12px',
+									py: 1.5,
+									fontSize: '1rem',
+									fontWeight: 700,
+									textTransform: 'none',
+									fontFamily: '"Outfit", sans-serif',
+									boxShadow: '0 10px 15px -3px rgba(37, 99, 235, 0.4)',
+									background: `linear-gradient(to right, ${theme.palette.primary.light}, ${theme.palette.primary.main})`,
+									'&:hover': {
+										background: `linear-gradient(to right, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+									}
+								}}
+							>
+								Create Board
+							</Button>
+						</FormGroup>
+					</FormCard>
+				</FadeContainer>
+			</Box>
 		</Box>
 	);
 }
-
-
