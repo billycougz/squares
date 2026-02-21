@@ -1,6 +1,10 @@
 import { Box, Paper, Tab, Tabs, useTheme, Typography } from '@mui/material';
 import TouchAppIcon from '@mui/icons-material/TouchApp';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import PaidIcon from '@mui/icons-material/Paid';
+import TuneIcon from '@mui/icons-material/Tune';
+import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import { useState } from 'react';
 import AdminPanel from './AdminPanel';
 import SummaryPanel from './SummaryPanel';
@@ -73,7 +77,7 @@ export default function NonMobileView({
             <Paper
                 elevation={4}
                 sx={{
-                    width: 420,
+                    width: 480,
                     flexShrink: 0,
                     height: '100%',
                     display: 'flex',
@@ -97,28 +101,27 @@ export default function NonMobileView({
                 )}
 
                 {/* Sub-navigation Tabs */}
-                <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 2, pt: 1 }}>
+                <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 0, pt: 1 }}>
                     <Tabs
                         value={activeTab}
                         onChange={(e, v) => setActiveTab(v as PanelTab)}
-                        variant="scrollable"
-                        scrollButtons="auto"
-                        allowScrollButtonsMobile
+                        variant="fullWidth"
                         sx={{
-                            minHeight: 48,
+                            minHeight: 72,
                             '& .MuiTab-root': {
                                 textTransform: 'none',
-                                fontWeight: 600,
-                                fontSize: '0.9rem',
+                                fontWeight: 700,
+                                fontSize: '0.8rem',
                                 minWidth: 'auto',
-                                px: 2,
+                                px: 1,
+                                py: 1.5,
                             }
                         }}
                     >
-                        <Tab label="Summary" value="summary" />
-                        <Tab label="Numbers" value="numbers" />
-                        <Tab label="Results" value="results" />
-                        {isAdmin && <Tab label="Admin" value="admin" />}
+                        <Tab label="Summary" value="summary" icon={<AssessmentIcon />} iconPosition="top" />
+                        <Tab label="Numbers" value="numbers" icon={<FormatListNumberedIcon />} iconPosition="top" />
+                        <Tab label="Results" value="results" icon={<PaidIcon />} iconPosition="top" />
+                        {isAdmin && <Tab label="Admin" value="admin" icon={<TuneIcon />} iconPosition="top" />}
                     </Tabs>
                 </Box>
 
