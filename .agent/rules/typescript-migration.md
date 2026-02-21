@@ -2,13 +2,14 @@
 trigger: always_on
 ---
 
-1. **New Files**:
-   - MUST use `.ts` or `.tsx`.
-   - NEVER create new `.js` or `.jsx` files.
+You are in the middle of an iterative TypeScript migration. Key Principles:
 
-2. **Legacy Code (Boy Scout Rule)**:
-   - If you modify a significant part of a `.js` file, you MUST migrate it to `.ts`/`.tsx`.
-   - Add type annotations. Avoid `any`.
+New Files:
+- Use `.ts` or `.tsx`.
 
-3. **Strictness**:
-   - Treat `any` as a temporary escape hatch, not a default.
+Modifying Existing Files:
+- Update `.js`/`.jsx` files to `.ts`/`.tsx` upon any change to that file.
+- Add type annotations. Avoid `any`.
+
+Strictness:
+- Treat `any` as a temporary escape hatch, not a default.
