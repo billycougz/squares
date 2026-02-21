@@ -14,7 +14,7 @@ export default function PhoneNumberWarning({ onClose }) {
 				Skip Phone Number?
 			</DialogTitle>
 			<DialogContent>
-				<DialogContentText>
+				<DialogContentText component="div">
 					<Typography sx={{ mb: '10px' }}>If you lose the link to your board there is no way to recover it.</Typography>
 					<Typography>Board event notifications enhance the Squares experience for all users.</Typography>
 				</DialogContentText>

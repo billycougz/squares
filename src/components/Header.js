@@ -42,7 +42,7 @@ export default function CustomHeader({ boardName, onHomeClick, onInfoClick, onRe
 				<IconButton size='large' edge='start' color='inherit' aria-label='Home' onClick={onHomeClick}>
 					<HomeIcon />
 				</IconButton>
-				<Typography variant='h6' sx={{ fontWeight: 600 }}>{boardName}</Typography>
+				<Typography variant='h6' sx={{ fontFamily: '"Outfit", sans-serif', fontWeight: 800, letterSpacing: '0.04em', fontSize: '1.15rem' }}>{boardName}</Typography>
 				<div>
 					{onRefresh && (
 						<IconButton color='inherit' onClick={onRefresh}>

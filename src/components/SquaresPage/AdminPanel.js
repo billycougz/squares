@@ -5,7 +5,6 @@ import EditIcon from '@mui/icons-material/Edit';
 import IosShareIcon from '@mui/icons-material/IosShare';
 import { Button, DialogContentText, Divider, Grid, Typography, useMediaQuery } from '@mui/material';
 import Box from '@mui/material/Box';
-import CustomAccordion from '@/components/Accordion';
 import FinanceDialog from '@/components/FinanceDialog';
 import { updateBoard } from '@/lib/api';
 import ResultsDialog from '@/components/ResultsDialog';
@@ -137,7 +136,14 @@ export default function AdminPanel({ setSnackbarMessage, setView }) {
 	const isMobile = useMediaQuery('(max-width: 600px)');
 
 	return (
-		<CustomAccordion title='Admin Controls'>
+		<Box>
+			{isMobile && (
+				<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2, px: 2 }}>
+					<Typography variant='h5' fontWeight='700'>
+						Admin Controls
+					</Typography>
+				</Box>
+			)}
 			<Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 3, px: isMobile ? 2 : 0 }}>
 				{/* Access Section */}
 				<Box>
@@ -286,6 +292,6 @@ export default function AdminPanel({ setSnackbarMessage, setView }) {
 					onClose={() => setActiveDialog('')}
 				/>
 			)}
-		</CustomAccordion>
+		</Box>
 	);
 }

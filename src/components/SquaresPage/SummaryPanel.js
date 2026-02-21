@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { Avatar, Box, Card, CardContent, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Typography, useMediaQuery } from '@mui/material';
 import { AttachMoney, GridOn, People } from '@mui/icons-material';
-import CustomAccordion from '@/components/Accordion';
 
 export default function SummaryPanel({ boardData, initials, squareMap, onRefresh }) {
 	const [sortConfig, setSortConfig] = useState({ key: 'player', direction: 'asc' });
@@ -61,7 +60,7 @@ export default function SummaryPanel({ boardData, initials, squareMap, onRefresh
 	);
 
 	return (
-		<CustomAccordion title='Summary'>
+		<Box>
 			<Box sx={{ mb: 3, mt: 2, px: isMobile ? 2 : 0 }}>
 				{isMobile && (
 					<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -179,6 +178,6 @@ export default function SummaryPanel({ boardData, initials, squareMap, onRefresh
 					</Table>
 				</TableContainer>
 			)}
-		</CustomAccordion>
+		</Box>
 	);
 }

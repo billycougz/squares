@@ -92,8 +92,8 @@ export default function SquaresGrid({ initials, setSnackbarMessage, onUpdate, hi
 			if (!container) return;
 
 			// Use slightly less vertical buffer to maximize space
-			const availableHeight = window.innerHeight - 20;
-			// Use 99% of the container width to maximize size (user requested)
+			const availableHeight = container.clientHeight - 20;
+			// Use 99% of the container width to maximize size 
 			const availableWidth = container.clientWidth * 0.99;
 
 			if (availableWidth <= 0 || availableHeight <= 0) return;
@@ -133,12 +133,13 @@ export default function SquaresGrid({ initials, setSnackbarMessage, onUpdate, hi
 			sx={[
 				{
 					width: '100%',
-					height: 'calc(100vh - 120px)', // Fixed height for centering in portrait
+					height: '100%', // Flexible height relative to container
 					overflow: 'hidden',
 					p: 0,
 					display: 'flex',
 					flexDirection: 'column',
 					alignItems: 'center',    // Center horizontally
+
 					justifyContent: 'center', // Center vertically
 					position: 'relative',
 					transition: 'all 0.3s ease-in-out'

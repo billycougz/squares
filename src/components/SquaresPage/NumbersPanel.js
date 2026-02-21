@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { Avatar, Box, Divider, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, ToggleButton, ToggleButtonGroup, Typography, useMediaQuery } from '@mui/material';
 
-import CustomAccordion from '@/components/Accordion';
 
 export default function NumbersPanel({ boardData, initials, squareMap, onRefresh }) {
     const isMobileWidth = useMediaQuery('(max-width: 600px)');
@@ -188,7 +187,7 @@ export default function NumbersPanel({ boardData, initials, squareMap, onRefresh
     };
 
     return (
-        <CustomAccordion title='Player Numbers'>
+        <Box>
             <Box sx={{ mb: 2, mt: 2, px: isMobile ? 2 : 0 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography variant='h5' fontWeight='700' sx={{ display: isMobile ? 'block' : 'none' }}>
@@ -331,6 +330,6 @@ export default function NumbersPanel({ boardData, initials, squareMap, onRefresh
                     )}
                 </Box>
             )}
-        </CustomAccordion>
+        </Box>
     );
 }

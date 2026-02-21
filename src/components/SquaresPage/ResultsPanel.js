@@ -1,7 +1,6 @@
 'use client';
 import { Avatar, Box, Card, CardContent, Chip, Divider, Grid, IconButton, Typography, useMediaQuery, useTheme } from '@mui/material';
 import { EmojiEvents, AttachMoney, SportsScore } from '@mui/icons-material';
-import CustomAccordion from '@/components/Accordion';
 
 export default function ResultsPanel({ boardData, initials, anchor, onRefresh }) {
 	const { squarePrice, results, teams, payoutSliderValues, retainAmount = 0 } = boardData;
@@ -156,7 +155,7 @@ export default function ResultsPanel({ boardData, initials, anchor, onRefresh })
 	};
 
 	return (
-		<CustomAccordion title='Results & Payouts' defaultExpanded={anchor === 'results'}>
+		<Box>
 			<Box
 				sx={{
 					display: 'flex',
@@ -183,6 +182,6 @@ export default function ResultsPanel({ boardData, initials, anchor, onRefresh })
 					</Typography>
 				)}
 			</Box>
-		</CustomAccordion>
+		</Box>
 	);
 }
