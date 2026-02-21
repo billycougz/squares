@@ -6,7 +6,15 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { Button, DialogContent } from '@mui/material';
 import SmsContent from '@/components/dialog-content/SmsContent';
 
-export default function SmsDialog({ open, onClose, onSave, initials }) {
+interface SmsDialogProps {
+	open: boolean;
+	onClose: () => void;
+	onSave: (params: { phoneNumber: string }) => void;
+	initials: string;
+	boardName?: string;
+}
+
+export default function SmsDialog({ open, onClose, onSave, initials, boardName }: SmsDialogProps) {
 	const [phoneNumber, setPhoneNumber] = useState('');
 	const [storedNumber, setStoredNumber] = useState('');
 	return (

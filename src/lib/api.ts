@@ -5,7 +5,7 @@ const DO_MOCK = process.env.NEXT_PUBLIC_DO_MOCK === 'true';
 
 const API_BASE = '/api/boards';
 
-export const createBoard = async (formData) => {
+export const createBoard = async (formData: any) => {
 	if (DO_MOCK) {
 		return MOCK.createBoard(formData);
 	}
@@ -19,16 +19,17 @@ export const createBoard = async (formData) => {
 	}
 };
 
-/**
- * @param {Object} updateData
- * @param {string} updateData.id
- * @param {string} updateData.operation
- * @param {Object} updateData.value
- * @param {number} [updateData.row]
- * @param {number} [updateData.col]
- * @param {Object} [updateData.scores]
- */
-export const updateBoard = async (updateData) => {
+export interface UpdateBoardParams {
+	id: string;
+	operation: 'select' | 'remove' | 'result' | 'numbers' | 'finances' | 'update';
+	value?: any;
+	row?: number;
+	col?: number;
+	scores?: any;
+	[key: string]: any; // Allow for other properties like boardName if passed but unused
+}
+
+export const updateBoard = async (updateData: UpdateBoardParams) => {
 	if (DO_MOCK) {
 		return MOCK.updateBoard(updateData);
 	}
@@ -74,7 +75,7 @@ export const updateBoard = async (updateData) => {
 	}
 };
 
-export const loadBoard = async ({ id, adminCode }) => {
+export const loadBoard = async ({ id, adminCode }: { id: string; adminCode?: string }) => {
 	if (DO_MOCK) {
 		return MOCK.loadBoard({ id, adminCode });
 	}
@@ -95,7 +96,7 @@ export const loadBoard = async ({ id, adminCode }) => {
 	}
 };
 
-export const subscribeNumberToBoard = async (params) => {
+export const subscribeNumberToBoard = async (params: { id: string; phoneNumber: string;[key: string]: any }) => {
 	if (DO_MOCK) {
 		return MOCK.subscribeNumberToBoard(params);
 	}

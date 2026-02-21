@@ -1,13 +1,21 @@
 'use client';
 import { useContext } from 'react';
-import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import { MuiTelInput } from 'mui-tel-input';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import AppContext from '@/contexts/AppContext';
 
-export default function SmsContent({ initials, onChange, onIsSubscribed, phoneNumber, showHelper, error }) {
-	const { boardUser, boardData, getSubscribedNumber } = useContext(AppContext);
+interface SmsContentProps {
+	initials: string;
+	onChange: (value: string) => void;
+	onIsSubscribed: (value: string) => void;
+	phoneNumber: string;
+	showHelper?: boolean;
+	error?: boolean;
+}
+
+export default function SmsContent({ initials, onChange, onIsSubscribed, phoneNumber, showHelper, error }: SmsContentProps) {
+	const { getSubscribedNumber } = useContext(AppContext);
 
 	const subscribedNumber = getSubscribedNumber(initials);
 

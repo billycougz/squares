@@ -14,7 +14,12 @@ import IosShareIcon from '@mui/icons-material/IosShare';
 import { AccountCircle } from '@mui/icons-material';
 import { useLocalStorage } from 'usehooks-ts';
 
-export default function AdminMessageDialog({ onClose, setSnackbarMessage }) {
+interface AdminMessageDialogProps {
+	onClose: () => void;
+	setSnackbarMessage: (message: string) => void;
+}
+
+export default function AdminMessageDialog({ onClose, setSnackbarMessage }: AdminMessageDialogProps) {
 	const { boardData, setBoardData, updateSubscriptions, boardUser } = useContext(AppContext);
 	const {
 		id,
@@ -41,7 +46,7 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }) {
 
 	const [initials, setInitials] = useLocalStorage('squares-initials', '');
 	const [initialsUnderChange, setInitialsUnderChange] = useState(initials);
-	const [errors, setErrors] = useState({});
+	const [errors, setErrors] = useState<Record<string, boolean>>({});
 
 	const [stepIndex, setStepIndex] = useState(0);
 
@@ -96,7 +101,7 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }) {
 		setSnackbarMessage('Participant link copied to clipboard.');
 	};
 
-	const handleInitialsChange = (value) => {
+	const handleInitialsChange = (value: string) => {
 		setErrors({ ...errors, initials: false });
 		setInitialsUnderChange(value.toUpperCase());
 	};
@@ -174,7 +179,6 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }) {
 						fullWidth
 						value={initialsUnderChange}
 						onChange={(e) => handleInitialsChange(e.target.value)}
-						onChange={(e) => handleInitialsChange(e.target.value)}
 						helperText={errors.initials ? 'Your initials are required.' : ''}
 						sx={{ marginBottom: '10px' }}
 						InputProps={{
@@ -203,7 +207,7 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }) {
 			Component: () => (
 				<ManagePaymentInfoContent
 					paymentInfoData={financeData}
-					onDataChange={(paymentInfoData) => setFinanceData({ ...financeData, ...paymentInfoData })}
+					onDataChange={(paymentInfoData: any) => setFinanceData({ ...financeData, ...paymentInfoData })}
 				/>
 			),
 		},
@@ -218,7 +222,7 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }) {
 	];
 
 	// Direction is -1 (back) or +1 (next)
-	const handleStepChange = async (direction) => {
+	const handleStepChange = async (direction: number) => {
 		if (direction === 1) {
 			if (steps[stepIndex].isFinance) {
 				// Save finances
@@ -250,7 +254,7 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }) {
 	};
 
 	return (
-		<Dialog open={true} onClose={null}>
+		<Dialog open={true} onClose={() => { }}>
 			<DialogTitle>{steps[stepIndex].title}</DialogTitle>
 			<DialogContent>{steps[stepIndex].Component()}</DialogContent>
 			<DialogActions sx={{ marginTop: '-1em' }}>
