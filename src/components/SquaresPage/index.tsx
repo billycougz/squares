@@ -11,6 +11,7 @@ import AdminIntroDialog from '@/components/AdminIntroDialog';
 import CustomHeader from '@/components/Header';
 import InfoDialog from '@/components/InfoDialog';
 import SmsDialog from '@/components/SmsDialog';
+import Loader from '@/components/Loader';
 import { generateRefreshMessage } from '@/utils/generateRefreshMessage';
 
 const hideOnLandscapeStyles = {
@@ -34,6 +35,7 @@ export default function SquaresPage() {
     const [hasPaid, setHasPaid] = useState(false);
     const [showPaymentDialog, setShowPaymentDialog] = useState(false);
     const [isSmsDialogOpen, setIsSmsDialogOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     // Ahhhhhhh, sorry to my future self about the mobile handling...
     const hasMobileHeight = useMediaQuery('(max-width:600px)');
@@ -125,6 +127,7 @@ export default function SquaresPage() {
     );
 
     const getLatestBoardData = async () => {
+        setIsLoading(true);
         const data = await loadBoard({ id });
         if (data && !data.error) {
             const message = generateRefreshMessage(boardData, data);
@@ -133,9 +136,11 @@ export default function SquaresPage() {
         } else {
             setSnackbarMessage('Failed to refresh board');
         }
+        setIsLoading(false);
     };
 
     const handleSelectBoard = async (board: any) => {
+        setIsLoading(true);
         const data = await loadBoard({ id: board.id, adminCode: board.adminCode });
         if (data && !data.error) {
             setBoardUser({ isAdmin: Boolean(board.adminCode) });
@@ -144,6 +149,7 @@ export default function SquaresPage() {
         } else {
             setSnackbarMessage('Failed to load board');
         }
+        setIsLoading(false);
     };
 
     const handlePaymentConfirm = () => {
@@ -162,6 +168,7 @@ export default function SquaresPage() {
 
     return (
         <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
+            <Loader open={isLoading} />
             <Box sx={isMobile && hideOnLandscapeStyles}>
                 <CustomHeader
                     boardName={boardName}
