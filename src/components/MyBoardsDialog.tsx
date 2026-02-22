@@ -11,12 +11,26 @@ import {
     IconButton,
     Typography,
     Box,
+    Divider,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
-export default function MyBoardsDialog({ open, onClose, onSelectBoard }) {
-    const [recentBoards, setRecentBoards] = useState([]);
+interface Board {
+    id: string;
+    boardName: string;
+    adminCode?: string;
+    lastAccessed?: string | number | Date;
+}
+
+interface MyBoardsDialogProps {
+    open: boolean;
+    onClose: () => void;
+    onSelectBoard: (board: Board) => void;
+}
+
+export default function MyBoardsDialog({ open, onClose, onSelectBoard }: MyBoardsDialogProps) {
+    const [recentBoards, setRecentBoards] = useState<Board[]>([]);
 
     // Load recent boards from localStorage whenever the dialog opens
     useEffect(() => {
@@ -27,17 +41,17 @@ export default function MyBoardsDialog({ open, onClose, onSelectBoard }) {
     }, [open]);
 
 
-    const handleSelectBoard = (board) => {
+    const handleSelectBoard = (board: Board) => {
         onSelectBoard(board);
         onClose();
     };
 
-    const formatDate = (timestamp) => {
+    const formatDate = (timestamp?: string | number | Date) => {
         if (!timestamp) return 'Recently accessed';
 
         const date = new Date(timestamp);
         const now = new Date();
-        const diffMs = now - date;
+        const diffMs = now.getTime() - date.getTime();
         const diffMins = Math.floor(diffMs / 60000);
         const diffHours = Math.floor(diffMs / 3600000);
         const diffDays = Math.floor(diffMs / 86400000);
@@ -89,7 +103,7 @@ export default function MyBoardsDialog({ open, onClose, onSelectBoard }) {
                                         />
                                     </ListItemButton>
                                 </ListItem>
-                                {index < recentBoards.length - 1 && <Box sx={{ borderBottom: '1px solid #e0e0e0' }} />}
+                                {index < recentBoards.length - 1 && <Divider />}
                             </React.Fragment>
                         ))}
                     </List>

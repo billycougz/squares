@@ -1,3 +1,4 @@
+import { AppProps } from 'next/app';
 import Head from 'next/head';
 import Script from 'next/script';
 import { ThemeProvider } from '@mui/material/styles';
@@ -10,7 +11,7 @@ import AppContextProvider from '../contexts/AppContextProvider';
 import { AppServicesProvider } from '../services/AppServices';
 import MockBanner from '../components/MockBanner';
 
-export default function MyApp({ Component, pageProps }) {
+export default function MyApp({ Component, pageProps }: AppProps) {
     const showMockBanner = process.env.NEXT_PUBLIC_DO_MOCK === 'true';
 
     return (

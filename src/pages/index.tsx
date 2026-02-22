@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import { Box } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import Head from 'next/head';
 import AppContext from '@/contexts/AppContext';
 import dynamic from 'next/dynamic';
@@ -16,9 +16,14 @@ const LoadingFallback = () => (
             width: '100%',
             top: 0,
             left: 0,
-            zIndex: 9999
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
         }}
-    />
+    >
+        <CircularProgress sx={{ color: 'white' }} />
+    </Box>
 );
 
 const LandingPage = dynamic(() => import('@/components/LandingPage'), {
