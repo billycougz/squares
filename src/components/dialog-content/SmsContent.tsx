@@ -1,5 +1,5 @@
 'use client';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import DialogContentText from '@mui/material/DialogContentText';
 import { MuiTelInput } from 'mui-tel-input';
 import VerifiedIcon from '@mui/icons-material/Verified';
@@ -19,8 +19,13 @@ export default function SmsContent({ initials, onChange, onIsSubscribed, phoneNu
 
 	const subscribedNumber = getSubscribedNumber(initials);
 
+	useEffect(() => {
+		if (subscribedNumber) {
+			onIsSubscribed(subscribedNumber);
+		}
+	}, [subscribedNumber, onIsSubscribed]);
+
 	if (subscribedNumber) {
-		onIsSubscribed(subscribedNumber);
 		return (
 			<DialogContentText sx={{ mt: '10px ' }}>
 				<VerifiedIcon color='primary' sx={{ mb: '-5px', pr: 1 }} />

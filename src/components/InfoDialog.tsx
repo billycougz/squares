@@ -2,6 +2,7 @@
 import { useContext, useState } from 'react';
 import {
     Alert,
+    Box,
     Button,
     DialogActions,
     DialogContentText,
@@ -61,45 +62,47 @@ export default function InfoDialog({ onClose, isIntro }: InfoDialogProps) {
         {
             title: 'Welcome To Squares',
             sms: true,
-            Component: () => (
-                <>
-                    <DialogContentText sx={{ marginBottom: '1em' }}>
-                        Squares is the easiest way to play Football Squares with friends and family regardless of where everyone is
-                        located!
-                    </DialogContentText>
-                    <DialogContentText sx={{ marginBottom: '1em' }}>Get started by entering your initials.</DialogContentText>
-                    <TextField
-                        error={errors.initials}
-                        placeholder='Your Initials'
-                        size='small'
-                        fullWidth
-                        value={initialsUnderChange}
-                        onChange={(e) => handleInitialsChange(e.target.value)}
-                        helperText={errors.initials ? 'Your initials are required.' : ''}
-                        sx={{ marginBottom: '10px' }}
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position='start'>
-                                    <AccountCircle />
-                                </InputAdornment>
-                            ),
-                        }}
-                    />
-                    <SmsContent
-                        error={errors.phoneNumber}
-                        showHelper={true}
-                        initials={initialsUnderChange}
-                        phoneNumber={phoneNumber}
-                        onChange={handlePhoneNumberChange}
-                        onIsSubscribed={setStoredNumber}
-                    />
-                </>
-            ),
-        } as const,
+            Component: function WelcomeStep() {
+                return (
+                    <>
+                        <DialogContentText sx={{ marginBottom: '1em' }}>
+                            Squares is the easiest way to play Football Squares with friends and family regardless of where everyone is
+                            located!
+                        </DialogContentText>
+                        <DialogContentText sx={{ marginBottom: '1em' }}>Get started by entering your initials.</DialogContentText>
+                        <TextField
+                            error={errors.initials}
+                            placeholder='Your Initials'
+                            size='small'
+                            fullWidth
+                            value={initialsUnderChange}
+                            onChange={(e) => handleInitialsChange(e.target.value)}
+                            helperText={errors.initials ? 'Your initials are required.' : ''}
+                            sx={{ marginBottom: '10px' }}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position='start'>
+                                        <AccountCircle />
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
+                        <SmsContent
+                            error={errors.phoneNumber}
+                            showHelper={true}
+                            initials={initialsUnderChange}
+                            phoneNumber={phoneNumber}
+                            onChange={handlePhoneNumberChange}
+                            onIsSubscribed={setStoredNumber}
+                        />
+                    </>
+                );
+            },
+        },
         {
             title: 'Squares Is Simple',
             sms: false,
-            Component: () => {
+            Component: function SimpleStep() {
                 const link = !venmoUsername
                     ? ''
                     : venmoUsername.toLowerCase().includes('https://venmo.com')
@@ -107,11 +110,11 @@ export default function InfoDialog({ onClose, isIntro }: InfoDialogProps) {
                         : `https://venmo.com/u/${venmoUsername}`;
 
                 return (
-                    <DialogContentText component="div">
-                        <Typography sx={{ marginBottom: '1em' }}>
+                    <Box>
+                        <Typography sx={{ marginBottom: '1em', color: 'text.secondary' }}>
                             Tap any square to instantly claim it with your initials. Once a square is claimed you cannot unclaim it.
                         </Typography>
-                        <Typography sx={{ marginBottom: '1em' }}>
+                        <Typography sx={{ marginBottom: '1em', color: 'text.secondary' }}>
                             Your Squares administrator has set the price at ${squarePrice} per square.
                             {maxSquares ? ` You can claim a maximum of ${maxSquares} squares.` : ''}
                         </Typography>
@@ -119,28 +122,28 @@ export default function InfoDialog({ onClose, isIntro }: InfoDialogProps) {
                         {financeMessage && (
                             <Alert variant='outlined' severity='info' color='warning'>
                                 <strong style={{ display: 'block', marginBottom: '5px' }}>A Message From Your Admin</strong>
-                                <Typography>{financeMessage}</Typography>
+                                <Typography variant="body2">{financeMessage}</Typography>
                                 {link && (
-                                    <>
-                                        <br />
+                                    <Box sx={{ mt: 1 }}>
                                         <Link href={link} target='_BLANK' sx={{ fontWeight: 'bold' }}>
                                             Open Venmo
                                         </Link>
-                                    </>
+                                    </Box>
                                 )}
                             </Alert>
                         )}
-                    </DialogContentText>
+                    </Box>
                 );
             },
         },
     ];
 
     const activeSteps = isIntro ? steps : [steps[1]];
+    const currentStep = activeSteps[stepIndex] || activeSteps[0];
 
     const handleStepChange = async (direction: number) => {
         if (direction === 1) {
-            if (activeSteps[stepIndex].sms) {
+            if (currentStep.sms) {
                 const newErrors = {
                     initials: !Boolean(initialsUnderChange),
                     phoneNumber: !phoneIsValidOrEmpty(phoneNumber),
@@ -155,7 +158,7 @@ export default function InfoDialog({ onClose, isIntro }: InfoDialogProps) {
                 }
             }
         }
-        setStepIndex(stepIndex + direction);
+        setStepIndex(prev => prev + direction);
     };
 
     const StepActions = () => (
@@ -168,11 +171,11 @@ export default function InfoDialog({ onClose, isIntro }: InfoDialogProps) {
 
     return (
         <DialogComponent
-            title={activeSteps[stepIndex].title}
+            title={currentStep.title}
             closeConfig={{ display: !isIntro, text: 'Close', action: onClose }}
             CustomActions={isIntro ? StepActions : undefined}
         >
-            {activeSteps[stepIndex].Component()}
+            <currentStep.Component />
         </DialogComponent>
     );
 }
