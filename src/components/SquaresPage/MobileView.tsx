@@ -1,3 +1,4 @@
+'use client';
 import { Box, Grid, Paper, Tab, Tabs, useTheme } from '@mui/material';
 import AdminPanel from './AdminPanel';
 import SummaryPanel from './SummaryPanel';
@@ -13,6 +14,29 @@ const hideOnLandscapeStyles = {
         display: 'none',
     },
 };
+
+interface MobileViewProps {
+    view: string;
+    setView: (view: string) => void;
+    setSnackbarMessage: (msg: string) => void;
+    boardData: any;
+    initials: string;
+    setInitials: (initials: string) => void;
+    squareMap: Record<string, number>;
+    getLatestBoardData: () => Promise<void>;
+    anchor?: string;
+    id: string;
+    boardName: string;
+    venmoUsername?: string;
+    hasPaid: boolean;
+    isAdmin: boolean;
+    boardUser: any;
+    setShowPaymentDialog: (show: boolean) => void;
+    clickMode: 'select' | 'remove' | 'result' | 'numbers' | 'finances' | 'update';
+    setClickMode: (mode: 'select' | 'remove' | 'result' | 'numbers' | 'finances' | 'update') => void;
+    setBoardData: (data: any) => void;
+    highlightColor: string;
+}
 
 export default function MobileView({
     view,
@@ -35,7 +59,7 @@ export default function MobileView({
     setClickMode,
     setBoardData,
     highlightColor
-}) {
+}: MobileViewProps) {
     const theme = useTheme();
     const isBoardView = view === 'board';
     const isDataView = ['players', 'results', 'numbers', 'admin'].includes(view);
@@ -44,11 +68,13 @@ export default function MobileView({
         <>
             <Box
                 sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
                     flexGrow: 1,
-                    minHeight: '100vh',
                     bgcolor: isDataView ? 'background.paper' : 'background.default',
                     padding: isDataView ? 0 : 2,
                     paddingBottom: '80px',
+                    overflow: 'hidden', // Contain scrolling to children
                     '@media only screen and (orientation: landscape)': {
                         padding: 0,
                         display: isBoardView ? 'flex' : 'block',
@@ -59,13 +85,25 @@ export default function MobileView({
                     },
                 }}
             >
-                <Grid container spacing={isDataView ? 0 : 2} sx={{ width: '100%', m: 0 }}>
+                {/* Use container if using legacy Grid, or just Grid for Grid2 */}
+                <Grid
+                    container
+                    spacing={isDataView ? 0 : 2}
+                    sx={{
+                        width: '100%',
+                        m: 0,
+                        flexGrow: isDataView ? 1 : 0,
+                        overflowY: isDataView ? 'auto' : 'visible'
+                    }}
+                >
                     {view === 'admin' && (
+                        /* @ts-ignore */
                         <Grid size={{ xs: 12 }}>
                             <AdminPanel setView={setView} setSnackbarMessage={setSnackbarMessage} />
                         </Grid>
                     )}
                     {view === 'players' && (
+                        /* @ts-ignore */
                         <Grid size={{ xs: 12 }}>
                             <SummaryPanel
                                 boardData={boardData}
@@ -76,6 +114,7 @@ export default function MobileView({
                         </Grid>
                     )}
                     {view === 'numbers' && (
+                        /* @ts-ignore */
                         <Grid size={{ xs: 12 }}>
                             <NumbersPanel
                                 boardData={boardData}
@@ -86,6 +125,7 @@ export default function MobileView({
                         </Grid>
                     )}
                     {view === 'results' && (
+                        /* @ts-ignore */
                         <Grid size={{ xs: 12 }}>
                             <ResultsPanel
                                 boardData={boardData}
@@ -99,6 +139,10 @@ export default function MobileView({
 
                 {isBoardView && (
                     <Box sx={{
+                        flexGrow: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        minHeight: 0,
                         marginTop: 2,
                         '@media only screen and (orientation: landscape)': {
                             marginTop: 0,
@@ -142,11 +186,9 @@ export default function MobileView({
                             )}
                         </Box>
                         <SquaresGrid
-                            boardData={boardData}
                             initials={initials}
                             onUpdate={setBoardData}
                             setSnackbarMessage={setSnackbarMessage}
-                            squareMap={squareMap}
                             highlightColor={highlightColor}
                             clickMode={clickMode}
                             sx={{ height: '100%' }}
@@ -160,3 +202,4 @@ export default function MobileView({
         </>
     );
 }
+

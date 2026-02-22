@@ -28,7 +28,7 @@ export default function SquaresPage() {
 
     const [initials, setInitials] = useLocalStorage('squares-initials', '');
     const [view, setView] = useState('board');
-    const [clickMode, setClickMode] = useState('select');
+    const [clickMode, setClickMode] = useState<'select' | 'remove' | 'result' | 'numbers' | 'finances' | 'update'>('select');
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [showInfoDialog, setShowInfoDialog] = useState<any>(false);
     const [showAdminIntroDialog, setShowAdminIntroDialog] = useState(false);
@@ -167,7 +167,7 @@ export default function SquaresPage() {
     };
 
     return (
-        <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
+        <Box sx={{ bgcolor: 'background.default', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <Loader open={isLoading} />
             <Box sx={isMobile && hideOnLandscapeStyles}>
                 <CustomHeader

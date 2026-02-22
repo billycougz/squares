@@ -30,8 +30,8 @@ interface NonMobileViewProps {
     anchor?: string;
     boardUser: any;
     setShowPaymentDialog: (show: boolean) => void;
-    clickMode: string;
-    setClickMode: (mode: string) => void;
+    clickMode: 'select' | 'remove' | 'result' | 'numbers' | 'finances' | 'update';
+    setClickMode: (mode: 'select' | 'remove' | 'result' | 'numbers' | 'finances' | 'update') => void;
     setBoardData: (data: any) => void;
     highlightColor: string;
 }
