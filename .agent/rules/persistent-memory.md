@@ -11,3 +11,4 @@ Location:
 
 Memories
 - On the Landing Page, phone number is an optional field [created: 2/17/2026]
+- **CRITICAL**: Never use the browser without explicit permission, even for bug investigation or verification. Protocol is strict [created: 2/22/2026]
