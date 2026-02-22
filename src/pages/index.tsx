@@ -1,8 +1,11 @@
 import { useContext, useEffect, useState } from 'react';
-import { Box, CircularProgress } from '@mui/material';
+import { Box } from '@mui/material';
 import Head from 'next/head';
 import AppContext from '@/contexts/AppContext';
 import dynamic from 'next/dynamic';
+import { useAppServices } from '@/services/AppServices';
+import { loadBoard } from '@/lib/api';
+import { generateRefreshMessage } from '@/utils/generateRefreshMessage';
 
 const LoadingFallback = () => (
     <Box
@@ -26,15 +29,11 @@ const SquaresPage = dynamic(() => import('@/components/SquaresPage'), {
     ssr: false,
     loading: LoadingFallback
 });
-import { useAppServices } from '@/services/AppServices';
-import { loadBoard } from '@/lib/api';
-import { generateRefreshMessage } from '@/utils/generateRefreshMessage';
 
 export default function Home() {
     const { boardData, setBoardData } = useContext(AppContext);
     const { showSnackbar } = useAppServices();
-    const [lastActiveTime, setLastActiveTime] = useState(null);
-
+    const [lastActiveTime, setLastActiveTime] = useState<Date | null>(null);
 
     // Visibility/Auto-refresh logic ported from AppRouter.js
     useEffect(() => {
@@ -47,7 +46,7 @@ export default function Home() {
             if (document.visibilityState !== 'visible') {
                 setLastActiveTime(currentTime);
             } else {
-                const elapsedTime = lastActiveTime ? (currentTime - lastActiveTime) / (1000 * 60) : null;
+                const elapsedTime = lastActiveTime ? (currentTime.getTime() - lastActiveTime.getTime()) / (1000 * 60) : null;
                 const refreshTimeout = 5; // in minutes
                 if (elapsedTime && elapsedTime > refreshTimeout) {
                     const updatedData = await loadBoard({ id: boardData.id });
