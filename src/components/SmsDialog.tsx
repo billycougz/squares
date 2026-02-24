@@ -1,10 +1,8 @@
 'use client';
 import { useState } from 'react';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogTitle from '@mui/material/DialogTitle';
-import { Button, DialogContent } from '@mui/material';
+import SmsIcon from '@mui/icons-material/Sms';
 import SmsContent from '@/components/dialog-content/SmsContent';
+import StyledDialog from './StyledDialog';
 
 interface SmsDialogProps {
 	open: boolean;
@@ -17,25 +15,28 @@ interface SmsDialogProps {
 export default function SmsDialog({ open, onClose, onSave, initials, boardName }: SmsDialogProps) {
 	const [phoneNumber, setPhoneNumber] = useState('');
 	const [storedNumber, setStoredNumber] = useState('');
+
+	if (!open) return null;
+
 	return (
-		<Dialog open={open} onClose={onClose} fullWidth>
-			<DialogTitle>Board Notifications</DialogTitle>
-			<DialogContent>
-				<SmsContent
-					initials={initials}
-					phoneNumber={phoneNumber}
-					onChange={setPhoneNumber}
-					onIsSubscribed={setStoredNumber}
-				/>
-			</DialogContent>
-			<DialogActions>
-				<Button onClick={onClose}>{storedNumber ? 'Close' : 'Cancel'}</Button>
-				{!storedNumber && (
-					<Button onClick={() => onSave({ phoneNumber })} disabled={!phoneNumber || phoneNumber.length !== 15}>
-						Save
-					</Button>
-				)}
-			</DialogActions>
-		</Dialog>
+		<StyledDialog
+			title="Board Notifications"
+			titleIcon={<SmsIcon sx={{ fontSize: 20 }} />}
+			fullWidth
+			closeConfig={{ text: storedNumber ? 'Close' : 'Cancel', action: onClose }}
+			saveConfig={{
+				display: !storedNumber,
+				text: 'Save',
+				disabled: !phoneNumber || phoneNumber.length !== 15,
+				action: () => onSave({ phoneNumber }),
+			}}
+		>
+			<SmsContent
+				initials={initials}
+				phoneNumber={phoneNumber}
+				onChange={setPhoneNumber}
+				onIsSubscribed={setStoredNumber}
+			/>
+		</StyledDialog>
 	);
 }

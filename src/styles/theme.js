@@ -152,11 +152,19 @@ export default createTheme({
 				},
 			},
 		},
+		MuiDialog: {
+			styleOverrides: {
+				paper: {
+					borderRadius: 20,
+				},
+			},
+		},
 		MuiDialogTitle: {
 			styleOverrides: {
 				root: {
+					fontFamily: '"Outfit", sans-serif',
 					fontSize: '1.25rem',
-					fontWeight: 600,
+					fontWeight: 700,
 				},
 			},
 		},

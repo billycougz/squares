@@ -4,19 +4,20 @@ import {
     Alert,
     Box,
     Button,
-    DialogActions,
-    DialogContentText,
     InputAdornment,
     Link,
     TextField,
     Typography,
 } from '@mui/material';
-import DialogComponent from './DialogComponent';
 import SmsContent from '@/components/dialog-content/SmsContent';
-import { AccountCircle } from '@mui/icons-material';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import SportsFootballIcon from '@mui/icons-material/SportsFootball';
+import TouchAppIcon from '@mui/icons-material/TouchApp';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { useLocalStorage } from 'usehooks-ts';
 import AppContext from '@/contexts/AppContext';
 import { subscribeNumberToBoard } from '@/lib/api';
+import StyledDialog, { StepActions } from './StyledDialog';
 
 interface InfoDialogProps {
     onClose: () => void;
@@ -54,55 +55,60 @@ export default function InfoDialog({ onClose, isIntro }: InfoDialogProps) {
 
     const handleSmsSave = async () => {
         const trimmed = phoneNumber.replace(/\s/g, '');
-        const { msg } = await subscribeNumberToBoard({ id, boardName, phoneNumber: trimmed });
+        await subscribeNumberToBoard({ id, boardName, phoneNumber: trimmed });
         updateSubscriptions(initials, trimmed);
     };
 
+    /* ─── Steps ───────────────────────────────────────────────── */
     const steps = [
         {
             title: 'Welcome To Squares',
+            titleIcon: <SportsFootballIcon sx={{ fontSize: 20 }} />,
             sms: true,
-            Component: function WelcomeStep() {
-                return (
-                    <>
-                        <DialogContentText sx={{ marginBottom: '1em' }}>
-                            Squares is the easiest way to play Football Squares with friends and family regardless of where everyone is
-                            located!
-                        </DialogContentText>
-                        <DialogContentText sx={{ marginBottom: '1em' }}>Get started by entering your initials.</DialogContentText>
-                        <TextField
-                            error={errors.initials}
-                            placeholder='Your Initials'
-                            size='small'
-                            fullWidth
-                            value={initialsUnderChange}
-                            onChange={(e) => handleInitialsChange(e.target.value)}
-                            helperText={errors.initials ? 'Your initials are required.' : ''}
-                            sx={{ marginBottom: '10px' }}
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position='start'>
-                                        <AccountCircle />
-                                    </InputAdornment>
-                                ),
-                            }}
-                        />
-                        <SmsContent
-                            error={errors.phoneNumber}
-                            showHelper={true}
-                            initials={initialsUnderChange}
-                            phoneNumber={phoneNumber}
-                            onChange={handlePhoneNumberChange}
-                            onIsSubscribed={setStoredNumber}
-                        />
-                    </>
-                );
-            },
+            content: (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Typography sx={{ color: 'text.secondary', lineHeight: 1.6 }}>
+                        Squares is the easiest way to play Football Squares with friends and family
+                        — no matter where everyone is located!
+                    </Typography>
+                    <Typography sx={{ color: 'text.secondary', lineHeight: 1.6 }}>
+                        Get started by entering your initials.
+                    </Typography>
+                    <TextField
+                        error={errors.initials}
+                        placeholder="Your Initials"
+                        size="small"
+                        fullWidth
+                        value={initialsUnderChange}
+                        onChange={(e) => handleInitialsChange(e.target.value)}
+                        helperText={errors.initials ? 'Your initials are required.' : ''}
+                        sx={{
+                            '& .MuiOutlinedInput-root': { borderRadius: '12px' },
+                        }}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <AccountCircleIcon color="primary" />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                    <SmsContent
+                        error={errors.phoneNumber}
+                        showHelper={true}
+                        initials={initialsUnderChange}
+                        phoneNumber={phoneNumber}
+                        onChange={handlePhoneNumberChange}
+                        onIsSubscribed={setStoredNumber}
+                    />
+                </Box>
+            ),
         },
         {
-            title: 'Squares Is Simple',
+            title: 'How To Play',
+            titleIcon: <TouchAppIcon sx={{ fontSize: 20 }} />,
             sms: false,
-            Component: function SimpleStep() {
+            content: (() => {
                 const link = !venmoUsername
                     ? ''
                     : venmoUsername.toLowerCase().includes('https://venmo.com')
@@ -110,22 +116,58 @@ export default function InfoDialog({ onClose, isIntro }: InfoDialogProps) {
                         : `https://venmo.com/u/${venmoUsername}`;
 
                 return (
-                    <Box>
-                        <Typography sx={{ marginBottom: '1em', color: 'text.secondary' }}>
-                            Tap any square to instantly claim it with your initials. Once a square is claimed you cannot unclaim it.
-                        </Typography>
-                        <Typography sx={{ marginBottom: '1em', color: 'text.secondary' }}>
-                            Your Squares administrator has set the price at ${squarePrice} per square.
-                            {maxSquares ? ` You can claim a maximum of ${maxSquares} squares.` : ''}
-                        </Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                gap: 2,
+                                p: 2,
+                                borderRadius: '14px',
+                                background: 'rgba(59, 130, 246, 0.04)',
+                                border: '1px solid rgba(59, 130, 246, 0.08)',
+                            }}
+                        >
+                            <TouchAppIcon sx={{ color: 'primary.main', mt: 0.25 }} />
+                            <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.6 }}>
+                                Tap any square to instantly claim it with your initials.
+                                Once a square is claimed, you cannot unclaim it.
+                            </Typography>
+                        </Box>
+
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                gap: 2,
+                                p: 2,
+                                borderRadius: '14px',
+                                background: 'rgba(59, 130, 246, 0.04)',
+                                border: '1px solid rgba(59, 130, 246, 0.08)',
+                            }}
+                        >
+                            <InfoOutlinedIcon sx={{ color: 'primary.main', mt: 0.25 }} />
+                            <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.6 }}>
+                                Your administrator set the price at <strong>${squarePrice}</strong> per square.
+                                {maxSquares ? ` You can claim a maximum of ${maxSquares} squares.` : ''}
+                            </Typography>
+                        </Box>
 
                         {financeMessage && (
-                            <Alert variant='outlined' severity='info' color='warning'>
-                                <strong style={{ display: 'block', marginBottom: '5px' }}>A Message From Your Admin</strong>
+                            <Alert
+                                variant="outlined"
+                                severity="info"
+                                color="warning"
+                                sx={{
+                                    borderRadius: '14px',
+                                    '& .MuiAlert-message': { width: '100%' },
+                                }}
+                            >
+                                <Typography variant="body2" sx={{ fontWeight: 700, mb: 0.5 }}>
+                                    A Message From Your Admin
+                                </Typography>
                                 <Typography variant="body2">{financeMessage}</Typography>
                                 {link && (
                                     <Box sx={{ mt: 1 }}>
-                                        <Link href={link} target='_BLANK' sx={{ fontWeight: 'bold' }}>
+                                        <Link href={link} target="_BLANK" sx={{ fontWeight: 'bold' }}>
                                             Open Venmo
                                         </Link>
                                     </Box>
@@ -134,13 +176,14 @@ export default function InfoDialog({ onClose, isIntro }: InfoDialogProps) {
                         )}
                     </Box>
                 );
-            },
+            })(),
         },
     ];
 
     const activeSteps = isIntro ? steps : [steps[1]];
     const currentStep = activeSteps[stepIndex] || activeSteps[0];
 
+    /* ─── Navigation ──────────────────────────────────────────── */
     const handleStepChange = async (direction: number) => {
         if (direction === 1) {
             if (currentStep.sms) {
@@ -161,21 +204,39 @@ export default function InfoDialog({ onClose, isIntro }: InfoDialogProps) {
         setStepIndex(prev => prev + direction);
     };
 
-    const StepActions = () => (
-        <DialogActions sx={{ marginTop: '-1em' }}>
-            {Boolean(stepIndex) && <Button onClick={() => handleStepChange(-1)}>Back</Button>}
-            {stepIndex < activeSteps.length - 1 && <Button onClick={() => handleStepChange(1)}>Next</Button>}
-            {stepIndex === activeSteps.length - 1 && <Button onClick={onClose}>Get Started</Button>}
-        </DialogActions>
-    );
+    /* ─── Render ──────────────────────────────────────────────── */
+    if (isIntro) {
+        const Actions = () => (
+            <StepActions
+                stepIndex={stepIndex}
+                totalSteps={activeSteps.length}
+                onBack={() => handleStepChange(-1)}
+                onNext={() => handleStepChange(1)}
+                onFinish={onClose}
+                finishLabel="Get Started"
+            />
+        );
+
+        return (
+            <StyledDialog
+                title={currentStep.title}
+                titleIcon={currentStep.titleIcon}
+                step={{ current: stepIndex, total: activeSteps.length }}
+                CustomActions={Actions}
+            >
+                {currentStep.content}
+            </StyledDialog>
+        );
+    }
 
     return (
-        <DialogComponent
+        <StyledDialog
             title={currentStep.title}
-            closeConfig={{ display: !isIntro, text: 'Close', action: onClose }}
-            CustomActions={isIntro ? StepActions : undefined}
+            titleIcon={currentStep.titleIcon}
+            dismissible
+            closeConfig={{ text: 'Close', action: onClose }}
         >
-            <currentStep.Component />
-        </DialogComponent>
+            {currentStep.content}
+        </StyledDialog>
     );
 }

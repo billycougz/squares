@@ -1,0 +1,166 @@
+'use client';
+import { useEffect, useState } from 'react';
+import {
+    Box,
+    ToggleButton,
+    ToggleButtonGroup,
+    TextField,
+    Typography,
+} from '@mui/material';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import StyledDialog from './StyledDialog';
+
+interface Team {
+    name: string;
+    code?: string;
+}
+
+interface Teams {
+    horizontal: Team;
+    vertical: Team;
+}
+
+interface Scores {
+    horizontal: number;
+    vertical: number;
+}
+
+interface Result {
+    scores?: Scores;
+}
+
+interface ResultsDialogProps {
+    onClose: () => void;
+    onSave: (data: { quarterIndex: number; scores: Scores; cell: [number, number] }) => void;
+    gridData: number[][];
+    teams: Teams;
+    results: Result[];
+}
+
+export default function ResultsDialog({ onClose, onSave, gridData, teams, results }: ResultsDialogProps) {
+    const [scores, setScores] = useState<Scores>({ horizontal: 0, vertical: 0 });
+    const firstEmptyQuarter = results.findIndex((result) => !result.scores);
+    const [quarterIndex, setQuarterIndex] = useState(firstEmptyQuarter >= 0 ? firstEmptyQuarter : 3);
+
+    useEffect(() => {
+        setScores({
+            horizontal: results[quarterIndex].scores?.horizontal || 0,
+            vertical: results[quarterIndex].scores?.vertical || 0,
+        });
+    }, [quarterIndex, results]);
+
+    const handleChange = (value: string, side: keyof Scores) => {
+        setScores({ ...scores, [side]: Number(value) || 0 });
+    };
+
+    const getLastDigit = (number: number) => {
+        return Math.abs(number) % 10;
+    };
+
+    function getResultCell(): [number, number] {
+        const rowValue = getLastDigit(scores.vertical);
+        const rowIndex = gridData[0].indexOf(rowValue);
+        const colValue = getLastDigit(scores.horizontal);
+        const colIndex = gridData.findIndex((row) => row[0] === colValue);
+        return [rowIndex, colIndex];
+    }
+
+    const handleSave = () => {
+        const cell = getResultCell();
+        onSave({ quarterIndex, scores, cell });
+    };
+
+    const quarters = ['Q1', 'Q2', 'Q3', 'Final'];
+
+    return (
+        <StyledDialog
+            title="Enter Results"
+            titleIcon={<EmojiEventsIcon sx={{ fontSize: 20 }} />}
+            closeConfig={{ text: 'Cancel', action: onClose }}
+            saveConfig={{
+                display: true,
+                text: 'Save',
+                disabled: !scores,
+                action: handleSave,
+            }}
+            fullWidth
+        >
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                {/* Quarter toggle chips */}
+                <ToggleButtonGroup
+                    value={quarterIndex}
+                    exclusive
+                    onChange={(_, val) => { if (val !== null) setQuarterIndex(val); }}
+                    fullWidth
+                    sx={{
+                        '& .MuiToggleButton-root': {
+                            borderRadius: '10px !important',
+                            border: '1px solid rgba(59, 130, 246, 0.2) !important',
+                            fontFamily: '"Outfit", sans-serif',
+                            fontWeight: 700,
+                            fontSize: '0.85rem',
+                            textTransform: 'none',
+                            py: 1,
+                            transition: 'all 0.2s ease',
+                            '&.Mui-selected': {
+                                background: 'linear-gradient(135deg, #3b82f6, #1e40af)',
+                                color: '#fff',
+                                borderColor: 'transparent !important',
+                                '&:hover': {
+                                    background: 'linear-gradient(135deg, #2563eb, #1e3a8a)',
+                                },
+                            },
+                        },
+                        gap: 1,
+                    }}
+                >
+                    {quarters.map((q, i) => (
+                        <ToggleButton key={q} value={i}>{q}</ToggleButton>
+                    ))}
+                </ToggleButtonGroup>
+
+                {/* Score inputs */}
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <TextField
+                        value={scores.horizontal || ''}
+                        onChange={(e) => handleChange(e.target.value, 'horizontal')}
+                        label={teams.horizontal.name}
+                        type="number"
+                        fullWidth
+                        sx={{
+                            '& .MuiOutlinedInput-root': { borderRadius: '12px' },
+                        }}
+                        InputProps={{
+                            inputProps: { min: '0', inputMode: 'numeric' as const },
+                        }}
+                    />
+                    <Typography
+                        sx={{
+                            textAlign: 'center',
+                            fontFamily: '"Outfit", sans-serif',
+                            fontWeight: 700,
+                            fontSize: '0.8rem',
+                            color: 'text.secondary',
+                            letterSpacing: '0.1em',
+                        }}
+                    >
+                        VS
+                    </Typography>
+                    <TextField
+                        value={scores.vertical || ''}
+                        onChange={(e) => handleChange(e.target.value, 'vertical')}
+                        label={teams.vertical.name}
+                        type="number"
+                        fullWidth
+                        sx={{
+                            '& .MuiOutlinedInput-root': { borderRadius: '12px' },
+                        }}
+                        InputProps={{
+                            inputProps: { min: '0', inputMode: 'numeric' as const },
+                        }}
+                    />
+                </Box>
+            </Box>
+        </StyledDialog>
+    );
+}

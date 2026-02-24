@@ -1,10 +1,7 @@
 'use client';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import { Button, DialogTitle, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import StyledDialog from './StyledDialog';
 
 interface PhoneNumberWarningProps {
     onClose: (proceed?: boolean) => void;
@@ -12,25 +9,27 @@ interface PhoneNumberWarningProps {
 
 export default function PhoneNumberWarning({ onClose }: PhoneNumberWarningProps) {
     return (
-        <Dialog open={true} onClose={() => onClose()}>
-            <DialogTitle sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '1rem' }}>
-                <WarningAmberIcon sx={{ color: '#ed6c02;' }} />
-                Skip Phone Number?
-            </DialogTitle>
-            <DialogContent>
-                <DialogContentText component="div">
-                    <Typography sx={{ mb: '10px' }}>If you lose the link to your board there is no way to recover it.</Typography>
-                    <Typography>Board event notifications enhance the Squares experience for all users.</Typography>
-                </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-                <Button variant='contained' onClick={() => onClose()} size='small' sx={{ mb: '10px' }}>
-                    Add Phone
-                </Button>
-                <Button onClick={() => onClose(true)} size='small'>
-                    Skip Phone
-                </Button>
-            </DialogActions>
-        </Dialog>
+        <StyledDialog
+            title="Skip Phone Number?"
+            titleIcon={<WarningAmberIcon sx={{ fontSize: 20, color: '#f59e0b' }} />}
+            closeConfig={{
+                text: 'Skip Phone',
+                action: () => onClose(true),
+            }}
+            saveConfig={{
+                display: true,
+                text: 'Add Phone',
+                action: () => onClose(),
+            }}
+        >
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                <Typography sx={{ color: 'text.secondary', lineHeight: 1.6 }}>
+                    If you lose the link to your board, there is no way to recover it.
+                </Typography>
+                <Typography sx={{ color: 'text.secondary', lineHeight: 1.6 }}>
+                    Board event notifications enhance the Squares experience for all users.
+                </Typography>
+            </Box>
+        </StyledDialog>
     );
 }
