@@ -17,6 +17,22 @@ export const BoardModel = {
     },
 
     /**
+     * findNameById
+     * Lightweight lookup that returns only the board name (for OG meta tags).
+     * @param {string} id
+     * @returns {Promise<string|null>}
+     */
+    findNameById: async (id) => {
+        const params = {
+            TableName: awsConfig.tableName,
+            Key: { id },
+            ProjectionExpression: 'boardName',
+        };
+        const { Item } = await dynamo.get(params);
+        return Item?.boardName || null;
+    },
+
+    /**
      * create
      * @param {Object} item 
      * @returns {Promise<Object>} The created item

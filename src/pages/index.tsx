@@ -6,6 +6,9 @@ import dynamic from 'next/dynamic';
 import { useAppServices } from '@/services/AppServices';
 import { loadBoard } from '@/lib/api';
 import { generateRefreshMessage } from '@/utils/generateRefreshMessage';
+import { GetServerSideProps } from 'next';
+import { BoardModel } from '@/models/BoardModel';
+import { appConfig } from '@/lib/config';
 
 const LoadingFallback = () => (
     <Box
@@ -35,7 +38,13 @@ const SquaresPage = dynamic(() => import('@/components/board'), {
     loading: LoadingFallback
 });
 
-export default function Home() {
+interface HomeProps {
+    ogBoardName?: string | null;
+    ogBoardId?: string | null;
+    baseUrl: string;
+}
+
+export default function Home({ ogBoardName, ogBoardId, baseUrl }: HomeProps) {
     const { boardData, setBoardData } = useContext(AppContext);
     const { showSnackbar } = useAppServices();
     const [lastActiveTime, setLastActiveTime] = useState<Date | null>(null);
@@ -72,10 +81,29 @@ export default function Home() {
         };
     }, [lastActiveTime, boardData, setBoardData, showSnackbar]);
 
+    const ogTitle = ogBoardName ? `${ogBoardName} • Squares` : 'Squares • Digital Football Squares';
+    const ogDescription = ogBoardName
+        ? `Join the ${ogBoardName} board on Squares!`
+        : 'The easiest way to play Football Squares with friends and family.';
+    const pageTitle = boardData?.boardName ? `${boardData.boardName} • Squares` : ogTitle;
+    const ogUrl = ogBoardId ? `${baseUrl}/?id=${ogBoardId}` : baseUrl;
+
     return (
         <>
             <Head>
-                <title>{boardData?.boardName ? `${boardData.boardName} • Squares` : 'Squares • Digital Football Squares'}</title>
+                <title>{pageTitle}</title>
+                <meta property="og:title" content={ogTitle} />
+                <meta property="og:description" content={ogDescription} />
+                <meta property="og:type" content="website" />
+                <meta property="og:site_name" content="Squares" />
+                <meta property="og:url" content={ogUrl} />
+                <meta property="og:image" content={`${baseUrl}/Squares_LogosOpenGraphImage_Text_Blue.png`} />
+                <meta property="og:image:width" content="1201" />
+                <meta property="og:image:height" content="631" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content={ogTitle} />
+                <meta name="twitter:description" content={ogDescription} />
+                <meta name="twitter:image" content={`${baseUrl}/Squares_LogosTwitterCardImage_Text_Blue.png`} />
             </Head>
             <main>
                 {boardData?.id ? <SquaresPage /> : <LandingPage />}
@@ -83,3 +111,16 @@ export default function Home() {
         </>
     );
 }
+
+export const getServerSideProps: GetServerSideProps<HomeProps> = async ({ query }) => {
+    const baseUrl = appConfig.baseUrl;
+    const id = typeof query.id === 'string' ? query.id : null;
+    if (!id) return { props: { baseUrl } };
+
+    try {
+        const boardName = await BoardModel.findNameById(id);
+        return { props: { ogBoardName: boardName, ogBoardId: id, baseUrl } };
+    } catch {
+        return { props: { baseUrl } };
+    }
+};
