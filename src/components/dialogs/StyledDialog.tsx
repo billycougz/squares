@@ -37,7 +37,7 @@ interface ActionConfig {
     action?: () => void;
 }
 
-interface StyledDialogProps {
+export interface StyledDialogProps {
     /** Dialog title text */
     title: string;
     /** Optional icon element displayed left of the title */

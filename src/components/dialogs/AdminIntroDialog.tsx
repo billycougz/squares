@@ -8,8 +8,8 @@ import {
 	TextField,
 	Typography,
 } from '@mui/material';
-import ManageFinanceContent from '@/components/dialog-content/ManageFinanceContent';
-import ManagePaymentInfoContent from '@/components/dialog-content/ManagePaymentInfoContent';
+import ManageFinanceContent from './content/ManageFinanceContent';
+import ManagePaymentInfoContent from './content/ManagePaymentInfoContent';
 import AppContext from '@/contexts/AppContext';
 import { updateBoard } from '@/lib/api';
 import IosShareIcon from '@mui/icons-material/IosShare';

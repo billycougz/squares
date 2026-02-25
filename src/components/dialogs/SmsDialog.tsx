@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import SmsIcon from '@mui/icons-material/Sms';
-import SmsContent from '@/components/dialog-content/SmsContent';
+import SmsContent from './content/SmsContent';
 import StyledDialog from './StyledDialog';
 
 interface SmsDialogProps {

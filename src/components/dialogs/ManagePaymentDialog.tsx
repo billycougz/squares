@@ -4,7 +4,7 @@ import PaymentsIcon from '@mui/icons-material/Payments';
 import AppContext from '@/contexts/AppContext';
 import { useAppServices } from '@/services/AppServices';
 import { updateBoard } from '@/lib/api';
-import ManagePaymentInfoContent from '@/components/dialog-content/ManagePaymentInfoContent';
+import ManagePaymentInfoContent from './content/ManagePaymentInfoContent';
 import StyledDialog from './StyledDialog';
 
 interface PaymentInfoData {

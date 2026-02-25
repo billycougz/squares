@@ -20,11 +20,11 @@ import {
 } from '@mui/material';
 import { useDocumentTitle, useLocalStorage } from 'usehooks-ts';
 import { createBoard, loadBoard } from '@/lib/api';
-import Loader from '@/components/Loader';
+import Loader from '@/components/layout/Loader';
 import styled from '@emotion/styled';
-import LandingInfoDialog from '@/components/LandingInfoDialog';
+import LandingInfoDialog from './LandingInfoDialog';
 import { MuiTelInput } from 'mui-tel-input';
-import PhoneNumberWarning from '@/components/PhoneNumberWarning';
+import PhoneNumberWarning from '@/components/shared/PhoneNumberWarning';
 import AppContext from '@/contexts/AppContext';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';

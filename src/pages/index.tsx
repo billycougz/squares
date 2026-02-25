@@ -26,11 +26,11 @@ const LoadingFallback = () => (
     </Box>
 );
 
-const LandingPage = dynamic(() => import('@/components/LandingPage'), {
+const LandingPage = dynamic(() => import('@/components/landing/LandingPage'), {
     ssr: false,
     loading: LoadingFallback
 });
-const SquaresPage = dynamic(() => import('@/components/SquaresPage'), {
+const SquaresPage = dynamic(() => import('@/components/board'), {
     ssr: false,
     loading: LoadingFallback
 });

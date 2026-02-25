@@ -2,7 +2,7 @@
 import { useContext, useState } from 'react';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import AppContext from '@/contexts/AppContext';
-import ManageFinanceContent from '@/components/dialog-content/ManageFinanceContent';
+import ManageFinanceContent from './content/ManageFinanceContent';
 import StyledDialog from './StyledDialog';
 
 interface FinanceData {

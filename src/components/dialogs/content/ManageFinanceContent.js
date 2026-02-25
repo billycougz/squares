@@ -2,7 +2,7 @@
 import TextField from '@mui/material/TextField';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import { Avatar, Box, Chip, FormControl, FormGroup, FormLabel, InputAdornment, Slider } from '@mui/material';
-import CustomTable from '@/components/Table';
+import CustomTable from '@/components/shared/Table';
 import TagIcon from '@mui/icons-material/Tag';
 import PercentSharp from '@mui/icons-material/PercentSharp';
 

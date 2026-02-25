@@ -1,7 +1,7 @@
 'use client';
 import { Box, Typography } from '@mui/material';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import StyledDialog from './StyledDialog';
+import StyledDialog from '@/components/dialogs/StyledDialog';
 
 interface PhoneNumberWarningProps {
     onClose: (proceed?: boolean) => void;

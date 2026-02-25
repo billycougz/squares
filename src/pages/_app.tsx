@@ -9,7 +9,7 @@ import '../styles/globals.css';
 import '../styles/styles.css';
 import AppContextProvider from '../contexts/AppContextProvider';
 import { AppServicesProvider } from '../services/AppServices';
-import MockBanner from '../components/MockBanner';
+import MockBanner from '../components/shared/MockBanner';
 
 export default function MyApp({ Component, pageProps }: AppProps) {
     const showMockBanner = process.env.NEXT_PUBLIC_DO_MOCK === 'true';

@@ -3,7 +3,7 @@ import { Typography, useTheme, Paper, Alert, SxProps, Theme } from '@mui/materia
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import { updateBoard } from '@/lib/api';
-import Square from '@/components/Square';
+import Square from './Square';
 import { useContext, useRef, useState, useEffect } from 'react';
 import AppContext from '@/contexts/AppContext';
 

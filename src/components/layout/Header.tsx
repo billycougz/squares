@@ -3,11 +3,11 @@ import { AppBar, IconButton, Toolbar, Typography, useTheme, Box } from '@mui/mat
 import HomeIcon from '@mui/icons-material/Home';
 import { Refresh } from '@mui/icons-material';
 import DownloadIcon from '@mui/icons-material/Download';
-import InstallDialog from './InstallDialog';
+import InstallDialog from '@/components/dialogs/InstallDialog';
 import { useState } from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
 import HeaderMenu from './HeaderMenu';
-import MyBoardsDialog from './MyBoardsDialog';
+import MyBoardsDialog from '@/components/dialogs/MyBoardsDialog';
 
 interface CustomHeaderProps {
     boardName: string;

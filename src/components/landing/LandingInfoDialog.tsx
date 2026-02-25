@@ -5,7 +5,7 @@ import SportsFootballIcon from '@mui/icons-material/SportsFootball';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import Grid4x4Icon from '@mui/icons-material/Grid4x4';
 import PeopleIcon from '@mui/icons-material/People';
-import StyledDialog from './StyledDialog';
+import StyledDialog from '@/components/dialogs/StyledDialog';
 
 interface LandingInfoDialogProps {
     onClose: () => void;

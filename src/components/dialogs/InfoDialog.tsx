@@ -9,7 +9,7 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import SmsContent from '@/components/dialog-content/SmsContent';
+import SmsContent from './content/SmsContent';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SportsFootballIcon from '@mui/icons-material/SportsFootball';
 import TouchAppIcon from '@mui/icons-material/TouchApp';

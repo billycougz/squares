@@ -6,7 +6,7 @@ import NumbersPanel from './NumbersPanel';
 import ResultsPanel from './ResultsPanel';
 
 import SquaresGrid from './SquaresGrid';
-import SimpleBottomNavigation from '@/components/BottomNav';
+import SimpleBottomNavigation from '@/components/layout/BottomNav';
 import PaymentLink from './PaymentLink';
 
 const hideOnLandscapeStyles = {

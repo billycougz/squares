@@ -7,11 +7,11 @@ import { loadBoard, subscribeNumberToBoard } from '@/lib/api';
 import AppContext from '@/contexts/AppContext';
 import MobileView from './MobileView';
 import NonMobileView from './NonMobileView';
-import AdminIntroDialog from '@/components/AdminIntroDialog';
-import CustomHeader from '@/components/Header';
-import InfoDialog from '@/components/InfoDialog';
-import SmsDialog from '@/components/SmsDialog';
-import Loader from '@/components/Loader';
+import AdminIntroDialog from '@/components/dialogs/AdminIntroDialog';
+import CustomHeader from '@/components/layout/Header';
+import InfoDialog from '@/components/dialogs/InfoDialog';
+import SmsDialog from '@/components/dialogs/SmsDialog';
+import Loader from '@/components/layout/Loader';
 import { generateRefreshMessage } from '@/utils/generateRefreshMessage';
 
 const hideOnLandscapeStyles = {
