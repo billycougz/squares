@@ -98,9 +98,9 @@ export default function SquaresGrid({ initials, setSnackbarMessage, onUpdate, hi
     const getCellColor = (row: number, col: number) => {
         const { vertical, horizontal } = teams;
         if (!row && col) {
-            return vertical.color;
-        } else if (!col && row) {
             return horizontal.color;
+        } else if (!col && row) {
+            return vertical.color;
         }
         if (resultMap[row]?.[col]) {
             return theme.palette.success.light;

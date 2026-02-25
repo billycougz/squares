@@ -10,8 +10,8 @@ export default function ManageFinanceContent({ financeData, onDataChange }) {
 	const { squarePrice, maxSquares, payoutSliderValues, retainAmount = 0, reversePercent = 0 } = financeData;
 
 	const handlePayoutSliderChange = async (e, value) => {
-		// Force Q4 (final) to remain at 100
-		if (value[3] === 100) {
+		// Force last value to remain at 100
+		if (value[value.length - 1] === 100) {
 			handleDataChange('payoutSliderValues', value);
 		}
 	};
@@ -19,25 +19,23 @@ export default function ManageFinanceContent({ financeData, onDataChange }) {
 	const getSliderLabel = (value, index) => {
 		const previousValue = index ? payoutSliderValues[index - 1] : 0;
 		const difference = value - previousValue;
-		// ToDo: Disabling with addition of reverse payouts - reconsider
-		// const amount = squarePrice * difference;
-		// return `Q${index + 1} • ${difference}% • $${amount}`;
-		return `Q${index + 1} • ${difference}%`;
+		const periodLabel = index === payoutSliderValues.length - 1 ? 'Final' : `P${index + 1}`;
+		return `${periodLabel} • ${difference}%`;
 	};
 
 	const { amountRow, percentRow, reverseAmountRow } = payoutSliderValues.reduce(
 		(rows, value, index) => {
-			const quarter = index === 3 ? 'Final' : `Q${index + 1}`;
+			const periodLabel = index === payoutSliderValues.length - 1 ? 'Final' : (payoutSliderValues.length <= 2 ? `H${index + 1}` : `Q${index + 1}`);
 			const previousValue = index ? payoutSliderValues[index - 1] : 0;
 			const quarterPercent = value - previousValue;
 			let amount = (squarePrice - retainAmount / 100) * quarterPercent;
 			if (reversePercent) {
 				const reverseAmount = (amount * reversePercent) / 100;
 				amount = amount - reverseAmount;
-				rows.reverseAmountRow[quarter] = `$${reverseAmount}`;
+				rows.reverseAmountRow[periodLabel] = `$${reverseAmount}`;
 			}
-			rows.amountRow[quarter] = `$${amount}`;
-			rows.percentRow[quarter] = `${quarterPercent}%`;
+			rows.amountRow[periodLabel] = `$${amount}`;
+			rows.percentRow[periodLabel] = `${quarterPercent}%`;
 			return rows;
 		},
 		{ amountRow: { ' ': 'Exact' }, percentRow: { ' ': 'Total %' }, reverseAmountRow: { ' ': 'Reverse' } }
@@ -48,8 +46,12 @@ export default function ManageFinanceContent({ financeData, onDataChange }) {
 		onDataChange(updatedFinanceData);
 	};
 
+	const periodHeaders = payoutSliderValues.map((_, index) =>
+		index === payoutSliderValues.length - 1 ? 'Final' : (payoutSliderValues.length <= 2 ? `H${index + 1}` : `Q${index + 1}`)
+	);
+
 	const payoutTableConfig = {
-		headers: ['Q1', 'Q2', 'Q3', 'Final'],
+		headers: periodHeaders,
 		rows: [percentRow, amountRow],
 	};
 
@@ -182,7 +184,7 @@ export default function ManageFinanceContent({ financeData, onDataChange }) {
 			) : (
 				<>
 					<FormControl sx={{ display: 'flex', mt: '10px' }} color='primary'>
-						<FormLabel sx={{ mb: '-5px' }}>Quarterly Payouts</FormLabel>
+						<FormLabel sx={{ mb: '-5px' }}>Period Payouts</FormLabel>
 						<Slider
 							getAriaLabel={() => 'Temperature range'}
 							value={payoutSliderValues}

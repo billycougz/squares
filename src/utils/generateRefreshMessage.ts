@@ -29,13 +29,13 @@ export function generateRefreshMessage(prevData: BoardData | null, nextData: Boa
     }
 
     if (newWinner) {
-        const quarterLabel = newWinner.quarter === 'Q4' ? 'the Final' : newWinner.quarter;
+        const quarterLabel = newWinner.quarter === 'Q4' || newWinner.quarter === 'Final' ? 'the Final' : newWinner.quarter;
         return `Board refreshed. Congratulations ${newWinner.winner} for winning ${quarterLabel}.`;
     }
 
     // Check if game is over (Final winner already declared)
-    const finalResult = nextResults?.find((r) => r.quarter === 'Q4');
-    const prevFinalResult = prevResults?.find((r) => r.quarter === 'Q4');
+    const finalResult = nextResults?.find((r) => r.quarter === 'Q4' || r.quarter === 'Final');
+    const prevFinalResult = prevResults?.find((r) => r.quarter === 'Q4' || r.quarter === 'Final');
     if (finalResult?.winner && prevFinalResult?.winner === finalResult.winner) {
         return 'What a game. Thanks for playing Squares!';
     }

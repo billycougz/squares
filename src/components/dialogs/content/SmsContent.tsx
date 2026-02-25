@@ -58,7 +58,7 @@ export default function SmsContent({ initials, onChange, onIsSubscribed, phoneNu
 					) : (
 						<span>
 							Optional but recommended.
-							<br /> Squares uses your phone number to send you the results at the end of each quarter.
+							<br /> Squares uses your phone number to send you the results at the end of each scoring period.
 						</span>
 					)
 				}

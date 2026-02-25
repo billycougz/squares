@@ -1,7 +1,7 @@
 'use client';
 import { Box, Typography } from '@mui/material';
 import TouchAppIcon from '@mui/icons-material/TouchApp';
-import SportsFootballIcon from '@mui/icons-material/SportsFootball';
+import SportsIcon from '@mui/icons-material/Sports';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import Grid4x4Icon from '@mui/icons-material/Grid4x4';
 import PeopleIcon from '@mui/icons-material/People';
@@ -99,13 +99,13 @@ export default function LandingInfoDialog({ onClose }: LandingInfoDialogProps) {
     return (
         <StyledDialog
             title="How To Play Squares"
-            titleIcon={<SportsFootballIcon sx={{ fontSize: 20 }} />}
+            titleIcon={<SportsIcon sx={{ fontSize: 20 }} />}
             dismissible
             closeConfig={{ text: 'Got It', action: onClose }}
         >
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                 <Typography sx={{ color: 'text.secondary', lineHeight: 1.6, mb: 0.5 }}>
-                    Squares is the easiest way to play Football Squares with friends and family!
+                    Squares is the easiest way to play Squares with friends and family!
                 </Typography>
 
                 <StepCard
@@ -124,16 +124,16 @@ export default function LandingInfoDialog({ onClose }: LandingInfoDialogProps) {
 
                 <StepCard
                     number={3}
-                    icon={<SportsFootballIcon sx={{ fontSize: 20 }} />}
+                    icon={<SportsIcon sx={{ fontSize: 20 }} />}
                     title="Watch The Game"
-                    description="At the end of each quarter, the last digit of each team's score determines the winning square."
+                    description="At the end of each scoring period, the last digit of each team's score determines the winning square."
                 />
 
                 <StepCard
                     number={4}
                     icon={<EmojiEventsIcon sx={{ fontSize: 20 }} />}
                     title="Win Payouts"
-                    description="The owner of the matching square wins the payout for that quarter. Four chances to win per game!"
+                    description="The owner of the matching square wins the payout for that period. Multiple chances to win per game!"
                 />
 
                 <StepCard

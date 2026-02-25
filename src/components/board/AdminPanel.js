@@ -69,7 +69,7 @@ export default function AdminPanel({ setSnackbarMessage, setView }) {
 				});
 
 				const limitStr = maxSquares ? `limit of ${maxSquares} squares per person` : 'no limit on number of squares';
-				msg += `$${squarePrice} per square, ${limitStr}. Quarter payouts are $${payouts.join(', $')}.\n\n`;
+				msg += `$${squarePrice} per square, ${limitStr}. Period payouts are $${payouts.join(', $')}.\n\n`;
 			}
 			msg += link;
 
@@ -271,7 +271,7 @@ export default function AdminPanel({ setSnackbarMessage, setView }) {
 								Enter Results
 							</Button>
 							<Typography variant='caption' display='block' sx={{ mt: 0.5, color: 'text.secondary', ml: 1 }}>
-								Update quarterly scores
+								Update game scores
 							</Typography>
 						</Grid>
 					</Grid>

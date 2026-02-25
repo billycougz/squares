@@ -8,23 +8,26 @@ import {
 	TextField,
 	Typography,
 } from '@mui/material';
+import { MuiTelInput } from 'mui-tel-input';
 import ManageFinanceContent from './content/ManageFinanceContent';
 import ManagePaymentInfoContent from './content/ManagePaymentInfoContent';
 import AppContext from '@/contexts/AppContext';
-import { updateBoard } from '@/lib/api';
+import { updateBoard, setAdminPhone } from '@/lib/api';
 import IosShareIcon from '@mui/icons-material/IosShare';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import ShareIcon from '@mui/icons-material/Share';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import SportsFootballIcon from '@mui/icons-material/SportsFootball';
+import SportsIcon from '@mui/icons-material/Sports';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import GroupsIcon from '@mui/icons-material/Groups';
 import Grid4x4Icon from '@mui/icons-material/Grid4x4';
 import PaymentsIcon from '@mui/icons-material/Payments';
+import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
 import { useLocalStorage } from 'usehooks-ts';
 import StyledDialog, { StepActions } from './StyledDialog';
+import { getSportConfig, getPeriodTypeLabel } from '@/lib/sportConfig';
 
 interface AdminMessageDialogProps {
 	onClose: () => void;
@@ -104,8 +107,12 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }: Admi
 
 	const [initials, setInitials] = useLocalStorage('squares-initials', '');
 	const [initialsUnderChange, setInitialsUnderChange] = useState(initials);
+	const [phoneNumber, setPhoneNumber] = useState('');
 	const [errors, setErrors] = useState<Record<string, boolean>>({});
 	const [stepIndex, setStepIndex] = useState(0);
+
+	const sportConfig = getSportConfig(boardData.sport);
+	const periodTypeLabel = getPeriodTypeLabel(boardData.sport).toLowerCase();
 
 	const handleCopyShareLink = () => {
 		const { origin } = document.location;
@@ -124,16 +131,16 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }: Admi
 	const steps = [
 		{
 			title: 'Welcome To Squares',
-			titleIcon: <SportsFootballIcon sx={{ fontSize: 20 }} />,
+			titleIcon: <SportsIcon sx={{ fontSize: 20 }} />,
 			updateInitials: true,
 			content: (
 				<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
 					<Typography sx={{ color: 'text.secondary', lineHeight: 1.6 }}>
-						Squares is the easiest way to play Football Squares with friends and family
+						Squares is the easiest way to play Squares with friends and family
 						— no matter where everyone is located!
 					</Typography>
 					<Typography sx={{ color: 'text.secondary', lineHeight: 1.6 }}>
-						Get started by entering your initials below.
+						Get started by entering your info below.
 					</Typography>
 					<TextField
 						error={errors.initials}
@@ -154,6 +161,22 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }: Admi
 							),
 						}}
 					/>
+					<MuiTelInput
+						placeholder='Phone Number (optional)'
+						defaultCountry='US'
+						forceCallingCode
+						disableDropdown
+						value={phoneNumber}
+						onChange={(value) => setPhoneNumber(value === '+1' ? '' : value)}
+						fullWidth
+						size='small'
+						sx={{
+							'& .MuiOutlinedInput-root': { borderRadius: '12px' },
+						}}
+					/>
+					<Typography variant='caption' sx={{ color: 'text.secondary', px: 0.5 }}>
+						We&apos;ll text you a link and notify you when results are in.
+					</Typography>
 				</Box>
 			),
 		},
@@ -183,7 +206,7 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }: Admi
 
 					<Box>
 						<Typography variant="overline" sx={{ color: 'text.secondary', fontWeight: 700, letterSpacing: '0.06em', fontSize: '0.7rem', display: 'block', mb: 0.5 }}>
-							At The End Of Each Quarter
+							At The End Of Each {periodTypeLabel === 'quarter' ? 'Quarter' : 'Half'}
 						</Typography>
 						<CheckItem icon={<EmojiEventsIcon sx={{ fontSize: 16 }} />} text="Enter the results" />
 						<CheckItem icon={<PaymentsIcon sx={{ fontSize: 16 }} />} text="Pay the winner" />
@@ -252,7 +275,7 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }: Admi
 			titleIcon: <CheckCircleOutlineIcon sx={{ fontSize: 20 }} />,
 			content: (
 				<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-					<ContentCard icon={<SportsFootballIcon sx={{ fontSize: 20 }} />}>
+					<ContentCard icon={<SportsIcon sx={{ fontSize: 20 }} />}>
 						<Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>To Play</Typography>
 						<Typography variant="body2" sx={{ color: 'text.secondary' }}>
 							Tap any square to instantly claim it with your initials.
@@ -271,9 +294,9 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }: Admi
 					</ContentCard>
 
 					<ContentCard icon={<EmojiEventsIcon sx={{ fontSize: 20 }} />}>
-						<Typography variant="body2" sx={{ fontWeight: 600, mb: 0.25 }}>Quarterly Results</Typography>
+						<Typography variant="body2" sx={{ fontWeight: 600, mb: 0.25 }}>Results</Typography>
 						<Typography variant="caption" sx={{ color: 'text.secondary' }}>
-							Enter scores at the end of each quarter.
+							Enter scores at the end of each {periodTypeLabel}.
 						</Typography>
 					</ContentCard>
 
@@ -318,8 +341,13 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }: Admi
 	const handleStart = async () => {
 		const value = { adminIntroComplete: true };
 		await updateBoard({ id, operation: 'update', value });
-		if (boardUser.adminPhoneNumber) {
-			updateSubscriptions(initials, boardUser.adminPhoneNumber);
+		if (phoneNumber && phoneNumber.length >= 12) {
+			try {
+				await setAdminPhone({ id, phoneNumber });
+				updateSubscriptions(initials, phoneNumber);
+			} catch (e) {
+				console.error('Failed to set admin phone:', e);
+			}
 		}
 		onClose();
 	};

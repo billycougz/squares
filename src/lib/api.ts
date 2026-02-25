@@ -96,6 +96,19 @@ export const loadBoard = async ({ id, adminCode }: { id: string; adminCode?: str
 	}
 };
 
+export const setAdminPhone = async ({ id, phoneNumber }: { id: string; phoneNumber: string }) => {
+	if (DO_MOCK) {
+		return { subscribedPhoneNumber: phoneNumber };
+	}
+	try {
+		const { data } = await axios.post(`${API_BASE}/${id}/admin-phone`, { phoneNumber });
+		return data;
+	} catch (e) {
+		console.error(e);
+		return { error: 'Error' };
+	}
+};
+
 export const subscribeNumberToBoard = async (params: { id: string; phoneNumber: string;[key: string]: any }) => {
 	if (DO_MOCK) {
 		return MOCK.subscribeNumberToBoard(params);

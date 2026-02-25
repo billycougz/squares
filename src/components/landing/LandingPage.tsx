@@ -2,6 +2,7 @@
 
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
+    Autocomplete,
     Button,
     FormControl,
     IconButton,
@@ -23,16 +24,18 @@ import { createBoard, loadBoard } from '@/lib/api';
 import Loader from '@/components/layout/Loader';
 import styled from '@emotion/styled';
 import LandingInfoDialog from './LandingInfoDialog';
-import { MuiTelInput } from 'mui-tel-input';
-import PhoneNumberWarning from '@/components/shared/PhoneNumberWarning';
 import AppContext from '@/contexts/AppContext';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import SportsFootballIcon from '@mui/icons-material/SportsFootball';
+import SportsBasketballIcon from '@mui/icons-material/SportsBasketball';
+import SportsIcon from '@mui/icons-material/Sports';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CloseIcon from '@mui/icons-material/Close';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import { nflTeams, NFLTeam } from '@/lib/constants';
+import { type Team } from '@/lib/constants';
+import { allSports, getSportConfig, DEFAULT_SPORT_KEY } from '@/lib/sportConfig';
+import { featuredEvents } from '@/lib/eventsConfig';
 
 const VISIBLE_BOARD_COUNT = 3;
 
@@ -106,22 +109,29 @@ const FormCard = styled(Paper)`
 
 interface FormData {
     boardName: string;
-    phoneNumber: string;
+    sport: string;
     teams: {
-        horizontal: NFLTeam | undefined;
-        vertical: NFLTeam | undefined;
+        horizontal: Team | undefined;
+        vertical: Team | undefined;
     };
     test?: boolean;
 }
 
 interface FormErrors {
     boardName?: boolean;
-    phoneNumber?: boolean;
+}
+
+function getSportIcon(sportKey: string, props?: Record<string, unknown>) {
+    switch (sportKey) {
+        case 'ncaab': return <SportsBasketballIcon {...props} />;
+        case 'nfl': return <SportsFootballIcon {...props} />;
+        default: return <SportsIcon {...props} />;
+    }
 }
 
 export default function LandingPage() {
     const theme = useTheme();
-    useDocumentTitle('Squares • Digital Football Squares');
+    useDocumentTitle('Squares');
 
     const { setBoardData, setBoardUser } = useContext(AppContext);
 
@@ -131,16 +141,22 @@ export default function LandingPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [fadeIn, setFadeIn] = useState(false);
     const [showInfo, setShowInfo] = useState(false);
-    const [showPhoneNumberWarning, setShowPhoneNumberWarning] = useState(false);
-    const [games, setGames] = useState<any[]>([]);
-    const [selectedGame, setSelectedGame] = useState<any>(null);
+    const initialGame = featuredEvents.length > 0 ? featuredEvents[0] : null;
+    const initialSportConfig = getSportConfig(initialGame ? initialGame.sport : DEFAULT_SPORT_KEY);
+
+    const [games, setGames] = useState<any[]>(featuredEvents);
+    const [selectedGame, setSelectedGame] = useState<any | null>(initialGame);
 
     const [formData, setFormData] = useState<FormData>({
         boardName: '',
-        phoneNumber: '',
+        sport: initialGame ? initialGame.sport : DEFAULT_SPORT_KEY,
         teams: {
-            horizontal: nflTeams.find((team) => team.default === 'horizontal'),
-            vertical: nflTeams.find((team) => team.default === 'vertical'),
+            horizontal: initialGame
+                ? initialSportConfig.teams.find((t) => t.code === initialGame.teams.horizontal)
+                : undefined,
+            vertical: initialGame
+                ? initialSportConfig.teams.find((t) => t.code === initialGame.teams.vertical)
+                : undefined,
         },
     });
 
@@ -159,35 +175,15 @@ export default function LandingPage() {
         }
     }, [hasMounted, recentSquares.length]);
 
-    const fetchConfig = async () => {
-        const gistUrl = 'https://api.github.com/gists/150875f37c1e5ecf493794eefd168278';
-        try {
-            const gist = await fetch(gistUrl).then((res) => res.json());
-            const gistContent = gist?.files['squares-config.json']?.content;
-            if (gistContent) {
-                handleConfig(gistContent);
-            }
-        } catch (error) {
-            console.error('Failed to fetch config:', error);
-        }
-    };
-
-    const handleConfig = (gistContent: string) => {
-        const { games } = JSON.parse(gistContent);
-        if (games && games.length) {
-            const { teams } = games[0];
-            setGames(games);
-            setSelectedGame(games[0]);
-            updateSelectedTeams(teams);
-        }
-    };
-
-    const updateSelectedTeams = (teams: { horizontal: string; vertical: string }) => {
-        const horizontal = nflTeams.find((team) => team.code === teams?.horizontal);
-        const vertical = nflTeams.find((team) => team.code === teams?.vertical);
+    const updateSelectedTeams = (teams: { horizontal: string; vertical: string }, sportKey?: string) => {
+        const sport = sportKey || formData.sport;
+        const sportConfig = getSportConfig(sport);
+        const horizontal = sportConfig.teams.find((team) => team.code === teams?.horizontal);
+        const vertical = sportConfig.teams.find((team) => team.code === teams?.vertical);
         if (horizontal && vertical) {
             setFormData((prevState) => ({
                 ...prevState,
+                sport,
                 teams: {
                     horizontal,
                     vertical,
@@ -254,14 +250,14 @@ export default function LandingPage() {
         return new Date(timestamp).toLocaleDateString();
     }
 
-    function handleBoardReady({ boardData, adminCode, adminPhoneNumber, anchor }: any) {
-        const recentBoard = recentSquares.find(({ id }) => id === boardData.id);
+    function handleBoardReady({ boardData, adminCode, anchor }: any) {
+        const recentBoard = recentSquares.find(({ id }: any) => id === boardData.id);
         adminCode = adminCode || recentBoard?.adminCode;
         if (!adminCode) {
             delete boardData.adminCode;
         }
         updateRecentSquares(boardData, adminCode);
-        setBoardUser({ isAdmin: Boolean(adminCode), adminPhoneNumber });
+        setBoardUser({ isAdmin: Boolean(adminCode) });
         setBoardData({ ...boardData, anchor });
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -280,12 +276,11 @@ export default function LandingPage() {
     async function handleCreate() {
         setIsLoading(true);
         const boardData = await createBoard(formData);
-        const { error, subscribedPhoneNumber } = boardData;
+        const { error } = boardData;
         if (!error) {
             handleBoardReady({
                 boardData,
                 adminCode: boardData.adminCode,
-                adminPhoneNumber: subscribedPhoneNumber,
             });
         } else {
             alert(boardData.error);
@@ -294,16 +289,26 @@ export default function LandingPage() {
     }
 
     async function handleCreateClick() {
+        const isCustomEvent = !selectedGame || selectedGame.title === 'Custom Event';
+
         const errors: FormErrors = {
             boardName: !Boolean(formData.boardName),
-            phoneNumber: !phoneIsValidOrEmpty(formData.phoneNumber),
         };
+
+        if (isCustomEvent) {
+            if (!formData.teams.horizontal) {
+                // We'll show an alert or snackbar since we don't have a specific error prop for Autocomplete right now
+                alert('Please select Team 1 (Top)');
+                return;
+            }
+            if (!formData.teams.vertical) {
+                alert('Please select Team 2 (Left)');
+                return;
+            }
+        }
+
         if (Object.values(errors).some((value) => value)) {
             setFormErrors(errors);
-            return;
-        }
-        if (!formData.phoneNumber) {
-            setShowPhoneNumberWarning(true);
             return;
         }
         handleCreate();
@@ -311,7 +316,6 @@ export default function LandingPage() {
 
     useEffect(() => {
         window.scrollTo(0, 0);
-        fetchConfig();
         const handleUrlParams = () => {
             const { searchParams } = new URL(document.location.href);
             const id = searchParams.get('id');
@@ -333,7 +337,6 @@ export default function LandingPage() {
                 setFormData({
                     ...formData,
                     boardName: new Date().toLocaleString(),
-                    phoneNumber: phoneNumber || '',
                     test: true,
                 });
             }
@@ -344,28 +347,32 @@ export default function LandingPage() {
     }, []);
 
     const handleGameChange = (e: SelectChangeEvent<string>) => {
-        const game = games.find((game) => game.title === e.target.value);
-        if (game) {
-            updateSelectedTeams(game.teams);
-            setSelectedGame(game);
+        const value = e.target.value;
+        if (value === 'Custom Event') {
+            handleSportChange(formData.sport || DEFAULT_SPORT_KEY);
+        } else {
+            const game = games.find((game: any) => game.title === value);
+            if (game) {
+                updateSelectedTeams(game.teams, game.sport);
+                setSelectedGame(game);
+            }
         }
     };
 
-    const phoneIsValidOrEmpty = (value: string) => {
-        return !value || (value && value.length === 15);
-    };
-
-    const handlePhoneNumberWarningClose = (proceed?: boolean) => {
-        if (proceed) {
-            handleCreate();
-        }
-        setShowPhoneNumberWarning(false);
+    const handleSportChange = (sportKey: string) => {
+        setFormData({
+            ...formData,
+            sport: sportKey,
+            teams: {
+                horizontal: undefined,
+                vertical: undefined,
+            },
+        });
+        // Clear preconfigured game selection when sport changes
+        setSelectedGame(null);
     };
 
     const updateFormField = (field: keyof FormData, value: any) => {
-        if (field === 'phoneNumber' && value === '+1') {
-            value = '';
-        }
         setFormData({ ...formData, [field]: value });
         setFormErrors({ ...formErrors, [field]: false });
     };
@@ -498,7 +505,7 @@ export default function LandingPage() {
                         {board.adminCode ? (
                             <AdminPanelSettingsIcon sx={{ fontSize: 20, color: 'white' }} />
                         ) : (
-                            <SportsFootballIcon sx={{ fontSize: 18, color: 'white' }} />
+                            <SportsIcon sx={{ fontSize: 18, color: 'white' }} />
                         )}
                     </Box>
                     <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -615,6 +622,8 @@ export default function LandingPage() {
     );
 
     // --- Create Board Form ---
+    const currentSportConfig = getSportConfig(formData.sport);
+
     const CreateBoardForm = () => (
         <FormCard>
             <Typography
@@ -634,30 +643,53 @@ export default function LandingPage() {
             {Boolean(games?.length) && (
                 <FormControl fullWidth>
                     <Select
-                        value={selectedGame?.title || ''}
+                        value={selectedGame?.title || 'Custom Event'}
                         onChange={handleGameChange}
+                        displayEmpty
+                        renderValue={(val) => (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <TaskAltIcon sx={{ color: theme.palette.primary.main, fontSize: 20 }} />
+                                <Typography sx={{
+                                    fontWeight: 500,
+                                    color: theme.palette.primary.main
+                                }}>
+                                    {val}
+                                </Typography>
+                            </Box>
+                        )}
                         sx={{
-                            color: theme.palette.primary.dark,
-                            background: theme.palette.background.default,
-                            mb: '20px',
-                            fontSize: '14px',
-                            borderRadius: '12px',
+                            mb: 3,
+                            borderRadius: '14px',
+                            backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                            border: `1.5px solid ${theme.palette.primary.main}`,
+                            transition: 'all 0.2s ease',
+                            '&:hover': {
+                                backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                                borderColor: theme.palette.primary.main
+                            },
                             '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
-                            padding: '4px',
+                            '& .MuiSelect-select': {
+                                py: 1.5,
+                                px: 2,
+                            }
                         }}
-                        input={
-                            <InputBase
-                                startAdornment={
-                                    <InputAdornment position='start' sx={{ ml: 1 }}>
-                                        <TaskAltIcon color="primary" sx={{ fontSize: '20px' }} />
-                                    </InputAdornment>
-                                }
-                            />
-                        }
                     >
-                        {games.map((game) => (
-                            <MenuItem key={game.title} value={game.title}>
-                                {game.title}
+                        <MenuItem value={'Custom Event'} sx={{ py: 1.5, borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                                <Typography sx={{ fontWeight: 600 }}>Custom Event</Typography>
+                                <Typography variant="caption" color="text.secondary">
+                                    Configure your own sport and match-up
+                                </Typography>
+                            </Box>
+                        </MenuItem>
+                        {games.map((game: any) => (
+                            <MenuItem key={game.title} value={game.title} sx={{ py: 1.5 }}>
+                                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                                    <Typography sx={{ fontWeight: 600 }}>{game.title}</Typography>
+                                    <Typography variant="caption" color="text.secondary">
+                                        {getSportConfig(game.sport).teams.find(t => t.code === game.teams.horizontal)?.name} vs. {getSportConfig(game.sport).teams.find(t => t.code === game.teams.vertical)?.name}
+                                    </Typography>
+                                </Box>
                             </MenuItem>
                         ))}
                     </Select>
@@ -668,12 +700,13 @@ export default function LandingPage() {
                 <TextField
                     label='Board Name'
                     value={formData.boardName}
-                    placeholder='e.g. Super Bowl LIX'
+                    placeholder={formData.sport === 'ncaab' ? 'e.g. March Madness Finals' : 'e.g. Super Bowl LIX'}
                     error={formErrors.boardName}
                     onChange={(e) => updateFormField('boardName', e.target.value)}
                     fullWidth
                     variant='outlined'
                     sx={{
+                        mb: 2,
                         '& .MuiOutlinedInput-root': {
                             borderRadius: '12px',
                             backgroundColor: theme.palette.background.default
@@ -681,28 +714,109 @@ export default function LandingPage() {
                     }}
                 />
 
-                {showPhoneNumberWarning && <PhoneNumberWarning onClose={handlePhoneNumberWarningClose} />}
-                <MuiTelInput
-                    placeholder='Phone Number'
-                    defaultCountry='US'
-                    forceCallingCode
-                    disableDropdown
-                    value={formData.phoneNumber}
-                    error={formErrors.phoneNumber}
-                    onChange={(value) => updateFormField('phoneNumber', value)}
-                    fullWidth
-                    sx={{
-                        margin: '16px 0',
-                        '& .MuiOutlinedInput-root': {
-                            borderRadius: '12px',
-                            backgroundColor: theme.palette.background.default
-                        }
-                    }}
-                />
+                {/* Sport Selector */}
+                {!selectedGame && (
+                    <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                        {allSports.map((sport) => (
+                            <Box
+                                key={sport.key}
+                                onClick={() => handleSportChange(sport.key)}
+                                sx={{
+                                    flex: 1,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: 0.75,
+                                    py: 1.2,
+                                    borderRadius: '12px',
+                                    cursor: 'pointer',
+                                    fontFamily: '"Outfit", sans-serif',
+                                    fontWeight: 700,
+                                    fontSize: '0.85rem',
+                                    transition: 'all 0.2s ease',
+                                    background: formData.sport === sport.key
+                                        ? `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`
+                                        : theme.palette.background.default,
+                                    color: formData.sport === sport.key
+                                        ? '#fff'
+                                        : theme.palette.text.secondary,
+                                    border: `1px solid ${formData.sport === sport.key ? 'transparent' : 'rgba(0,0,0,0.12)'}`,
+                                    boxShadow: formData.sport === sport.key
+                                        ? '0 4px 12px rgba(37, 99, 235, 0.3)'
+                                        : 'none',
+                                    '&:hover': {
+                                        borderColor: formData.sport === sport.key ? 'transparent' : theme.palette.primary.light,
+                                    },
+                                }}
+                            >
+                                {getSportIcon(sport.key, { sx: { fontSize: 18 } })}
+                                {sport.shortName}
+                            </Box>
+                        ))}
+                    </Box>
+                )}
 
-                <Typography variant='caption' sx={{ color: theme.palette.text.secondary, mb: 3, display: 'block', px: 1 }}>
-                    We&apos;ll text you a link to your board and notify you when the game starts.
-                </Typography>
+                {/* Team Pickers */}
+                {!selectedGame && (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 2 }}>
+                        <Autocomplete
+                            options={currentSportConfig.teams}
+                            value={formData.teams.horizontal || null}
+                            onChange={(_, val) => setFormData({ ...formData, teams: { ...formData.teams, horizontal: val || undefined } })}
+                            getOptionLabel={(opt) => `${opt.location} ${opt.name}`}
+                            renderOption={(props, option) => (
+                                <Box component="li" {...props} key={option.code} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 1 }}>
+                                    <Box sx={{ width: 16, height: 16, borderRadius: '4px', backgroundColor: option.color, flexShrink: 0, border: '1px solid rgba(0,0,0,0.1)' }} />
+                                    <Typography variant="body2">{option.location} {option.name}</Typography>
+                                </Box>
+                            )}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label='Team 1 (Top)'
+                                    placeholder='Search teams...'
+                                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px', backgroundColor: theme.palette.background.default } }}
+                                    InputProps={{
+                                        ...params.InputProps,
+                                        startAdornment: formData.teams.horizontal ? (
+                                            <Box sx={{ width: 14, height: 14, borderRadius: '3px', backgroundColor: formData.teams.horizontal.color, ml: 1, mr: 1, flexShrink: 0, border: '1px solid rgba(0,0,0,0.1)' }} />
+                                        ) : params.InputProps.startAdornment,
+                                    }}
+                                />
+                            )}
+                            isOptionEqualToValue={(opt, val) => opt.code === val.code}
+                            fullWidth
+                        />
+                        <Autocomplete
+                            options={currentSportConfig.teams}
+                            value={formData.teams.vertical || null}
+                            onChange={(_, val) => setFormData({ ...formData, teams: { ...formData.teams, vertical: val || undefined } })}
+                            getOptionLabel={(opt) => `${opt.location} ${opt.name}`}
+                            renderOption={(props, option) => (
+                                <Box component="li" {...props} key={option.code} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 1 }}>
+                                    <Box sx={{ width: 16, height: 16, borderRadius: '4px', backgroundColor: option.color, flexShrink: 0, border: '1px solid rgba(0,0,0,0.1)' }} />
+                                    <Typography variant="body2">{option.location} {option.name}</Typography>
+                                </Box>
+                            )}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label='Team 2 (Left)'
+                                    placeholder='Search teams...'
+                                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px', backgroundColor: theme.palette.background.default } }}
+                                    InputProps={{
+                                        ...params.InputProps,
+                                        startAdornment: formData.teams.vertical ? (
+                                            <Box sx={{ width: 14, height: 14, borderRadius: '3px', backgroundColor: formData.teams.vertical.color, ml: 1, mr: 1, flexShrink: 0, border: '1px solid rgba(0,0,0,0.1)' }} />
+                                        ) : params.InputProps.startAdornment,
+                                    }}
+                                />
+                            )}
+                            isOptionEqualToValue={(opt, val) => opt.code === val.code}
+                            fullWidth
+                        />
+                    </Box>
+                )}
 
                 <Button
                     fullWidth
@@ -799,13 +913,13 @@ export default function LandingPage() {
                         }}
                     >
                         The easiest way to play<br />
-                        <Box component="span" sx={{ fontWeight: 800, color: '#60a5fa' }}>Football Squares</Box> with friends.
+                        <Box component="span" sx={{ fontWeight: 800, color: '#60a5fa' }}>Squares</Box> with friends.
                     </Typography>
                 </Box>
 
                 <FadeContainer $fadeIn={fadeIn}>
                     {/* Segmented Toggle - only show when there are recent boards */}
-                    {hasRecentBoards && <SegmentedToggle />}
+                    {hasRecentBoards && SegmentedToggle()}
 
                     {/* Tab Content */}
                     <Box
@@ -815,9 +929,9 @@ export default function LandingPage() {
                         }}
                     >
                         {activeTab === 'boards' && hasRecentBoards ? (
-                            <BoardsList />
+                            BoardsList()
                         ) : (
-                            <CreateBoardForm />
+                            CreateBoardForm()
                         )}
                     </Box>
 

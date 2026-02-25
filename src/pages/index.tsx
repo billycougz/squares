@@ -81,10 +81,10 @@ export default function Home({ ogBoardName, ogBoardId, baseUrl }: HomeProps) {
         };
     }, [lastActiveTime, boardData, setBoardData, showSnackbar]);
 
-    const ogTitle = ogBoardName ? `${ogBoardName} • Squares` : 'Squares • Digital Football Squares';
+    const ogTitle = ogBoardName ? `${ogBoardName} • Squares` : 'Squares • Digital Squares';
     const ogDescription = ogBoardName
         ? `Join the ${ogBoardName} board on Squares!`
-        : 'The easiest way to play Football Squares with friends and family.';
+        : 'The easiest way to play Squares with friends and family.';
     const pageTitle = boardData?.boardName ? `${boardData.boardName} • Squares` : ogTitle;
     const ogUrl = ogBoardId ? `${baseUrl}/?id=${ogBoardId}` : baseUrl;
 

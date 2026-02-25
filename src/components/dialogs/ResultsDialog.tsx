@@ -40,7 +40,7 @@ interface ResultsDialogProps {
 export default function ResultsDialog({ onClose, onSave, gridData, teams, results }: ResultsDialogProps) {
     const [scores, setScores] = useState<Scores>({ horizontal: 0, vertical: 0 });
     const firstEmptyQuarter = results.findIndex((result) => !result.scores);
-    const [quarterIndex, setQuarterIndex] = useState(firstEmptyQuarter >= 0 ? firstEmptyQuarter : 3);
+    const [quarterIndex, setQuarterIndex] = useState(firstEmptyQuarter >= 0 ? firstEmptyQuarter : results.length - 1);
 
     useEffect(() => {
         setScores({
@@ -70,7 +70,8 @@ export default function ResultsDialog({ onClose, onSave, gridData, teams, result
         onSave({ quarterIndex, scores, cell });
     };
 
-    const quarters = ['Q1', 'Q2', 'Q3', 'Final'];
+    // Dynamic period labels from the results array
+    const periodLabels = results.map((r: any) => r.quarter || 'Final');
 
     return (
         <StyledDialog
@@ -114,7 +115,7 @@ export default function ResultsDialog({ onClose, onSave, gridData, teams, result
                         gap: 1,
                     }}
                 >
-                    {quarters.map((q, i) => (
+                    {periodLabels.map((q, i) => (
                         <ToggleButton key={q} value={i}>{q}</ToggleButton>
                     ))}
                 </ToggleButtonGroup>

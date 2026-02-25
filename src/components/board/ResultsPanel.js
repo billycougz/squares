@@ -22,9 +22,9 @@ export default function ResultsPanel({ boardData, initials, anchor, onRefresh })
 	const ResultCard = ({ result, index }) => {
 		const { quarter, scores, winner } = result;
 		const payout = getPayoutValue(index);
-		const quarterLabel = quarter === 'Q4' ? 'FINAL' : quarter;
-		const displayQuarter = quarter === 'Q4' ? 'FINAL' : quarter.replace('Q', '');
-		const isFinal = displayQuarter.toLowerCase() === 'final';
+		const isFinal = quarter === 'Q4' || quarter === 'Final';
+		const displayQuarter = isFinal ? 'FINAL' : quarter.replace('Q', '').replace('H', '');
+		const periodTypeLabel = quarter.startsWith('H') ? 'HALF' : quarter.startsWith('Q') ? 'QTR' : '';
 		const isWinner = winner === initials;
 
 		return (
@@ -42,7 +42,7 @@ export default function ResultsPanel({ boardData, initials, anchor, onRefresh })
 				}}
 			>
 				<Box sx={{ display: 'flex', minHeight: 100 }}>
-					{/* Left Strip - Quarter */}
+					{/* Left Strip - Period */}
 					<Box
 						sx={{
 							width: 90,
@@ -60,7 +60,7 @@ export default function ResultsPanel({ boardData, initials, anchor, onRefresh })
 						}}
 					>
 						<Typography variant='caption' fontWeight='700' sx={{ opacity: 0.8, letterSpacing: 1.5, mb: -0.5 }}>
-							QTR
+							{isFinal ? '' : periodTypeLabel}
 						</Typography>
 						<Typography
 							variant='h3'
@@ -134,23 +134,25 @@ export default function ResultsPanel({ boardData, initials, anchor, onRefresh })
 					</Box>
 				</Box>
 
-				{isWinner && (
-					<Chip
-						label='YOU WON!'
-						color='primary'
-						size='small'
-						sx={{
-							position: 'absolute',
-							top: -12,
-							right: 16,
-							fontWeight: 'bold',
-							height: 24,
-							border: '2px solid white',
-							boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-						}}
-					/>
-				)}
-			</Card>
+				{
+					isWinner && (
+						<Chip
+							label='YOU WON!'
+							color='primary'
+							size='small'
+							sx={{
+								position: 'absolute',
+								top: -12,
+								right: 16,
+								fontWeight: 'bold',
+								height: 24,
+								border: '2px solid white',
+								boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+							}}
+						/>
+					)
+				}
+			</Card >
 		);
 	};
 
