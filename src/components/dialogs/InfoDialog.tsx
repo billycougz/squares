@@ -165,14 +165,34 @@ export default function InfoDialog({ onClose, isIntro }: InfoDialogProps) {
                                     A Message From Your Admin
                                 </Typography>
                                 <Typography variant="body2">{financeMessage}</Typography>
-                                {link && (
-                                    <Box sx={{ mt: 1 }}>
-                                        <Link href={link} target="_BLANK" sx={{ fontWeight: 'bold' }}>
-                                            Open Venmo
-                                        </Link>
-                                    </Box>
-                                )}
                             </Alert>
+                        )}
+
+                        {link && (
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1.5,
+                                    p: 2,
+                                    borderRadius: '14px',
+                                    background: 'rgba(0, 140, 255, 0.04)',
+                                    border: '1px solid rgba(0, 140, 255, 0.12)',
+                                }}
+                            >
+                                <Box
+                                    component="img"
+                                    src="/venmo.svg"
+                                    alt="Venmo"
+                                    sx={{ width: 22, height: 22, flexShrink: 0 }}
+                                />
+                                <Typography variant="body2" sx={{ color: 'text.secondary', flex: 1 }}>
+                                    Pay for your squares via Venmo
+                                </Typography>
+                                <Link href={link} target="_BLANK" sx={{ fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                                    Open Venmo
+                                </Link>
+                            </Box>
                         )}
                     </Box>
                 );

@@ -89,13 +89,17 @@ export default function NonMobileView({
                 }}
             >
                 {/* Pinned Header: Payment */}
-                {venmoUsername && !isAdmin && !hasPaid && (
-                    <Box sx={{ p: 3, pb: 2, borderBottom: `1px solid ${theme.palette.divider}`, bgcolor: theme.palette.grey[50] }}>
+                {venmoUsername && (
+                    <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
                         <PaymentLink
                             venmoUsername={venmoUsername}
                             boardUser={boardUser}
                             hasPaid={hasPaid}
                             setShowPaymentDialog={setShowPaymentDialog}
+                            squarePrice={boardData.squarePrice}
+                            initials={initials}
+                            squareCount={squareMap[initials] || 0}
+                            variant="panel"
                         />
                     </Box>
                 )}

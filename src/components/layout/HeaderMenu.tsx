@@ -166,7 +166,7 @@ export default function HeaderMenu({
                     <ListItemText primary="Notifications" />
                 </MenuItem>
 
-                {(isAdmin || hasPaid) && venmoUsername && (
+                {venmoUsername && (
                     <MenuItem
                         component="a"
                         href={venmoUrl || '#'}
@@ -183,6 +183,23 @@ export default function HeaderMenu({
                             />
                         </ListItemIcon>
                         <ListItemText primary="Venmo" />
+                        {!isAdmin && !hasPaid && (
+                            <Typography
+                                variant="caption"
+                                sx={{
+                                    ml: 1,
+                                    px: 1,
+                                    py: 0.25,
+                                    borderRadius: '6px',
+                                    bgcolor: alpha(theme.palette.warning.main, 0.12),
+                                    color: 'warning.dark',
+                                    fontWeight: 700,
+                                    fontSize: '0.65rem',
+                                }}
+                            >
+                                Unpaid
+                            </Typography>
+                        )}
                     </MenuItem>
                 )}
             </MenuList>

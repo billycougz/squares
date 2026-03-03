@@ -160,6 +160,10 @@ export default function MobileView({
                                 boardUser={boardUser}
                                 hasPaid={hasPaid}
                                 setShowPaymentDialog={setShowPaymentDialog}
+                                squarePrice={boardData.squarePrice}
+                                initials={initials}
+                                squareCount={squareMap[initials] || 0}
+                                variant="banner"
                             />
                             {isAdmin && (
                                 <Paper
