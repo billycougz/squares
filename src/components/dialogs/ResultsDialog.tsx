@@ -57,12 +57,23 @@ export default function ResultsDialog({ onClose, onSave, gridData, teams, result
         return Math.abs(number) % 10;
     };
 
+    /**
+     * Finds the winning cell [col, row] based on score last digits.
+     *
+     * Grid layout:
+     *   - gridData[0] (top row)    = horizontal team's numbers → determines the column
+     *   - gridData[r][0] (left col) = vertical team's numbers  → determines the row
+     */
     function getResultCell(): [number, number] {
-        const rowValue = getLastDigit(scores.vertical);
-        const rowIndex = gridData[0].indexOf(rowValue);
-        const colValue = getLastDigit(scores.horizontal);
-        const colIndex = gridData.findIndex((row) => row[0] === colValue);
-        return [rowIndex, colIndex];
+        // Horizontal team's score last digit → find in top row → winning column
+        const hDigit = getLastDigit(scores.horizontal);
+        const col = gridData[0].indexOf(hDigit);
+
+        // Vertical team's score last digit → find in left column → winning row
+        const vDigit = getLastDigit(scores.vertical);
+        const row = gridData.findIndex((r) => r[0] === vDigit);
+
+        return [col, row];
     }
 
     const handleSave = () => {

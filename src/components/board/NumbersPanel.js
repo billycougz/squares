@@ -169,12 +169,12 @@ export default function NumbersPanel({ boardData, initials, squareMap, onRefresh
                                 <TableRow key={i} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                                     <TableCell align="center">
                                         <Typography variant='body2' fontWeight='700'>
-                                            {pair.h}
+                                            {pair.v}
                                         </Typography>
                                     </TableCell>
                                     <TableCell align="center">
                                         <Typography variant='body2' fontWeight='700'>
-                                            {pair.v}
+                                            {pair.h}
                                         </Typography>
                                     </TableCell>
                                 </TableRow>
@@ -280,12 +280,12 @@ export default function NumbersPanel({ boardData, initials, squareMap, onRefresh
                                                 </TableCell>
                                                 <TableCell align="center">
                                                     <Typography variant='body2' fontWeight='700'>
-                                                        {item.h}
+                                                        {item.v}
                                                     </Typography>
                                                 </TableCell>
                                                 <TableCell align="center">
                                                     <Typography variant='body2' fontWeight='700'>
-                                                        {item.v}
+                                                        {item.h}
                                                     </Typography>
                                                 </TableCell>
                                             </TableRow>
