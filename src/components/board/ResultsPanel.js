@@ -65,7 +65,7 @@ export default function ResultsPanel({ boardData, initials, anchor, onRefresh })
 						<Typography
 							variant='h3'
 							fontWeight='800'
-							sx={isFinal ? { fontSize: '2rem' } : {}}
+							sx={isFinal ? { fontSize: '1.1rem', letterSpacing: '1.5px' } : {}}
 						>
 							{displayQuarter}
 						</Typography>
