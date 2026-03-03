@@ -11,7 +11,7 @@ export default function NumbersPanel({ boardData, initials, squareMap, onRefresh
     const horizontalCode = teams?.horizontal?.code || 'H';
     const verticalCode = teams?.vertical?.code || 'V';
 
-    const [viewMode, setViewMode] = useState('all'); // 'all' | 'mine'
+    const [viewMode, setViewMode] = useState('mine'); // 'all' | 'grouped' | 'mine'
 
     // Check if numbers are set (check first non-header cell of first row)
     const numbersSet = gridData && gridData[0] && gridData[0][1] !== null && gridData[0][1] !== undefined && gridData[0][1] !== '';
@@ -79,14 +79,14 @@ export default function NumbersPanel({ boardData, initials, squareMap, onRefresh
                 size="small"
                 sx={{ height: 32 }}
             >
+                <ToggleButton value="mine" sx={{ px: 2, fontSize: '0.75rem', fontWeight: 600 }}>
+                    Mine
+                </ToggleButton>
                 <ToggleButton value="all" sx={{ px: 2, fontSize: '0.75rem', fontWeight: 600 }}>
                     All
                 </ToggleButton>
                 <ToggleButton value="grouped" sx={{ px: 2, fontSize: '0.75rem', fontWeight: 600 }}>
                     Grouped
-                </ToggleButton>
-                <ToggleButton value="mine" sx={{ px: 2, fontSize: '0.75rem', fontWeight: 600 }}>
-                    Mine
                 </ToggleButton>
             </ToggleButtonGroup>
             {isMobile && (
@@ -189,11 +189,11 @@ export default function NumbersPanel({ boardData, initials, squareMap, onRefresh
     return (
         <Box>
             <Box sx={{ mb: 2, mt: 2, px: isMobile ? 2 : 0 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Box sx={{ display: 'flex', justifyContent: isMobile ? 'space-between' : 'center', alignItems: 'center' }}>
                     <Typography variant='h5' fontWeight='700' sx={{ display: isMobile ? 'block' : 'none' }}>
                         Numbers
                     </Typography>
-                    <Box sx={{ ml: 'auto' }}>
+                    <Box>
                         <HeaderControls />
                     </Box>
                 </Box>
