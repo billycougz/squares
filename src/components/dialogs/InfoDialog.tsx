@@ -1,11 +1,8 @@
 'use client';
 import { useContext, useState } from 'react';
 import {
-    Alert,
     Box,
-    Button,
     InputAdornment,
-    Link,
     TextField,
     Typography,
 } from '@mui/material';
@@ -13,7 +10,7 @@ import SmsContent from './content/SmsContent';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SportsFootballIcon from '@mui/icons-material/SportsFootball';
 import TouchAppIcon from '@mui/icons-material/TouchApp';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+
 import { useLocalStorage } from 'usehooks-ts';
 import AppContext from '@/contexts/AppContext';
 import { subscribeNumberToBoard } from '@/lib/api';
@@ -26,7 +23,7 @@ interface InfoDialogProps {
 
 export default function InfoDialog({ onClose, isIntro }: InfoDialogProps) {
     const { boardData, updateSubscriptions } = useContext(AppContext);
-    const { id, boardName, squarePrice, maxSquares, financeMessage, venmoUsername } = boardData;
+    const { id, boardName, squarePrice, maxSquares, financeMessage } = boardData;
 
     const [initials, setInitials] = useLocalStorage('squares-initials', '');
     const [initialsUnderChange, setInitialsUnderChange] = useState(initials);
@@ -109,90 +106,77 @@ export default function InfoDialog({ onClose, isIntro }: InfoDialogProps) {
             titleIcon: <TouchAppIcon sx={{ fontSize: 20 }} />,
             sms: false,
             content: (() => {
-                const link = !venmoUsername
-                    ? ''
-                    : venmoUsername.toLowerCase().includes('https://venmo.com')
-                        ? venmoUsername
-                        : `https://venmo.com/u/${venmoUsername}`;
+                /* ── Shared rule-row style ─────────────────────────── */
+                const ruleRow = {
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: 1.5,
+                };
+                const ruleBullet = (n: number) => ({
+                    width: 26,
+                    height: 26,
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
+                    color: '#fff',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    mt: 0.1,
+                });
 
                 return (
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                gap: 2,
-                                p: 2,
-                                borderRadius: '14px',
-                                background: 'rgba(59, 130, 246, 0.04)',
-                                border: '1px solid rgba(59, 130, 246, 0.08)',
-                            }}
-                        >
-                            <TouchAppIcon sx={{ color: 'primary.main', mt: 0.25 }} />
-                            <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.6 }}>
-                                Tap any square to instantly claim it with your initials.
-                                Once a square is claimed, you cannot unclaim it.
+                    <Box
+                        sx={{
+                            p: 2.5,
+                            borderRadius: '16px',
+                            background: 'rgba(59, 130, 246, 0.04)',
+                            border: '1px solid rgba(59, 130, 246, 0.08)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 2,
+                        }}
+                    >
+                        <Box sx={ruleRow}>
+                            <Box sx={ruleBullet(1)}>1</Box>
+                            <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.6, pt: 0.25 }}>
+                                Tap any open square to <strong>claim&nbsp;it</strong> with your
+                                initials at <strong>${squarePrice}</strong> per square.
+                                {maxSquares
+                                    ? <> You may claim up to <strong>{maxSquares}</strong> squares.</>
+                                    : ''}{' '}
+                                Once claimed, it can&rsquo;t be unclaimed.
                             </Typography>
                         </Box>
 
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                gap: 2,
-                                p: 2,
-                                borderRadius: '14px',
-                                background: 'rgba(59, 130, 246, 0.04)',
-                                border: '1px solid rgba(59, 130, 246, 0.08)',
-                            }}
-                        >
-                            <InfoOutlinedIcon sx={{ color: 'primary.main', mt: 0.25 }} />
-                            <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.6 }}>
-                                Your administrator set the price at <strong>${squarePrice}</strong> per square.
-                                {maxSquares ? ` You can claim a maximum of ${maxSquares} squares.` : ''}
+                        <Box sx={ruleRow}>
+                            <Box sx={ruleBullet(2)}>2</Box>
+                            <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.6, pt: 0.25 }}>
+                                Numbers are assigned <strong>randomly</strong> once the board is
+                                full — winners are determined by the last digit of each
+                                team&rsquo;s score at the end of each quarter.
                             </Typography>
                         </Box>
 
                         {financeMessage && (
-                            <Alert
-                                variant="outlined"
-                                severity="info"
-                                color="warning"
+                            <Typography
+                                variant="body2"
                                 sx={{
-                                    borderRadius: '14px',
-                                    '& .MuiAlert-message': { width: '100%' },
+                                    color: 'text.secondary',
+                                    fontStyle: 'italic',
+                                    lineHeight: 1.6,
+                                    pt: 1.5,
+                                    borderTop: '1px solid rgba(59, 130, 246, 0.08)',
+                                    mt: 1,
                                 }}
                             >
-                                <Typography variant="body2" sx={{ fontWeight: 700, mb: 0.5 }}>
-                                    A Message From Your Admin
-                                </Typography>
-                                <Typography variant="body2">{financeMessage}</Typography>
-                            </Alert>
-                        )}
-
-                        {link && (
-                            <Box
-                                sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 1.5,
-                                    p: 2,
-                                    borderRadius: '14px',
-                                    background: 'rgba(0, 140, 255, 0.04)',
-                                    border: '1px solid rgba(0, 140, 255, 0.12)',
-                                }}
-                            >
-                                <Box
-                                    component="img"
-                                    src="/venmo.svg"
-                                    alt="Venmo"
-                                    sx={{ width: 22, height: 22, flexShrink: 0 }}
-                                />
-                                <Typography variant="body2" sx={{ color: 'text.secondary', flex: 1 }}>
-                                    Pay for your squares via Venmo
-                                </Typography>
-                                <Link href={link} target="_BLANK" sx={{ fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-                                    Open Venmo
-                                </Link>
-                            </Box>
+                                <Box component="span" sx={{ fontStyle: 'normal', fontWeight: 600 }}>
+                                    A message from your admin —
+                                </Box>
+                                {' '}{financeMessage}
+                            </Typography>
                         )}
                     </Box>
                 );
@@ -260,3 +244,4 @@ export default function InfoDialog({ onClose, isIntro }: InfoDialogProps) {
         </StyledDialog>
     );
 }
+
