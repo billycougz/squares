@@ -10,7 +10,6 @@ import {
     Menu,
     Box,
     TextField,
-    IconButton,
     useTheme,
     alpha
 } from '@mui/material';
@@ -99,8 +98,9 @@ export default function HeaderMenu({
             PaperProps={{
                 elevation: 4,
                 sx: {
-                    minWidth: 280,
-                    borderRadius: '12px',
+                    minWidth: 260,
+                    maxWidth: 300,
+                    borderRadius: '14px',
                     mt: 1.5,
                     overflow: 'visible',
                     '&:before': {
@@ -120,20 +120,18 @@ export default function HeaderMenu({
             transformOrigin={{ horizontal: 'right', vertical: 'top' }}
             anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         >
-            <Box sx={{ p: 2, pb: 1.5 }}>
-                <Typography variant="overline" sx={{ color: 'text.secondary', fontWeight: 700, ml: 0.5, mb: 1, display: 'block' }}>
-                    User Settings
-                </Typography>
+            {/* ── Profile ── */}
+            <Box sx={{ px: 2, pt: 2, pb: 1.5 }}>
                 <Box sx={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 1,
-                    bgcolor: alpha(theme.palette.primary.main, 0.05),
+                    gap: 1.5,
+                    bgcolor: alpha(theme.palette.primary.main, 0.06),
                     p: 1.5,
-                    borderRadius: '8px',
+                    borderRadius: '10px',
                     border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`
                 }}>
-                    <AccountCircle sx={{ color: theme.palette.primary.main }} />
+                    <AccountCircle sx={{ color: theme.palette.primary.main, fontSize: 28 }} />
                     <TextField
                         placeholder="Initials"
                         size="small"
@@ -149,80 +147,75 @@ export default function HeaderMenu({
                         sx={{ flexGrow: 1 }}
                     />
                 </Box>
-
-                <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
-                    <MenuItem
-                        onClick={() => {
-                            onClose();
-                            onSmsClick();
-                        }}
-                        sx={{
-                            flex: 1,
-                            borderRadius: '8px',
-                            border: `1px solid ${theme.palette.divider}`,
-                            justifyContent: 'center',
-                            py: 1
-                        }}
-                    >
-                        <ListItemIcon sx={{ minWidth: 'auto !important', mr: 1 }}>
-                            <SmsIcon fontSize="small" color="primary" />
-                        </ListItemIcon>
-                        <ListItemText
-                            primary="Notifications"
-                            primaryTypographyProps={{ variant: 'caption', fontWeight: 600 }}
-                        />
-                    </MenuItem>
-
-                    {(isAdmin || hasPaid) && venmoUsername && (
-                        <MenuItem
-                            component="a"
-                            href={venmoUrl || '#'}
-                            target="_blank"
-                            onClick={onClose}
-                            sx={{
-                                flex: 1,
-                                borderRadius: '8px',
-                                border: `1px solid ${theme.palette.divider}`,
-                                bgcolor: theme.palette.primary.main,
-                                color: 'white',
-                                justifyContent: 'center',
-                                py: 1,
-                                '&:hover': {
-                                    bgcolor: theme.palette.primary.dark,
-                                }
-                            }}
-                        >
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <img src="/venmo.svg" width="18" height="18" alt="Venmo" style={{ filter: 'brightness(0) invert(1)' }} />
-                                <Typography variant="caption" fontWeight={600}>Venmo</Typography>
-                            </Box>
-                        </MenuItem>
-                    )}
-                </Box>
             </Box>
 
-            <Divider />
+            <Divider sx={{ mx: 1.5 }} />
 
+            {/* ── Actions ── */}
             <MenuList dense sx={{ py: 0.5 }}>
-                <MenuItem onClick={() => handleClick('myBoards')} sx={{ py: 1 }}>
+                <MenuItem
+                    onClick={() => {
+                        onClose();
+                        onSmsClick();
+                    }}
+                    sx={{ py: 1, mx: 0.5, borderRadius: '8px' }}
+                >
+                    <ListItemIcon>
+                        <SmsIcon fontSize="small" color="primary" />
+                    </ListItemIcon>
+                    <ListItemText primary="Notifications" />
+                </MenuItem>
+
+                {(isAdmin || hasPaid) && venmoUsername && (
+                    <MenuItem
+                        component="a"
+                        href={venmoUrl || '#'}
+                        target="_blank"
+                        onClick={onClose}
+                        sx={{ py: 1, mx: 0.5, borderRadius: '8px' }}
+                    >
+                        <ListItemIcon>
+                            <Box
+                                component="img"
+                                src="/venmo.svg"
+                                alt="Venmo"
+                                sx={{ width: 20, height: 20, filter: 'none' }}
+                            />
+                        </ListItemIcon>
+                        <ListItemText primary="Venmo" />
+                    </MenuItem>
+                )}
+            </MenuList>
+
+            <Divider sx={{ mx: 1.5 }} />
+
+            {/* ── Navigate ── */}
+            <MenuList dense sx={{ py: 0.5 }}>
+                <MenuItem onClick={() => handleClick('myBoards')} sx={{ py: 1, mx: 0.5, borderRadius: '8px' }}>
                     <ListItemIcon>
                         <DashboardIcon color="primary" fontSize="small" />
                     </ListItemIcon>
                     <ListItemText primary="My Boards" />
                 </MenuItem>
-                <MenuItem onClick={() => handleClick('info')} sx={{ py: 1 }}>
+                <MenuItem onClick={() => handleClick('info')} sx={{ py: 1, mx: 0.5, borderRadius: '8px' }}>
                     <ListItemIcon>
                         <InfoIcon color="primary" fontSize="small" />
                     </ListItemIcon>
-                    <ListItemText primary="Board Introduction" />
+                    <ListItemText primary="Board Info" />
                 </MenuItem>
-                <MenuItem onClick={() => handleClick('feedback')} sx={{ py: 1 }}>
+            </MenuList>
+
+            <Divider sx={{ mx: 1.5 }} />
+
+            {/* ── More ── */}
+            <MenuList dense sx={{ py: 0.5 }}>
+                <MenuItem onClick={() => handleClick('feedback')} sx={{ py: 1, mx: 0.5, borderRadius: '8px' }}>
                     <ListItemIcon>
                         <ThumbUpAltIcon color="primary" fontSize="small" />
                     </ListItemIcon>
                     <ListItemText primary="App Feedback" />
                 </MenuItem>
-                <MenuItem onClick={() => handleClick('coffee')} sx={{ py: 1 }}>
+                <MenuItem onClick={() => handleClick('coffee')} sx={{ py: 1, mx: 0.5, borderRadius: '8px' }}>
                     <ListItemIcon>
                         <VolunteerActivismIcon color="primary" fontSize="small" />
                     </ListItemIcon>
@@ -230,10 +223,19 @@ export default function HeaderMenu({
                 </MenuItem>
             </MenuList>
 
-            <Divider />
-
-            <Box sx={{ px: 2, py: 1, bgcolor: alpha(theme.palette.grey[100], 0.5) }}>
-                <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', fontSize: '0.65rem', color: 'text.secondary', fontWeight: 600, letterSpacing: '0.05em' }}>
+            {/* ── Footer ── */}
+            <Box sx={{ px: 2, py: 1, borderTop: `1px solid ${theme.palette.divider}` }}>
+                <Typography
+                    variant="caption"
+                    sx={{
+                        display: 'block',
+                        textAlign: 'center',
+                        fontSize: '0.65rem',
+                        color: 'text.disabled',
+                        fontWeight: 500,
+                        letterSpacing: '0.06em'
+                    }}
+                >
                     VERSION 02-20-2026
                 </Typography>
             </Box>
