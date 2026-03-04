@@ -137,13 +137,7 @@ export default function AdminPanel({ setSnackbarMessage, setView }) {
 
 	return (
 		<Box>
-			{isMobile && (
-				<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2, px: 2 }}>
-					<Typography variant='h5' fontWeight='700'>
-						Admin Controls
-					</Typography>
-				</Box>
-			)}
+
 			<Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 3, px: isMobile ? 2 : 0 }}>
 				{/* Access Section */}
 				<Box>

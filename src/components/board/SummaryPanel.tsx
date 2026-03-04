@@ -76,13 +76,7 @@ export default function SummaryPanel({ boardData, initials, squareMap, onRefresh
     return (
         <Box>
             <Box sx={{ mb: 3, mt: 2, px: isMobile ? 2 : 0 }}>
-                {isMobile && (
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                        <Typography variant='h5' fontWeight='700'>
-                            Summary
-                        </Typography>
-                    </Box>
-                )}
+
                 <Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
                     <Box sx={{ flex: 1, minWidth: 0 }}>
                         <StatBox

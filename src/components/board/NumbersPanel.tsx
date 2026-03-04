@@ -78,14 +78,6 @@ export default function NumbersPanel({ boardData, initials, squareMap, onRefresh
 
     return (
         <Box>
-            <Box sx={{ mb: 2, mt: 2, px: isMobile ? 2 : 0 }}>
-                {isMobile && (
-                    <Typography variant='h5' fontWeight='700' sx={{ mb: 2 }}>
-                        Numbers
-                    </Typography>
-                )}
-            </Box>
-
             {!numbersSet ? (
                 <Box sx={{ px: isMobile ? 2 : 0, mb: 3 }}>
                     <Box

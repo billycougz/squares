@@ -164,13 +164,7 @@ export default function ResultsPanel({ boardData, initials, anchor, onRefresh })
 					py: isMobile ? 2 : 0,
 				}}
 			>
-				{isMobile && (
-					<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-						<Typography variant='h5' fontWeight='700'>
-							Results
-						</Typography>
-					</Box>
-				)}
+
 				{results.map((result, index) => (
 					<ResultCard key={result.quarter} result={result} index={index} />
 				))}
