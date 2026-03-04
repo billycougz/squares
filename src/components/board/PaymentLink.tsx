@@ -1,6 +1,5 @@
 'use client';
-import { Box, Button, Chip, Typography, useTheme, alpha, IconButton } from '@mui/material';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import { Box, Button, Chip, Typography, useTheme, alpha } from '@mui/material';
 
 interface PaymentLinkProps {
     venmoUsername?: string;
@@ -34,42 +33,9 @@ export default function PaymentLink({
     const displayName = isFullLink ? 'Venmo' : `@${venmoUsername}`;
     const amountOwed = squarePrice && squareCount > 0 ? squareCount * squarePrice : 0;
 
-    // ── Admin view: subtle link ──
+    // ── Admin view: Venmo link available in header menu ──
     if (boardUser.isAdmin) {
-        return (
-            <Box
-                sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 1,
-                    py: 1,
-                    px: 2,
-                    borderRadius: '12px',
-                    bgcolor: alpha(theme.palette.info.main, 0.04),
-                    border: `1px solid ${alpha(theme.palette.info.main, 0.1)}`,
-                }}
-            >
-                <Box
-                    component="img"
-                    src="/venmo.svg"
-                    alt="Venmo"
-                    sx={{ width: 18, height: 18, opacity: 0.7 }}
-                />
-                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-                    {displayName}
-                </Typography>
-                <IconButton
-                    component="a"
-                    href={venmoUrl}
-                    target="_blank"
-                    size="small"
-                    sx={{ ml: 'auto', color: 'text.secondary' }}
-                >
-                    <OpenInNewIcon fontSize="small" />
-                </IconButton>
-            </Box>
-        );
+        return null;
     }
 
     // ── Paid user: hide banner (Venmo remains accessible via header menu) ──

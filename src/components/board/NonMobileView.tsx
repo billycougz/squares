@@ -95,7 +95,7 @@ export default function NonMobileView({
                 }}
             >
                 {/* Pinned Header: Payment (hidden once paid, since Venmo stays in header menu) */}
-                {venmoUsername && !hasPaid && (
+                {venmoUsername && !hasPaid && !isAdmin && (
                     <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
                         <PaymentLink
                             venmoUsername={venmoUsername}
