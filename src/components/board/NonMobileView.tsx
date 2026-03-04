@@ -5,7 +5,7 @@ import AssessmentIcon from '@mui/icons-material/Assessment';
 import PaidIcon from '@mui/icons-material/Paid';
 import TuneIcon from '@mui/icons-material/Tune';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import AdminPanel from './AdminPanel';
 import SummaryPanel from './SummaryPanel';
 import NumbersPanel from './NumbersPanel';
@@ -62,6 +62,12 @@ export default function NonMobileView({
     const theme = useTheme();
     // Default to 'results' if anchored, otherwise 'summary'
     const [activeTab, setActiveTab] = useState<PanelTab>(anchor === 'results' ? 'results' : 'summary');
+    const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null);
+
+    const handlePlayerClick = useCallback((playerInitials: string) => {
+        setSelectedPlayer(playerInitials);
+        setActiveTab('numbers');
+    }, []);
 
     return (
         <Box
@@ -151,6 +157,7 @@ export default function NonMobileView({
                             initials={initials}
                             squareMap={squareMap}
                             onRefresh={getLatestBoardData}
+                            onPlayerClick={handlePlayerClick}
                         />
                     )}
 
@@ -160,6 +167,7 @@ export default function NonMobileView({
                             initials={initials}
                             squareMap={squareMap}
                             onRefresh={getLatestBoardData}
+                            selectedPlayer={selectedPlayer}
                         />
                     )}
 

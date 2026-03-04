@@ -1,4 +1,5 @@
 'use client';
+import { useState, useCallback } from 'react';
 import { Box, Grid, Paper, Tab, Tabs, useTheme } from '@mui/material';
 import AdminPanel from './AdminPanel';
 import SummaryPanel from './SummaryPanel';
@@ -63,6 +64,12 @@ export default function MobileView({
     const theme = useTheme();
     const isBoardView = view === 'board';
     const isDataView = ['players', 'results', 'numbers', 'admin'].includes(view);
+    const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null);
+
+    const handlePlayerClick = useCallback((playerInitials: string) => {
+        setSelectedPlayer(playerInitials);
+        setView('numbers');
+    }, [setView]);
 
     return (
         <>
@@ -110,6 +117,7 @@ export default function MobileView({
                                 initials={initials}
                                 squareMap={squareMap}
                                 onRefresh={getLatestBoardData}
+                                onPlayerClick={handlePlayerClick}
                             />
                         </Grid>
                     )}
@@ -121,6 +129,7 @@ export default function MobileView({
                                 initials={initials}
                                 squareMap={squareMap}
                                 onRefresh={getLatestBoardData}
+                                selectedPlayer={selectedPlayer}
                             />
                         </Grid>
                     )}
