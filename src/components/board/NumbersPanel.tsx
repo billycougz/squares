@@ -1,7 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { Avatar, Box, ButtonBase, Menu, MenuItem, ListItemAvatar, ListItemText, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, useMediaQuery } from '@mui/material';
-import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
+import { Box, ButtonBase, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, useMediaQuery } from '@mui/material';
 
 interface NumbersPanelProps {
     boardData: any;
@@ -20,8 +19,8 @@ export default function NumbersPanel({ boardData, initials, squareMap, onRefresh
     const verticalCode = teams?.vertical?.code || 'V';
 
     const [activePlayer, setActivePlayer] = useState<string>(selectedPlayer || initials || '');
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const menuOpen = Boolean(anchorEl);
+    const chipRowRef = useRef<HTMLDivElement>(null);
+    const chipRefs = useRef<Record<string, HTMLElement | null>>({});
 
     useEffect(() => {
         if (selectedPlayer) {
@@ -29,11 +28,32 @@ export default function NumbersPanel({ boardData, initials, squareMap, onRefresh
         }
     }, [selectedPlayer]);
 
+    // Auto-scroll to active player chip
+    useEffect(() => {
+        if (activePlayer && chipRefs.current[activePlayer] && chipRowRef.current) {
+            const chip = chipRefs.current[activePlayer];
+            const container = chipRowRef.current;
+            if (chip) {
+                const chipLeft = chip.offsetLeft;
+                const chipWidth = chip.offsetWidth;
+                const containerWidth = container.offsetWidth;
+                const scrollTarget = chipLeft - containerWidth / 2 + chipWidth / 2;
+                container.scrollTo({ left: scrollTarget, behavior: 'smooth' });
+            }
+        }
+    }, [activePlayer]);
+
     const numbersSet = gridData && gridData[0] && gridData[0][1] !== null && gridData[0][1] !== undefined && gridData[0][1] !== '';
 
     const sortedPlayers = Object.keys(squareMap)
         .filter((key) => key !== '_remaining')
         .sort((a, b) => a.localeCompare(b));
+
+    // Ensure active player appears in chip row even with 0 squares
+    const chipPlayers = [...sortedPlayers];
+    if (activePlayer && !chipPlayers.includes(activePlayer)) {
+        chipPlayers.unshift(activePlayer);
+    }
 
     const getPlayerNumbers = (player: string) => {
         const numbers: { h: number; v: number }[] = [];
@@ -60,15 +80,6 @@ export default function NumbersPanel({ boardData, initials, squareMap, onRefresh
 
     const playerNumbers = activePlayer ? getPlayerNumbers(activePlayer) : [];
     const isUser = activePlayer === initials;
-
-    const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleSelectPlayer = (player: string) => {
-        setActivePlayer(player);
-        setAnchorEl(null);
-    };
 
     const TableHeader = ({ label, align = 'center' }: { label: string; align?: 'center' | 'left' | 'right' }) => (
         <TableCell align={align} sx={{ fontWeight: 'bold', color: 'text.secondary' }}>
@@ -110,213 +121,151 @@ export default function NumbersPanel({ boardData, initials, squareMap, onRefresh
                         overflow: 'hidden'
                     }}
                 >
-                    {!activePlayer ? (
+                    {!activePlayer && chipPlayers.length === 0 ? (
                         <Box sx={{ py: 6, px: 3, textAlign: 'center' }}>
                             <Typography color="text.secondary">
                                 Please enter your initials above to see your numbers.
                             </Typography>
                         </Box>
-                    ) : !squareMap[activePlayer] ? (
-                        <>
-                            {/* Player Header with selector */}
-                            <ButtonBase
-                                onClick={handleOpenMenu}
-                                sx={{
-                                    width: '100%',
-                                    bgcolor: isUser ? 'primary.main' : 'grey.100',
-                                    color: isUser ? 'white' : 'text.primary',
-                                    px: 2,
-                                    py: 1.5,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    transition: 'filter 0.15s ease',
-                                    '&:hover': {
-                                        filter: 'brightness(0.95)',
-                                    },
-                                }}
-                            >
-                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                    <Avatar
-                                        variant='rounded'
-                                        sx={{
-                                            width: 32,
-                                            height: 32,
-                                            fontSize: '0.75rem',
-                                            bgcolor: isUser ? 'white' : 'grey.500',
-                                            color: isUser ? 'primary.main' : 'white',
-                                            fontWeight: 'bold',
-                                            mr: 1.5
-                                        }}
-                                    >
-                                        {activePlayer}
-                                    </Avatar>
-                                    <Typography variant="subtitle2" fontWeight="700">
-                                        {activePlayer}
-                                    </Typography>
-                                    <UnfoldMoreIcon sx={{ ml: 0.5, fontSize: '1rem', opacity: 0.7 }} />
-                                </Box>
-                                <Typography variant="caption" fontWeight="600" sx={{ opacity: 0.9 }}>
-                                    0 SQUARES
-                                </Typography>
-                            </ButtonBase>
-                            <Box sx={{ py: 6, px: 3, textAlign: 'center' }}>
-                                <Typography color="text.secondary">
-                                    {isUser ? "You haven't claimed any squares yet." : `${activePlayer} hasn't claimed any squares yet.`}
-                                </Typography>
-                            </Box>
-                        </>
                     ) : (
                         <Box>
-                            {/* Player Header — clickable to switch player */}
-                            <ButtonBase
-                                onClick={handleOpenMenu}
+                            {/* Stories-style player scroll */}
+                            <Box
+                                ref={chipRowRef}
                                 sx={{
-                                    width: '100%',
-                                    bgcolor: isUser ? 'primary.main' : 'grey.100',
-                                    color: isUser ? 'white' : 'text.primary',
+                                    display: 'flex',
+                                    gap: 1.5,
                                     px: 2,
                                     py: 1.5,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    transition: 'filter 0.15s ease',
-                                    '&:hover': {
-                                        filter: 'brightness(0.95)',
-                                    },
+                                    overflowX: 'auto',
+                                    '&::-webkit-scrollbar': { display: 'none' },
+                                    scrollbarWidth: 'none',
+                                    borderBottom: '1px solid rgba(0,0,0,0.06)',
                                 }}
                             >
-                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                    <Avatar
-                                        variant='rounded'
-                                        sx={{
-                                            width: 32,
-                                            height: 32,
-                                            fontSize: '0.75rem',
-                                            bgcolor: isUser ? 'white' : 'grey.500',
-                                            color: isUser ? 'primary.main' : 'white',
-                                            fontWeight: 'bold',
-                                            mr: 1.5
-                                        }}
-                                    >
-                                        {activePlayer}
-                                    </Avatar>
-                                    <Typography variant="subtitle2" fontWeight="700">
-                                        {activePlayer}
-                                    </Typography>
-                                    <UnfoldMoreIcon sx={{ ml: 0.5, fontSize: '1rem', opacity: 0.7 }} />
-                                </Box>
-                                <Typography variant="caption" fontWeight="600" sx={{ opacity: 0.9 }}>
-                                    {playerNumbers.length} SQUARE{playerNumbers.length !== 1 ? 'S' : ''}
-                                </Typography>
-                            </ButtonBase>
-
-                            {/* Numbers Table */}
-                            <TableContainer>
-                                <Table size="small">
-                                    <TableHead sx={{ bgcolor: 'grey.50' }}>
-                                        <TableRow>
-                                            <TableHeader label={verticalCode} />
-                                            <TableHeader label={horizontalCode} />
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {playerNumbers.map((pair, i) => (
-                                            <TableRow key={i} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                                                <TableCell align="center">
-                                                    <Typography variant='body2' fontWeight='700'>
-                                                        {pair.v}
-                                                    </Typography>
-                                                </TableCell>
-                                                <TableCell align="center">
-                                                    <Typography variant='body2' fontWeight='700'>
-                                                        {pair.h}
-                                                    </Typography>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-                        </Box>
-                    )}
-
-                    {/* Player selection menu */}
-                    <Menu
-                        anchorEl={anchorEl}
-                        open={menuOpen}
-                        onClose={() => setAnchorEl(null)}
-                        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-                        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-                        slotProps={{
-                            paper: {
-                                sx: {
-                                    minWidth: 200,
-                                    maxHeight: 320,
-                                    mt: 0.5,
-                                    borderRadius: 2,
-                                    boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-                                },
-                            },
-                        }}
-                    >
-                        {sortedPlayers.map((player) => {
-                            const isSelf = player === initials;
-                            const isActive = player === activePlayer;
-                            const count = squareMap[player] || 0;
-                            return (
-                                <MenuItem
-                                    key={player}
-                                    selected={isActive}
-                                    onClick={() => handleSelectPlayer(player)}
-                                    sx={{
-                                        py: 1,
-                                        px: 2,
-                                        borderRadius: 1,
-                                        mx: 0.5,
-                                        mb: 0.25,
-                                        '&.Mui-selected': {
-                                            bgcolor: isSelf ? 'primary.main' : 'grey.800',
-                                            color: 'white',
-                                            '&:hover': {
-                                                bgcolor: isSelf ? 'primary.dark' : 'grey.700',
-                                            },
-                                        },
-                                    }}
-                                >
-                                    <ListItemAvatar sx={{ minWidth: 40 }}>
-                                        <Avatar
-                                            variant='rounded'
+                                {chipPlayers.map((player) => {
+                                    const isActive = player === activePlayer;
+                                    const isSelf = player === initials;
+                                    const count = squareMap[player] || 0;
+                                    return (
+                                        <ButtonBase
+                                            key={player}
+                                            ref={(el: HTMLElement | null) => { chipRefs.current[player] = el; }}
+                                            onClick={() => setActivePlayer(player)}
                                             sx={{
-                                                width: 28,
-                                                height: 28,
-                                                fontSize: '0.7rem',
-                                                bgcolor: isActive
-                                                    ? (isSelf ? 'white' : 'grey.300')
-                                                    : (isSelf ? 'primary.light' : 'grey.300'),
-                                                color: isActive
-                                                    ? (isSelf ? 'primary.main' : 'grey.800')
-                                                    : (isSelf ? 'white' : 'grey.700'),
-                                                fontWeight: 'bold',
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                alignItems: 'center',
+                                                gap: 0.5,
+                                                flexShrink: 0,
+                                                borderRadius: 2,
+                                                p: 0.5,
+                                                transition: 'transform 0.15s ease',
+                                                '&:hover': {
+                                                    transform: 'scale(1.05)',
+                                                },
                                             }}
                                         >
-                                            {player}
-                                        </Avatar>
-                                    </ListItemAvatar>
-                                    <ListItemText
-                                        primary={player}
-                                        secondary={`${count} square${count !== 1 ? 's' : ''}`}
-                                        primaryTypographyProps={{ fontWeight: 700, fontSize: '0.875rem' }}
-                                        secondaryTypographyProps={{
-                                            fontSize: '0.75rem',
-                                            color: isActive ? 'inherit' : 'text.secondary',
-                                            sx: isActive ? { opacity: 0.8 } : {},
-                                        }}
-                                    />
-                                </MenuItem>
-                            );
-                        })}
-                    </Menu>
+                                            {/* Ring + circle */}
+                                            <Box
+                                                sx={{
+                                                    width: 48,
+                                                    height: 48,
+                                                    borderRadius: '50%',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    border: '2.5px solid',
+                                                    borderColor: isActive
+                                                        ? (isSelf ? 'primary.main' : 'grey.700')
+                                                        : 'transparent',
+                                                    transition: 'border-color 0.2s ease',
+                                                    p: '3px',
+                                                }}
+                                            >
+                                                <Box
+                                                    sx={{
+                                                        width: '100%',
+                                                        height: '100%',
+                                                        borderRadius: '50%',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        bgcolor: isActive
+                                                            ? (isSelf ? 'primary.main' : 'grey.800')
+                                                            : (isSelf ? 'primary.light' : 'grey.200'),
+                                                        color: isActive
+                                                            ? 'white'
+                                                            : (isSelf ? 'white' : 'grey.700'),
+                                                        fontSize: player.length > 3 ? '0.55rem' : player.length > 2 ? '0.6rem' : '0.7rem',
+                                                        fontWeight: 800,
+                                                        letterSpacing: '-0.02em',
+                                                        transition: 'all 0.2s ease',
+                                                    }}
+                                                >
+                                                    {player}
+                                                </Box>
+                                            </Box>
+                                            {/* Count label */}
+                                            <Typography
+                                                variant='caption'
+                                                sx={{
+                                                    fontSize: '0.65rem',
+                                                    fontWeight: isActive ? 700 : 600,
+                                                    color: isActive ? 'text.primary' : 'text.secondary',
+                                                    lineHeight: 1,
+                                                }}
+                                            >
+                                                {count}
+                                            </Typography>
+                                        </ButtonBase>
+                                    );
+                                })}
+                            </Box>
+
+                            {/* Content below chips */}
+                            {!activePlayer ? (
+                                <Box sx={{ py: 5, px: 3, textAlign: 'center' }}>
+                                    <Typography color="text.secondary" variant="body2">
+                                        Tap a player to see their numbers.
+                                    </Typography>
+                                </Box>
+                            ) : !squareMap[activePlayer] ? (
+                                <Box sx={{ py: 5, px: 3, textAlign: 'center' }}>
+                                    <Typography color="text.secondary" variant="body2">
+                                        {isUser ? "You haven't claimed any squares yet." : `${activePlayer} hasn't claimed any squares yet.`}
+                                    </Typography>
+                                </Box>
+                            ) : (
+                                <TableContainer>
+                                    <Table size="small">
+                                        <TableHead sx={{ bgcolor: 'grey.50' }}>
+                                            <TableRow>
+                                                <TableHeader label={verticalCode} />
+                                                <TableHeader label={horizontalCode} />
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {playerNumbers.map((pair, i) => (
+                                                <TableRow key={i} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                                                    <TableCell align="center">
+                                                        <Typography variant='body2' fontWeight='700'>
+                                                            {pair.v}
+                                                        </Typography>
+                                                    </TableCell>
+                                                    <TableCell align="center">
+                                                        <Typography variant='body2' fontWeight='700'>
+                                                            {pair.h}
+                                                        </Typography>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                            )}
+                        </Box>
+                    )}
                 </Box>
             )}
         </Box>
