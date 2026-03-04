@@ -18,6 +18,9 @@ export default function SummaryPanel({ boardData, initials, squareMap, onRefresh
     const isMobile = isMobileWidth || isMobileHeight;
     const { squarePrice } = boardData;
     const remaining = squareMap['_remaining'];
+    const totalSquares = 100;
+    const claimed = totalSquares - remaining;
+    const allClaimed = remaining === 0;
 
     const handleSort = (key: string) => {
         setSortConfig((current) => ({
@@ -89,8 +92,8 @@ export default function SummaryPanel({ boardData, initials, squareMap, onRefresh
                     <Box sx={{ flex: 1, minWidth: 0 }}>
                         <StatBox
                             icon={<GridOn fontSize='small' />}
-                            label='Remaining'
-                            value={remaining}
+                            label='Claimed'
+                            value={claimed}
                             color='primary.main'
                         />
                     </Box>
