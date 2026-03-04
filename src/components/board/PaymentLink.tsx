@@ -1,6 +1,5 @@
 'use client';
 import { Box, Button, Chip, Typography, useTheme, alpha, IconButton } from '@mui/material';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
 interface PaymentLinkProps {
@@ -73,55 +72,9 @@ export default function PaymentLink({
         );
     }
 
-    // ── Paid user: compact confirmation with Venmo access ──
+    // ── Paid user: hide banner (Venmo remains accessible via header menu) ──
     if (hasPaid) {
-        return (
-            <Box
-                sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1.5,
-                    py: 1,
-                    px: 2,
-                    borderRadius: '12px',
-                    bgcolor: alpha(theme.palette.success.main, 0.06),
-                    border: `1px solid ${alpha(theme.palette.success.main, 0.15)}`,
-                }}
-            >
-                <CheckCircleIcon sx={{ color: 'success.main', fontSize: 20 }} />
-                <Typography variant="body2" sx={{ color: 'success.dark', fontWeight: 600, flex: 1 }}>
-                    Payment sent
-                </Typography>
-                <Button
-                    component="a"
-                    href={venmoUrl}
-                    target="_blank"
-                    size="small"
-                    startIcon={
-                        <Box
-                            component="img"
-                            src="/venmo.svg"
-                            alt="Venmo"
-                            sx={{ width: 16, height: 16 }}
-                        />
-                    }
-                    sx={{
-                        textTransform: 'none',
-                        fontWeight: 600,
-                        fontSize: '0.8rem',
-                        color: 'text.secondary',
-                        minWidth: 'auto',
-                        px: 1.5,
-                        borderRadius: '8px',
-                        '&:hover': {
-                            bgcolor: alpha(theme.palette.success.main, 0.08),
-                        },
-                    }}
-                >
-                    Open
-                </Button>
-            </Box>
-        );
+        return null;
     }
 
     // ── Unpaid user: prominent CTA ──

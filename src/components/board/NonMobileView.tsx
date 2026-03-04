@@ -88,8 +88,8 @@ export default function NonMobileView({
                     boxShadow: '4px 0 24px rgba(0,0,0,0.05)',
                 }}
             >
-                {/* Pinned Header: Payment */}
-                {venmoUsername && (
+                {/* Pinned Header: Payment (hidden once paid, since Venmo stays in header menu) */}
+                {venmoUsername && !hasPaid && (
                     <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
                         <PaymentLink
                             venmoUsername={venmoUsername}
