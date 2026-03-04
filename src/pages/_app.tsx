@@ -17,9 +17,9 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     return (
         <>
             <Head>
-                <title>Squares • Digital Football Squares</title>
+                <title>Squares • Digital Squares Board</title>
                 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
-                <meta name="description" content="The easiest way to play Football Squares with your friends and family located anywhere." />
+                <meta name="description" content="The platform for hosting your Squares competitions online." />
             </Head>
             {/* Google Analytics */}
             <Script

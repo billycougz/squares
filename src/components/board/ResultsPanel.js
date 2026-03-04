@@ -9,21 +9,21 @@ export default function ResultsPanel({ boardData, initials, anchor, onRefresh })
 	const isMobileHeight = useMediaQuery('(max-height: 600px)');
 	const isMobile = isMobileWidth || isMobileHeight;
 
-	const getPayoutValue = (quarterIndex) => {
+	const getPayoutValue = (periodIndex) => {
 		if (!squarePrice) {
 			return null;
 		}
-		const previousValue = quarterIndex ? payoutSliderValues[quarterIndex - 1] : 0;
-		const currentValue = payoutSliderValues[quarterIndex];
-		const difference = currentValue - previousValue;
-		return (difference * (squarePrice - retainAmount / 100));
+		const previousValue = periodIndex ? payoutSliderValues[periodIndex - 1] : 0;
+		const currentValue = payoutSliderValues[periodIndex];
+		const periodPercent = currentValue - previousValue;
+		return (periodPercent * (squarePrice - retainAmount / 100));
 	};
 
 	const ResultCard = ({ result, index }) => {
 		const { quarter, scores, winner } = result;
 		const payout = getPayoutValue(index);
 		const isFinal = quarter === 'Q4' || quarter === 'Final';
-		const displayQuarter = isFinal ? 'FINAL' : quarter.replace('Q', '').replace('H', '');
+		const displayPeriod = isFinal ? 'FINAL' : quarter.replace('Q', '').replace('H', '');
 		const periodTypeLabel = quarter.startsWith('H') ? 'HALF' : quarter.startsWith('Q') ? 'QTR' : '';
 		const isWinner = winner === initials;
 
@@ -65,7 +65,7 @@ export default function ResultsPanel({ boardData, initials, anchor, onRefresh })
 								fontWeight='800'
 								sx={isFinal ? { fontSize: '1.1rem', letterSpacing: '1.5px' } : {}}
 							>
-								{displayQuarter}
+								{displayPeriod}
 							</Typography>
 						</Box>
 

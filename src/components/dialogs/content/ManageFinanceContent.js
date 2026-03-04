@@ -27,15 +27,15 @@ export default function ManageFinanceContent({ financeData, onDataChange }) {
 		(rows, value, index) => {
 			const periodLabel = index === payoutSliderValues.length - 1 ? 'Final' : (payoutSliderValues.length <= 2 ? `H${index + 1}` : `Q${index + 1}`);
 			const previousValue = index ? payoutSliderValues[index - 1] : 0;
-			const quarterPercent = value - previousValue;
-			let amount = (squarePrice - retainAmount / 100) * quarterPercent;
+			const periodPercent = value - previousValue;
+			let amount = (squarePrice - retainAmount / 100) * periodPercent;
 			if (reversePercent) {
 				const reverseAmount = (amount * reversePercent) / 100;
 				amount = amount - reverseAmount;
 				rows.reverseAmountRow[periodLabel] = `$${reverseAmount}`;
 			}
 			rows.amountRow[periodLabel] = `$${amount}`;
-			rows.percentRow[periodLabel] = `${quarterPercent}%`;
+			rows.percentRow[periodLabel] = `${periodPercent}%`;
 			return rows;
 		},
 		{ amountRow: { ' ': 'Exact' }, percentRow: { ' ': 'Total %' }, reverseAmountRow: { ' ': 'Reverse' } }

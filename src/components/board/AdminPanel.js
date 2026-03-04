@@ -58,8 +58,8 @@ export default function AdminPanel({ setSnackbarMessage, setView }) {
 
 				const payouts = safeSliderValues.map((value, index) => {
 					const previousValue = index ? safeSliderValues[index - 1] : 0;
-					const quarterPercent = value - previousValue;
-					let amount = (squarePrice - safeRetain / 100) * quarterPercent;
+					const periodPercent = value - previousValue;
+					let amount = (squarePrice - safeRetain / 100) * periodPercent;
 
 					if (safeReversePercent) {
 						const reverseAmount = (amount * safeReversePercent) / 100;
@@ -117,7 +117,7 @@ export default function AdminPanel({ setSnackbarMessage, setView }) {
 		setActiveDialog('results');
 	};
 
-	const handleSubmitResult = async ({ quarterIndex, scores, cell }) => {
+	const handleSubmitResult = async ({ periodIndex, scores, cell }) => {
 		const [col, row] = cell;
 		const { Item } = await updateBoard({
 			id,
@@ -126,7 +126,7 @@ export default function AdminPanel({ setSnackbarMessage, setView }) {
 			row,
 			col,
 			operation: 'result',
-			value: Number(quarterIndex),
+			value: Number(periodIndex),
 		});
 		setBoardData(Item);
 		setView('results');

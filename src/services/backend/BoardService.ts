@@ -243,9 +243,7 @@ export const BoardService = {
         await BoardModel.update(board);
 
         // Build sport-aware SMS message
-        const sportConfig = getSportConfig(board.sport);
         const periodLabel = periodKey === 'Final' ? 'Final' : periodKey;
-        const periodTypeLabel = sportConfig.periodType === 'quarter' ? 'quarter' : 'half';
 
         const boardDeepLink = encodeURI(`${appConfig.baseUrl}?id=${id}&anchor=results`);
         const smsMessage = `The ${periodLabel} Squares results for ${board.boardName} are in. With a score of ${board.teams.horizontal.name}: ${scores.horizontal}, ${board.teams.vertical.name}: ${scores.vertical}, the win goes to ${winner}!\n\nTap the following link to open your Squares board. ${boardDeepLink}`;

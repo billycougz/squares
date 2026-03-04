@@ -1,7 +1,7 @@
 'use client';
 import { Box, Typography } from '@mui/material';
 import TouchAppIcon from '@mui/icons-material/TouchApp';
-import SportsIcon from '@mui/icons-material/Sports';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import Grid4x4Icon from '@mui/icons-material/Grid4x4';
 import PeopleIcon from '@mui/icons-material/People';
@@ -99,13 +99,13 @@ export default function LandingInfoDialog({ onClose }: LandingInfoDialogProps) {
     return (
         <StyledDialog
             title="How To Play Squares"
-            titleIcon={<SportsIcon sx={{ fontSize: 20 }} />}
+            titleIcon={<DashboardIcon sx={{ fontSize: 20 }} />}
             dismissible
             closeConfig={{ text: 'Got It', action: onClose }}
         >
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                 <Typography sx={{ color: 'text.secondary', lineHeight: 1.6, mb: 0.5 }}>
-                    Squares is the easiest way to play Squares with friends and family!
+                    The platform for hosting your Squares competitions online.
                 </Typography>
 
                 <StepCard
@@ -124,7 +124,7 @@ export default function LandingInfoDialog({ onClose }: LandingInfoDialogProps) {
 
                 <StepCard
                     number={3}
-                    icon={<SportsIcon sx={{ fontSize: 20 }} />}
+                    icon={<DashboardIcon sx={{ fontSize: 20 }} />}
                     title="Watch The Game"
                     description="At the end of each scoring period, the last digit of each team's score determines the winning square."
                 />

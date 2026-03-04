@@ -7,7 +7,7 @@ interface SquareProps {
     location: [number, number];
     backgroundColor?: string;
     onClick: (location: [number, number]) => void;
-    resultQuarters?: string;
+    resultPeriods?: string;
     isHeader?: boolean;
     adminMode?: string;
 }
@@ -17,7 +17,7 @@ export default function Square({
     location: [row, col],
     backgroundColor,
     onClick,
-    resultQuarters,
+    resultPeriods,
     isHeader,
     adminMode
 }: SquareProps) {
@@ -27,7 +27,7 @@ export default function Square({
 
     const handleClick = (e: MouseEvent<HTMLElement>) => {
         onClick([row, col]);
-        if (resultQuarters) {
+        if (resultPeriods) {
             setPopoverAnchor(e.currentTarget);
         }
     };
@@ -70,7 +70,7 @@ export default function Square({
                     horizontal: 'left',
                 }}
             >
-                <Typography sx={{ p: 1 }}>{resultQuarters}</Typography>
+                <Typography sx={{ p: 1 }}>{resultPeriods}</Typography>
             </Popover>
         </>
     );

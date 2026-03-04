@@ -67,7 +67,7 @@ export default function SquaresPage() {
             if (relevantResults.length > 0) {
                 const { winner } = relevantResults[relevantResults.length - 1];
                 if (winner === initials) {
-                    setSnackbarMessage('Congratulations, you won the latest squares quarter!');
+                    setSnackbarMessage('Congratulations, you won the latest squares period!');
                 }
             }
         }

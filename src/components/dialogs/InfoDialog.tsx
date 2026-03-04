@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import SmsContent from './content/SmsContent';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import SportsFootballIcon from '@mui/icons-material/SportsFootball';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 import TouchAppIcon from '@mui/icons-material/TouchApp';
 
 import { useLocalStorage } from 'usehooks-ts';
@@ -60,13 +60,12 @@ export default function InfoDialog({ onClose, isIntro }: InfoDialogProps) {
     const steps = [
         {
             title: 'Welcome To Squares',
-            titleIcon: <SportsFootballIcon sx={{ fontSize: 20 }} />,
+            titleIcon: <DashboardIcon sx={{ fontSize: 20 }} />,
             sms: true,
             content: (
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     <Typography sx={{ color: 'text.secondary', lineHeight: 1.6 }}>
-                        Squares is the easiest way to play Football Squares with friends and family
-                        — no matter where everyone is located!
+                        The platform for hosting your Squares competitions online.
                     </Typography>
                     <Typography sx={{ color: 'text.secondary', lineHeight: 1.6 }}>
                         Get started by entering your initials.
@@ -156,7 +155,7 @@ export default function InfoDialog({ onClose, isIntro }: InfoDialogProps) {
                             <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.6, pt: 0.25 }}>
                                 Numbers are assigned <strong>randomly</strong> once the board is
                                 full — winners are determined by the last digit of each
-                                team&rsquo;s score at the end of each quarter.
+                                team&rsquo;s score at the end of each period.
                             </Typography>
                         </Box>
 

@@ -19,7 +19,7 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import ShareIcon from '@mui/icons-material/Share';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import SportsIcon from '@mui/icons-material/Sports';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import GroupsIcon from '@mui/icons-material/Groups';
 import Grid4x4Icon from '@mui/icons-material/Grid4x4';
@@ -131,13 +131,12 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }: Admi
 	const steps = [
 		{
 			title: 'Welcome To Squares',
-			titleIcon: <SportsIcon sx={{ fontSize: 20 }} />,
+			titleIcon: <DashboardIcon sx={{ fontSize: 20 }} />,
 			updateInitials: true,
 			content: (
 				<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
 					<Typography sx={{ color: 'text.secondary', lineHeight: 1.6 }}>
-						Squares is the easiest way to play Squares with friends and family
-						— no matter where everyone is located!
+						The platform for hosting your Squares competitions online.
 					</Typography>
 					<Typography sx={{ color: 'text.secondary', lineHeight: 1.6 }}>
 						Get started by entering your info below.
@@ -275,7 +274,7 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }: Admi
 			titleIcon: <CheckCircleOutlineIcon sx={{ fontSize: 20 }} />,
 			content: (
 				<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-					<ContentCard icon={<SportsIcon sx={{ fontSize: 20 }} />}>
+					<ContentCard icon={<DashboardIcon sx={{ fontSize: 20 }} />}>
 						<Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>To Play</Typography>
 						<Typography variant="body2" sx={{ color: 'text.secondary' }}>
 							Tap any square to instantly claim it with your initials.

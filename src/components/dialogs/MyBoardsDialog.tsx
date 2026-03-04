@@ -5,7 +5,7 @@ import {
     Typography,
 } from '@mui/material';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import SportsFootballIcon from '@mui/icons-material/SportsFootball';
+// removed SportsFootballIcon
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -115,7 +115,7 @@ export default function MyBoardsDialog({ open, onClose, onSelectBoard }: MyBoard
                                 {board.adminCode ? (
                                     <AdminPanelSettingsIcon sx={{ fontSize: 18, color: 'white' }} />
                                 ) : (
-                                    <SportsFootballIcon sx={{ fontSize: 16, color: 'white' }} />
+                                    <DashboardIcon sx={{ fontSize: 16, color: 'white' }} />
                                 )}
                             </Box>
                             <Box sx={{ flex: 1, minWidth: 0 }}>

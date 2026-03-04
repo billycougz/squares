@@ -322,7 +322,7 @@ export default function SquaresGrid({ initials, setSnackbarMessage, onUpdate, hi
                                             value={value}
                                             location={[rowIndex, colIndex]}
                                             backgroundColor={getCellColor(rowIndex, colIndex)}
-                                            resultQuarters={resultMap[rowIndex]?.[colIndex]?.join(', ')}
+                                            resultPeriods={resultMap[rowIndex]?.[colIndex]?.join(', ')}
                                             onClick={() => handleSquareClick([rowIndex, colIndex])}
                                             adminMode={clickMode}
                                             isHeader={!rowIndex || !colIndex}

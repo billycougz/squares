@@ -29,7 +29,7 @@ import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import SportsFootballIcon from '@mui/icons-material/SportsFootball';
 import SportsBasketballIcon from '@mui/icons-material/SportsBasketball';
-import SportsIcon from '@mui/icons-material/Sports';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CloseIcon from '@mui/icons-material/Close';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -125,7 +125,7 @@ function getSportIcon(sportKey: string, props?: Record<string, unknown>) {
     switch (sportKey) {
         case 'ncaab': return <SportsBasketballIcon {...props} />;
         case 'nfl': return <SportsFootballIcon {...props} />;
-        default: return <SportsIcon {...props} />;
+        default: return <DashboardIcon {...props} />;
     }
 }
 
@@ -505,7 +505,7 @@ export default function LandingPage() {
                         {board.adminCode ? (
                             <AdminPanelSettingsIcon sx={{ fontSize: 20, color: 'white' }} />
                         ) : (
-                            <SportsIcon sx={{ fontSize: 18, color: 'white' }} />
+                            <DashboardIcon sx={{ fontSize: 18, color: 'white' }} />
                         )}
                     </Box>
                     <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -912,8 +912,8 @@ export default function LandingPage() {
                             lineHeight: 1.2
                         }}
                     >
-                        The easiest way to play<br />
-                        <Box component="span" sx={{ fontWeight: 800, color: '#60a5fa' }}>Squares</Box> with friends.
+                        The platform for hosting your<br />
+                        <Box component="span" sx={{ fontWeight: 800, color: '#60a5fa' }}>Squares</Box> competitions online.
                     </Typography>
                 </Box>
 

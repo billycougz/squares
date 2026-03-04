@@ -31,7 +31,7 @@ interface Result {
 
 interface ResultsDialogProps {
     onClose: () => void;
-    onSave: (data: { quarterIndex: number; scores: Scores; cell: [number, number] }) => void;
+    onSave: (data: { periodIndex: number; scores: Scores; cell: [number, number] }) => void;
     gridData: number[][];
     teams: Teams;
     results: Result[];
@@ -39,15 +39,15 @@ interface ResultsDialogProps {
 
 export default function ResultsDialog({ onClose, onSave, gridData, teams, results }: ResultsDialogProps) {
     const [scores, setScores] = useState<Scores>({ horizontal: 0, vertical: 0 });
-    const firstEmptyQuarter = results.findIndex((result) => !result.scores);
-    const [quarterIndex, setQuarterIndex] = useState(firstEmptyQuarter >= 0 ? firstEmptyQuarter : results.length - 1);
+    const firstEmptyPeriod = results.findIndex((result) => !result.scores);
+    const [periodIndex, setPeriodIndex] = useState(firstEmptyPeriod >= 0 ? firstEmptyPeriod : results.length - 1);
 
     useEffect(() => {
         setScores({
-            horizontal: results[quarterIndex].scores?.horizontal || 0,
-            vertical: results[quarterIndex].scores?.vertical || 0,
+            horizontal: results[periodIndex].scores?.horizontal || 0,
+            vertical: results[periodIndex].scores?.vertical || 0,
         });
-    }, [quarterIndex, results]);
+    }, [periodIndex, results]);
 
     const handleChange = (value: string, side: keyof Scores) => {
         setScores({ ...scores, [side]: Number(value) || 0 });
@@ -78,7 +78,7 @@ export default function ResultsDialog({ onClose, onSave, gridData, teams, result
 
     const handleSave = () => {
         const cell = getResultCell();
-        onSave({ quarterIndex, scores, cell });
+        onSave({ periodIndex, scores, cell });
     };
 
     // Dynamic period labels from the results array
@@ -98,11 +98,11 @@ export default function ResultsDialog({ onClose, onSave, gridData, teams, result
             fullWidth
         >
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-                {/* Quarter toggle chips */}
+                {/* Period toggle chips */}
                 <ToggleButtonGroup
-                    value={quarterIndex}
+                    value={periodIndex}
                     exclusive
-                    onChange={(_, val) => { if (val !== null) setQuarterIndex(val); }}
+                    onChange={(_, val) => { if (val !== null) setPeriodIndex(val); }}
                     fullWidth
                     sx={{
                         '& .MuiToggleButton-root': {
