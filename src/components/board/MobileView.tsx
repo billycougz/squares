@@ -1,6 +1,8 @@
 'use client';
 import { useState, useCallback } from 'react';
-import { Box, Grid, Paper, Tab, Tabs, useTheme } from '@mui/material';
+import { Box, Grid, Paper, Tab, Tabs, Typography, useTheme } from '@mui/material';
+import TouchAppIcon from '@mui/icons-material/TouchApp';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import AdminPanel from './AdminPanel';
 import SummaryPanel from './SummaryPanel';
 import NumbersPanel from './NumbersPanel';
@@ -175,27 +177,55 @@ export default function MobileView({
                                 variant="banner"
                             />
                             {isAdmin && (
-                                <Paper
-                                    elevation={0}
-                                    sx={{
-                                        mt: 2,
-                                        p: 0.5,
-                                        display: 'flex',
-                                        justifyContent: 'center',
-                                        border: `1px solid ${theme.palette.divider}`,
-                                        borderRadius: 2,
-                                        background: theme.palette.background.paper,
-                                    }}
-                                >
-                                    <Tabs
-                                        value={clickMode}
-                                        onChange={(e, v) => setClickMode(v)}
-                                        sx={{ minHeight: 36 }}
+                                <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                    <Typography
+                                        variant="caption"
+                                        fontWeight={800}
+                                        color="text.secondary"
+                                        sx={{ mb: 0.5, letterSpacing: 1.5, textTransform: 'uppercase', fontSize: '0.65rem' }}
                                     >
-                                        <Tab label='Select' value='select' sx={{ minHeight: 36, py: 0.5 }} />
-                                        <Tab label='Remove' value='remove' sx={{ minHeight: 36, py: 0.5 }} />
-                                    </Tabs>
-                                </Paper>
+                                        Admin Tap Mode
+                                    </Typography>
+                                    <Paper
+                                        elevation={0}
+                                        sx={{
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            borderRadius: '14px',
+                                            background: 'rgba(255, 255, 255, 0.8)',
+                                            backdropFilter: 'blur(12px)',
+                                            border: `1px solid rgba(0,0,0,0.08)`,
+                                            p: 0.5,
+                                        }}
+                                    >
+                                        <Tabs
+                                            value={clickMode}
+                                            onChange={(e, v) => setClickMode(v)}
+                                            sx={{
+                                                minHeight: 34,
+                                                '& .MuiTab-root': {
+                                                    minHeight: 34,
+                                                    borderRadius: '10px',
+                                                    py: 0,
+                                                    px: 2,
+                                                    fontWeight: 700,
+                                                    fontSize: '0.75rem',
+                                                    transition: 'all 0.2s ease',
+                                                    '&.Mui-selected': {
+                                                        bgcolor: 'primary.main',
+                                                        color: 'primary.contrastText',
+                                                    }
+                                                },
+                                                '& .MuiTabs-indicator': {
+                                                    display: 'none'
+                                                }
+                                            }}
+                                        >
+                                            <Tab icon={<TouchAppIcon sx={{ fontSize: '1rem' }} />} iconPosition="start" label="Select" value="select" disableRipple />
+                                            <Tab icon={<DeleteOutlineIcon sx={{ fontSize: '1rem' }} />} iconPosition="start" label="Remove" value="remove" disableRipple />
+                                        </Tabs>
+                                    </Paper>
+                                </Box>
                             )}
                         </Box>
                         <SquaresGrid
