@@ -30,7 +30,7 @@ export default function Square({
     const isSymbol = !isHeader && typeof value === 'string' && value.length > 0;
 
     const getFontSize = () => {
-        if (isHeader) return isMedium ? '1rem' : '0.8rem';
+        if (isHeader) return isMedium ? '1.4rem' : '1.1rem';
         if (isEmoji) return isMedium ? '1.2rem' : '1.65rem';
         return isMedium ? '0.95rem' : '1.0rem';
     };
