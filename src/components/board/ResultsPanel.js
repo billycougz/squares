@@ -23,8 +23,8 @@ export default function ResultsPanel({ boardData, symbol, symbolNames = {}, anch
 		const { quarter, scores, winner } = result;
 		const payout = getPayoutValue(index);
 		const isFinal = quarter === 'Q4' || quarter === 'Final';
-		const displayPeriod = isFinal ? 'FINAL' : quarter.replace('Q', '').replace('H', '');
-		const periodTypeLabel = quarter.startsWith('H') ? 'HALF' : quarter.startsWith('Q') ? 'QTR' : '';
+		const displayPeriod = isFinal ? 'FINAL' : quarter.replace('Q', '').replace('H', '').replace('P', '');
+		const periodTypeLabel = quarter.startsWith('H') ? 'HALF' : quarter.startsWith('Q') ? 'QTR' : quarter.startsWith('P') ? 'PERIOD' : '';
 		const isWinner = winner === symbol;
 		const winnerName = winner ? symbolNames[winner] : undefined;
 

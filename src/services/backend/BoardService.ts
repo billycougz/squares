@@ -1,7 +1,7 @@
 import { BoardModel } from '../../models/BoardModel';
 import { appConfig } from '../../lib/config';
 import { NotificationService } from './NotificationService';
-import { getSportConfig, getDefaultResults } from '../../lib/sportConfig';
+import { getSportConfig, getDefaultResults, getPeriodLabel } from '../../lib/sportConfig';
 import { v4 as uuidv4 } from 'uuid';
 
 import type { Team } from '../../lib/constants';
@@ -16,6 +16,7 @@ interface BoardTeams {
 interface CreateBoardData {
     boardName: string;
     sport?: string;
+    customPeriods?: number;
     teams: BoardTeams;
     test?: boolean;
 }
@@ -33,6 +34,7 @@ interface Board {
     adminCode: string;
     boardName: string;
     sport?: string;
+    customPeriods?: number;
     teams: BoardTeams;
     gridData: (string | number | null)[][];
     squarePrice: number;
@@ -93,7 +95,8 @@ export const BoardService = {
     createBoard: async (data: CreateBoardData): Promise<Board> => {
         const { ...boardData } = data;
         const sportKey = boardData.sport || 'nfl';
-        const sportConfig = getSportConfig(sportKey);
+        const customPeriods = boardData.customPeriods;
+        const sportConfig = getSportConfig(sportKey, customPeriods);
 
         // Initialize/Default values
         const newBoard: Board = {
@@ -108,7 +111,7 @@ export const BoardService = {
             squarePrice: 0,
             maxSquares: 0,
             payoutSliderValues: [...sportConfig.defaultPayouts],
-            results: getDefaultResults(sportKey),
+            results: getDefaultResults(sportKey, customPeriods),
             version: 2,
             players: {},
         };
@@ -262,7 +265,7 @@ export const BoardService = {
         await BoardModel.update(board);
 
         // Build sport-aware SMS message
-        const periodLabel = periodKey === 'Final' ? 'Final' : periodKey;
+        const periodLabel = getPeriodLabel(periodKey, board.sport);
 
         const boardDeepLink = encodeURI(`${appConfig.baseUrl}?id=${id}&anchor=results`);
         const rawWinnerName = board.players?.[winner];

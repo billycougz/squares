@@ -19,13 +19,17 @@ export default function ManageFinanceContent({ financeData, onDataChange }) {
 	const getSliderLabel = (value, index) => {
 		const previousValue = index ? payoutSliderValues[index - 1] : 0;
 		const difference = value - previousValue;
-		const periodLabel = index === payoutSliderValues.length - 1 ? 'Final' : `P${index + 1}`;
+		const isCustom = financeData.sport === 'custom';
+		const prefix = isCustom ? 'P' : (payoutSliderValues.length <= 2 ? 'H' : 'Q');
+		const periodLabel = index === payoutSliderValues.length - 1 ? 'Final' : `${prefix}${index + 1}`;
 		return `${periodLabel} • ${difference}%`;
 	};
 
 	const { amountRow, percentRow, reverseAmountRow } = payoutSliderValues.reduce(
 		(rows, value, index) => {
-			const periodLabel = index === payoutSliderValues.length - 1 ? 'Final' : (payoutSliderValues.length <= 2 ? `H${index + 1}` : `Q${index + 1}`);
+			const isCustom = financeData.sport === 'custom';
+			const prefix = isCustom ? 'P' : (payoutSliderValues.length <= 2 ? 'H' : 'Q');
+			const periodLabel = index === payoutSliderValues.length - 1 ? 'Final' : `${prefix}${index + 1}`;
 			const previousValue = index ? payoutSliderValues[index - 1] : 0;
 			const periodPercent = value - previousValue;
 			let amount = (squarePrice - retainAmount / 100) * periodPercent;
@@ -46,9 +50,11 @@ export default function ManageFinanceContent({ financeData, onDataChange }) {
 		onDataChange(updatedFinanceData);
 	};
 
-	const periodHeaders = payoutSliderValues.map((_, index) =>
-		index === payoutSliderValues.length - 1 ? 'Final' : (payoutSliderValues.length <= 2 ? `H${index + 1}` : `Q${index + 1}`)
-	);
+	const periodHeaders = payoutSliderValues.map((_, index) => {
+		const isCustom = financeData.sport === 'custom';
+		const prefix = isCustom ? 'P' : (payoutSliderValues.length <= 2 ? 'H' : 'Q');
+		return index === payoutSliderValues.length - 1 ? 'Final' : `${prefix}${index + 1}`;
+	});
 
 	const payoutTableConfig = {
 		headers: periodHeaders,

@@ -110,6 +110,7 @@ const FormCard = styled(Paper)`
 interface FormData {
     boardName: string;
     sport: string;
+    customPeriods?: number | '';
     teams: {
         horizontal: Team | undefined;
         vertical: Team | undefined;
@@ -119,6 +120,8 @@ interface FormData {
 
 interface FormErrors {
     boardName?: boolean;
+    customTeamHorizontalName?: boolean;
+    customTeamVerticalName?: boolean;
 }
 
 function getSportIcon(sportKey: string, props?: Record<string, unknown>) {
@@ -150,6 +153,7 @@ export default function LandingPage() {
     const [formData, setFormData] = useState<FormData>({
         boardName: '',
         sport: initialGame ? initialGame.sport : DEFAULT_SPORT_KEY,
+        customPeriods: 4,
         teams: {
             horizontal: initialGame
                 ? initialSportConfig.teams.find((t) => t.code === initialGame.teams.horizontal)
@@ -275,7 +279,12 @@ export default function LandingPage() {
 
     async function handleCreate() {
         setIsLoading(true);
-        const boardData = await createBoard(formData);
+        const payload = { ...formData };
+        if (payload.customPeriods === '') {
+            payload.customPeriods = undefined;
+        }
+
+        const boardData = await createBoard(payload);
         const { error } = boardData;
         if (!error) {
             handleBoardReady({
@@ -290,20 +299,39 @@ export default function LandingPage() {
 
     async function handleCreateClick() {
         const isCustomEvent = !selectedGame || selectedGame.title === 'Custom Event';
+        const isCustomSport = formData.sport === 'custom';
 
         const errors: FormErrors = {
             boardName: !Boolean(formData.boardName),
         };
 
         if (isCustomEvent) {
-            if (!formData.teams.horizontal) {
-                // We'll show an alert or snackbar since we don't have a specific error prop for Autocomplete right now
-                alert('Please select Team 1 (Top)');
-                return;
-            }
-            if (!formData.teams.vertical) {
-                alert('Please select Team 2 (Left)');
-                return;
+            if (isCustomSport) {
+                const horizontalName = formData.teams.horizontal?.name;
+                const verticalName = formData.teams.vertical?.name;
+
+                if (!horizontalName) errors.customTeamHorizontalName = true;
+                if (!verticalName) errors.customTeamVerticalName = true;
+
+                if (!horizontalName || !verticalName) {
+                    setFormErrors(errors);
+                    return;
+                }
+
+                if (horizontalName.trim().toLowerCase() === verticalName.trim().toLowerCase()) {
+                    alert('Custom teams must have different names.');
+                    return;
+                }
+            } else {
+                if (!formData.teams.horizontal) {
+                    // We'll show an alert or snackbar since we don't have a specific error prop for Autocomplete right now
+                    alert('Please select Team 1 (Top)');
+                    return;
+                }
+                if (!formData.teams.vertical) {
+                    alert('Please select Team 2 (Left)');
+                    return;
+                }
             }
         }
 
@@ -360,13 +388,17 @@ export default function LandingPage() {
     };
 
     const handleSportChange = (sportKey: string) => {
+        let defaultTeams = { horizontal: undefined, vertical: undefined };
+        if (sportKey === 'custom') {
+            defaultTeams = {
+                horizontal: { code: 'T1', name: '', location: '', color: '#3b82f6' } as Team,
+                vertical: { code: 'T2', name: '', location: '', color: '#ef4444' } as Team
+            };
+        }
         setFormData({
             ...formData,
             sport: sportKey,
-            teams: {
-                horizontal: undefined,
-                vertical: undefined,
-            },
+            teams: defaultTeams,
         });
         // Clear preconfigured game selection when sport changes
         setSelectedGame(null);
@@ -759,62 +791,139 @@ export default function LandingPage() {
                 {/* Team Pickers */}
                 {!selectedGame && (
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 2 }}>
-                        <Autocomplete
-                            options={currentSportConfig.teams}
-                            value={formData.teams.horizontal || null}
-                            onChange={(_, val) => setFormData({ ...formData, teams: { ...formData.teams, horizontal: val || undefined } })}
-                            getOptionLabel={(opt) => `${opt.location} ${opt.name}`}
-                            renderOption={(props, option) => (
-                                <Box component="li" {...props} key={option.code} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 1 }}>
-                                    <Box sx={{ width: 16, height: 16, borderRadius: '4px', backgroundColor: option.color, flexShrink: 0, border: '1px solid rgba(0,0,0,0.1)' }} />
-                                    <Typography variant="body2">{option.location} {option.name}</Typography>
+                        {formData.sport === 'custom' ? (
+                            <>
+                                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                                    <TextField
+                                        label='Team 1 Name (Top)'
+                                        value={formData.teams.horizontal?.name || ''}
+                                        error={formErrors.customTeamHorizontalName}
+                                        onChange={(e) => updateFormField('teams', { ...formData.teams, horizontal: { ...formData.teams.horizontal, name: e.target.value } as Team })}
+                                        fullWidth
+                                        variant='outlined'
+                                        sx={{ flex: 1, '& .MuiOutlinedInput-root': { borderRadius: '12px', backgroundColor: theme.palette.background.default } }}
+                                    />
+                                    <Box
+                                        component="input"
+                                        type="color"
+                                        value={formData.teams.horizontal?.color || '#3b82f6'}
+                                        onChange={(e) => updateFormField('teams', { ...formData.teams, horizontal: { ...formData.teams.horizontal, color: e.target.value } as Team })}
+                                        sx={{
+                                            width: 36,
+                                            height: 36,
+                                            padding: 0,
+                                            border: 'none',
+                                            borderRadius: '8px',
+                                            cursor: 'pointer',
+                                            backgroundColor: 'transparent',
+                                            '&::-webkit-color-swatch-wrapper': { padding: 0 },
+                                            '&::-webkit-color-swatch': { border: 'none', borderRadius: '8px', boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.1)' }
+                                        }}
+                                    />
                                 </Box>
-                            )}
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    label='Team 1 (Top)'
-                                    placeholder='Search teams...'
-                                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px', backgroundColor: theme.palette.background.default } }}
-                                    InputProps={{
-                                        ...params.InputProps,
-                                        startAdornment: formData.teams.horizontal ? (
-                                            <Box sx={{ width: 14, height: 14, borderRadius: '3px', backgroundColor: formData.teams.horizontal.color, ml: 1, mr: 1, flexShrink: 0, border: '1px solid rgba(0,0,0,0.1)' }} />
-                                        ) : params.InputProps.startAdornment,
-                                    }}
-                                />
-                            )}
-                            isOptionEqualToValue={(opt, val) => opt.code === val.code}
-                            fullWidth
-                        />
-                        <Autocomplete
-                            options={currentSportConfig.teams}
-                            value={formData.teams.vertical || null}
-                            onChange={(_, val) => setFormData({ ...formData, teams: { ...formData.teams, vertical: val || undefined } })}
-                            getOptionLabel={(opt) => `${opt.location} ${opt.name}`}
-                            renderOption={(props, option) => (
-                                <Box component="li" {...props} key={option.code} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 1 }}>
-                                    <Box sx={{ width: 16, height: 16, borderRadius: '4px', backgroundColor: option.color, flexShrink: 0, border: '1px solid rgba(0,0,0,0.1)' }} />
-                                    <Typography variant="body2">{option.location} {option.name}</Typography>
+                                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                                    <TextField
+                                        label='Team 2 Name (Left)'
+                                        value={formData.teams.vertical?.name || ''}
+                                        error={formErrors.customTeamVerticalName}
+                                        onChange={(e) => updateFormField('teams', { ...formData.teams, vertical: { ...formData.teams.vertical, name: e.target.value } as Team })}
+                                        fullWidth
+                                        variant='outlined'
+                                        sx={{ flex: 1, '& .MuiOutlinedInput-root': { borderRadius: '12px', backgroundColor: theme.palette.background.default } }}
+                                    />
+                                    <Box
+                                        component="input"
+                                        type="color"
+                                        value={formData.teams.vertical?.color || '#ef4444'}
+                                        onChange={(e) => updateFormField('teams', { ...formData.teams, vertical: { ...formData.teams.vertical, color: e.target.value } as Team })}
+                                        sx={{
+                                            width: 36,
+                                            height: 36,
+                                            padding: 0,
+                                            border: 'none',
+                                            borderRadius: '8px',
+                                            cursor: 'pointer',
+                                            backgroundColor: 'transparent',
+                                            '&::-webkit-color-swatch-wrapper': { padding: 0 },
+                                            '&::-webkit-color-swatch': { border: 'none', borderRadius: '8px', boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.1)' }
+                                        }}
+                                    />
                                 </Box>
-                            )}
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    label='Team 2 (Left)'
-                                    placeholder='Search teams...'
-                                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px', backgroundColor: theme.palette.background.default } }}
-                                    InputProps={{
-                                        ...params.InputProps,
-                                        startAdornment: formData.teams.vertical ? (
-                                            <Box sx={{ width: 14, height: 14, borderRadius: '3px', backgroundColor: formData.teams.vertical.color, ml: 1, mr: 1, flexShrink: 0, border: '1px solid rgba(0,0,0,0.1)' }} />
-                                        ) : params.InputProps.startAdornment,
-                                    }}
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                    <TextField
+                                        label='Periods'
+                                        type='number'
+                                        value={formData.customPeriods ?? ''}
+                                        onChange={(e) => updateFormField('customPeriods', e.target.value === '' ? '' : Number(e.target.value))}
+                                        variant='outlined'
+                                        InputProps={{ inputProps: { min: 1 } }}
+                                        sx={{ width: 120, '& .MuiOutlinedInput-root': { borderRadius: '12px', backgroundColor: theme.palette.background.default } }}
+                                    />
+                                    <Typography variant="body2" color="text.secondary" sx={{ flex: 1, lineHeight: 1.3 }}>
+                                        Number of scoring periods
+                                    </Typography>
+                                </Box>
+                            </>
+                        ) : (
+                            <>
+                                <Autocomplete
+                                    options={currentSportConfig.teams}
+                                    value={formData.teams.horizontal || null}
+                                    onChange={(_, val) => setFormData({ ...formData, teams: { ...formData.teams, horizontal: val || undefined } })}
+                                    getOptionLabel={(opt) => `${opt.location} ${opt.name}`}
+                                    renderOption={(props, option) => (
+                                        <Box component="li" {...props} key={option.code} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 1 }}>
+                                            <Box sx={{ width: 16, height: 16, borderRadius: '4px', backgroundColor: option.color, flexShrink: 0, border: '1px solid rgba(0,0,0,0.1)' }} />
+                                            <Typography variant="body2">{option.location} {option.name}</Typography>
+                                        </Box>
+                                    )}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label='Team 1 (Top)'
+                                            placeholder='Search teams...'
+                                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px', backgroundColor: theme.palette.background.default } }}
+                                            InputProps={{
+                                                ...params.InputProps,
+                                                startAdornment: formData.teams.horizontal ? (
+                                                    <Box sx={{ width: 14, height: 14, borderRadius: '3px', backgroundColor: formData.teams.horizontal.color, ml: 1, mr: 1, flexShrink: 0, border: '1px solid rgba(0,0,0,0.1)' }} />
+                                                ) : params.InputProps.startAdornment,
+                                            }}
+                                        />
+                                    )}
+                                    isOptionEqualToValue={(opt, val) => opt.code === val.code}
+                                    fullWidth
                                 />
-                            )}
-                            isOptionEqualToValue={(opt, val) => opt.code === val.code}
-                            fullWidth
-                        />
+                                <Autocomplete
+                                    options={currentSportConfig.teams}
+                                    value={formData.teams.vertical || null}
+                                    onChange={(_, val) => setFormData({ ...formData, teams: { ...formData.teams, vertical: val || undefined } })}
+                                    getOptionLabel={(opt) => `${opt.location} ${opt.name}`}
+                                    renderOption={(props, option) => (
+                                        <Box component="li" {...props} key={option.code} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 1 }}>
+                                            <Box sx={{ width: 16, height: 16, borderRadius: '4px', backgroundColor: option.color, flexShrink: 0, border: '1px solid rgba(0,0,0,0.1)' }} />
+                                            <Typography variant="body2">{option.location} {option.name}</Typography>
+                                        </Box>
+                                    )}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label='Team 2 (Left)'
+                                            placeholder='Search teams...'
+                                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px', backgroundColor: theme.palette.background.default } }}
+                                            InputProps={{
+                                                ...params.InputProps,
+                                                startAdornment: formData.teams.vertical ? (
+                                                    <Box sx={{ width: 14, height: 14, borderRadius: '3px', backgroundColor: formData.teams.vertical.color, ml: 1, mr: 1, flexShrink: 0, border: '1px solid rgba(0,0,0,0.1)' }} />
+                                                ) : params.InputProps.startAdornment,
+                                            }}
+                                        />
+                                    )}
+                                    isOptionEqualToValue={(opt, val) => opt.code === val.code}
+                                    fullWidth
+                                />
+                            </>
+                        )}
                     </Box>
                 )}
 

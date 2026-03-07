@@ -13,6 +13,7 @@ interface FinanceData {
     financeMessage: string;
     retainAmount: number;
     reversePercent: number;
+    sport?: string;
 }
 
 interface FinanceDialogProps {
@@ -22,7 +23,7 @@ interface FinanceDialogProps {
 
 export default function FinanceDialog({ onClose, onSave }: FinanceDialogProps) {
     const { boardData } = useContext(AppContext);
-    const { squarePrice, maxSquares, payoutSliderValues, venmoUsername, financeMessage, retainAmount, reversePercent } =
+    const { squarePrice, maxSquares, payoutSliderValues, venmoUsername, financeMessage, retainAmount, reversePercent, sport } =
         boardData;
 
     const [financeData, setFinanceData] = useState<FinanceData>({
@@ -33,6 +34,7 @@ export default function FinanceDialog({ onClose, onSave }: FinanceDialogProps) {
         financeMessage,
         retainAmount,
         reversePercent,
+        sport,
     });
 
     const [hasDataChanged, setHasDataChanged] = useState(false);

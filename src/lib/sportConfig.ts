@@ -52,11 +52,41 @@ const sportConfigs: Record<string, SportConfig> = {
         defaultPayouts: [50, 100],
         teams: ncaabTeams,
     },
+    custom: {
+        key: 'custom',
+        name: 'Custom Sport',
+        shortName: 'Custom',
+        periodType: 'quarter', // generic period
+        periods: [], // dynamically generated
+        defaultPayouts: [], // dynamically generated
+        teams: [], // dynamically generated
+    }
 };
 
 /* ─── Public API ────────────────────────────────────────────── */
 
-export function getSportConfig(key: string | undefined): SportConfig {
+export function getSportConfig(key: string | undefined, numPeriods?: number): SportConfig {
+    if (key === 'custom') {
+        const periods = numPeriods || 4; // default to 4 periods
+        const customPeriods: SportPeriod[] = Array.from({ length: periods }).map((_, i) => ({
+            key: i === periods - 1 ? 'Final' : `P${i + 1}`,
+            label: i === periods - 1 ? 'Final' : `P${i + 1}`,
+        }));
+
+        // Generate uniform payouts based on numPeriods (e.g. 4 -> 25, 50, 75, 100)
+        const dp = [];
+        for (let i = 1; i <= periods; i++) {
+            dp.push(Math.round((100 / periods) * i));
+        }
+        dp[periods - 1] = 100; // ensure last is exactly 100
+
+        return {
+            ...sportConfigs.custom,
+            periodType: 'quarter', // Can just use quarter to mean "period" for now
+            periods: customPeriods,
+            defaultPayouts: dp,
+        };
+    }
     if (key && sportConfigs[key]) {
         return sportConfigs[key];
     }
@@ -64,8 +94,8 @@ export function getSportConfig(key: string | undefined): SportConfig {
     return sportConfigs.nfl;
 }
 
-export function getDefaultResults(sportKey: string | undefined): { quarter: string }[] {
-    const config = getSportConfig(sportKey);
+export function getDefaultResults(sportKey: string | undefined, numPeriods?: number): { quarter: string }[] {
+    const config = getSportConfig(sportKey, numPeriods);
     return config.periods.map((p) => ({ quarter: p.key }));
 }
 
@@ -73,11 +103,14 @@ export function getPeriodLabel(periodKey: string, sportKey: string | undefined):
     const config = getSportConfig(sportKey);
     if (periodKey === 'Final' || periodKey === 'Q4') return 'Final';
     const period = config.periods.find((p) => p.key === periodKey);
-    return period?.label || periodKey;
+    if (period) return period.label;
+    if (periodKey.startsWith('P')) return `Period ${periodKey.replace('P', '')}`;
+    return periodKey;
 }
 
 export function getPeriodTypeLabel(sportKey: string | undefined): string {
     const config = getSportConfig(sportKey);
+    if (sportKey === 'custom') return 'Period';
     return config.periodType === 'quarter' ? 'Quarter' : 'Half';
 }
 
