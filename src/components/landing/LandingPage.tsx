@@ -376,14 +376,15 @@ export default function LandingPage() {
 
     const handleGameChange = (e: SelectChangeEvent<string>) => {
         const value = e.target.value;
-        if (value === 'Custom Event') {
-            handleSportChange(formData.sport || DEFAULT_SPORT_KEY);
+        const gameMatch = games.find((game: any) => game.title === value);
+
+        if (gameMatch) {
+            updateSelectedTeams(gameMatch.teams, gameMatch.sport);
+            setSelectedGame(gameMatch);
         } else {
-            const game = games.find((game: any) => game.title === value);
-            if (game) {
-                updateSelectedTeams(game.teams, game.sport);
-                setSelectedGame(game);
-            }
+            // It's a generic sport
+            handleSportChange(value);
+            setSelectedGame(null);
         }
     };
 
@@ -672,61 +673,112 @@ export default function LandingPage() {
                 Create New Board
             </Typography>
 
-            {Boolean(games?.length) && (
-                <FormControl fullWidth>
-                    <Select
-                        value={selectedGame?.title || 'Custom Event'}
-                        onChange={handleGameChange}
-                        displayEmpty
-                        renderValue={(val) => (
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <TaskAltIcon sx={{ color: theme.palette.primary.main, fontSize: 20 }} />
-                                <Typography sx={{
-                                    fontWeight: 500,
-                                    color: theme.palette.primary.main
-                                }}>
-                                    {val}
-                                </Typography>
-                            </Box>
-                        )}
-                        sx={{
-                            mb: 3,
-                            borderRadius: '14px',
-                            backgroundColor: 'rgba(37, 99, 235, 0.08)',
-                            border: `1.5px solid ${theme.palette.primary.main}`,
-                            transition: 'all 0.2s ease',
-                            '&:hover': {
-                                backgroundColor: 'rgba(37, 99, 235, 0.12)',
-                                borderColor: theme.palette.primary.main
-                            },
-                            '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
-                            '& .MuiSelect-select': {
-                                py: 1.5,
-                                px: 2,
-                            }
-                        }}
-                    >
-                        <MenuItem value={'Custom Event'} sx={{ py: 1.5, borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
-                            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                                <Typography sx={{ fontWeight: 600 }}>Custom Event</Typography>
-                                <Typography variant="caption" color="text.secondary">
-                                    Configure your own sport and match-up
-                                </Typography>
-                            </Box>
-                        </MenuItem>
-                        {games.map((game: any) => (
-                            <MenuItem key={game.title} value={game.title} sx={{ py: 1.5 }}>
-                                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                                    <Typography sx={{ fontWeight: 600 }}>{game.title}</Typography>
-                                    <Typography variant="caption" color="text.secondary">
-                                        {getSportConfig(game.sport).teams.find(t => t.code === game.teams.horizontal)?.name} vs. {getSportConfig(game.sport).teams.find(t => t.code === game.teams.vertical)?.name}
+            <FormControl fullWidth>
+                <Select
+                    value={selectedGame ? selectedGame.title : formData.sport}
+                    onChange={handleGameChange}
+                    displayEmpty
+                    renderValue={(val) => {
+                        // Determine if it's a specific game or a generic sport
+                        const gameMatch = games.find((g) => g.title === val);
+                        if (gameMatch) {
+                            return (
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    {getSportIcon(gameMatch.sport, { sx: { color: theme.palette.primary.main, fontSize: 20 } })}
+                                    <Typography sx={{ fontWeight: 500, color: theme.palette.primary.main }}>
+                                        {val}
                                     </Typography>
                                 </Box>
+                            );
+                        }
+
+                        // It's a generic sport
+                        const sportMatch = allSports.find(s => s.key === val);
+                        if (sportMatch) {
+                            return (
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    {getSportIcon(sportMatch.key, { sx: { color: theme.palette.primary.main, fontSize: 20 } })}
+                                    <Typography sx={{ fontWeight: 500, color: theme.palette.primary.main }}>
+                                        {sportMatch.shortName}
+                                    </Typography>
+                                </Box>
+                            );
+                        }
+
+                        return null;
+                    }}
+                    sx={{
+                        mb: 3,
+                        borderRadius: '14px',
+                        backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                        border: `1.5px solid ${theme.palette.primary.main}`,
+                        transition: 'all 0.2s ease',
+                        '&:hover': {
+                            backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                            borderColor: theme.palette.primary.main
+                        },
+                        '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                        '& .MuiSelect-select': {
+                            py: 1.5,
+                            px: 2,
+                        }
+                    }}
+                >
+                    {/* Featured Events */}
+                    {games.length > 0 && [
+                        <MenuItem disabled key="events-header" sx={{ opacity: 1, py: 1, '&.Mui-disabled': { opacity: 1 } }}>
+                            <Typography variant="overline" sx={{ fontWeight: 800, color: 'text.secondary', letterSpacing: '0.05em' }}>
+                                Featured Events
+                            </Typography>
+                        </MenuItem>,
+                        ...games.map((game: any) => (
+                            <MenuItem key={game.title} value={game.title} sx={{ py: 1.5 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%' }}>
+                                    <Box sx={{
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        width: 36, height: 36, borderRadius: '10px',
+                                        backgroundColor: 'rgba(37, 99, 235, 0.1)', color: theme.palette.primary.main
+                                    }}>
+                                        {getSportIcon(game.sport, { sx: { fontSize: 20 } })}
+                                    </Box>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                                        <Typography sx={{ fontWeight: 600 }}>{game.title}</Typography>
+                                        <Typography variant="caption" color="text.secondary">
+                                            {getSportConfig(game.sport).teams.find(t => t.code === game.teams.horizontal)?.name} vs. {getSportConfig(game.sport).teams.find(t => t.code === game.teams.vertical)?.name}
+                                        </Typography>
+                                    </Box>
+                                </Box>
                             </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
-            )}
+                        ))
+                    ]}
+
+                    {/* General Sports */}
+                    <MenuItem disabled key="sports-header" sx={{ opacity: 1, py: 1, mt: 1, '&.Mui-disabled': { opacity: 1 } }}>
+                        <Typography variant="overline" sx={{ fontWeight: 800, color: 'text.secondary', letterSpacing: '0.05em' }}>
+                            General Sports
+                        </Typography>
+                    </MenuItem>
+                    {allSports.map((sport) => (
+                        <MenuItem key={sport.key} value={sport.key} sx={{ py: 1.5 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%' }}>
+                                <Box sx={{
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    width: 36, height: 36, borderRadius: '10px',
+                                    backgroundColor: 'rgba(0, 0, 0, 0.04)', color: theme.palette.text.secondary
+                                }}>
+                                    {getSportIcon(sport.key, { sx: { fontSize: 20 } })}
+                                </Box>
+                                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                                    <Typography sx={{ fontWeight: 600 }}>{sport.name}</Typography>
+                                    <Typography variant="caption" color="text.secondary">
+                                        {sport.key === 'custom' ? 'Configure your own matchup' : `Standard ${sport.shortName} squares`}
+                                    </Typography>
+                                </Box>
+                            </Box>
+                        </MenuItem>
+                    ))}
+                </Select>
+            </FormControl>
 
             <FormGroup>
                 <TextField
@@ -745,48 +797,6 @@ export default function LandingPage() {
                         }
                     }}
                 />
-
-                {/* Sport Selector */}
-                {!selectedGame && (
-                    <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                        {allSports.map((sport) => (
-                            <Box
-                                key={sport.key}
-                                onClick={() => handleSportChange(sport.key)}
-                                sx={{
-                                    flex: 1,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: 0.75,
-                                    py: 1.2,
-                                    borderRadius: '12px',
-                                    cursor: 'pointer',
-                                    fontFamily: '"Outfit", sans-serif',
-                                    fontWeight: 700,
-                                    fontSize: '0.85rem',
-                                    transition: 'all 0.2s ease',
-                                    background: formData.sport === sport.key
-                                        ? `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`
-                                        : theme.palette.background.default,
-                                    color: formData.sport === sport.key
-                                        ? '#fff'
-                                        : theme.palette.text.secondary,
-                                    border: `1px solid ${formData.sport === sport.key ? 'transparent' : 'rgba(0,0,0,0.12)'}`,
-                                    boxShadow: formData.sport === sport.key
-                                        ? '0 4px 12px rgba(37, 99, 235, 0.3)'
-                                        : 'none',
-                                    '&:hover': {
-                                        borderColor: formData.sport === sport.key ? 'transparent' : theme.palette.primary.light,
-                                    },
-                                }}
-                            >
-                                {getSportIcon(sport.key, { sx: { fontSize: 18 } })}
-                                {sport.shortName}
-                            </Box>
-                        ))}
-                    </Box>
-                )}
 
                 {/* Team Pickers */}
                 {!selectedGame && (
