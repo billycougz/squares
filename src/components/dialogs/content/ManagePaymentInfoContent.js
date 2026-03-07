@@ -1,9 +1,9 @@
 'use client';
 import TextField from '@mui/material/TextField';
-import { Box, DialogContentText, InputAdornment, Typography } from '@mui/material';
+import { Box, InputAdornment, Typography } from '@mui/material';
 import ShortTextIcon from '@mui/icons-material/ShortText';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { useState } from 'react';
-
 const renderVenmoSVG = () => <img src='/venmo.svg' width='24' height='24' />;
 
 export default function ManagePaymentInfoContent({ paymentInfoData, onDataChange }) {
@@ -18,13 +18,23 @@ export default function ManagePaymentInfoContent({ paymentInfoData, onDataChange
 	};
 
 	return (
-		<Box>
-			<DialogContentText>
-				<Typography sx={{ mb: '5px' }}>
+		<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+			<Box sx={{
+				display: 'flex',
+				gap: 2,
+				p: 2,
+				borderRadius: '14px',
+				background: 'rgba(59, 130, 246, 0.04)',
+				border: '1px solid rgba(59, 130, 246, 0.08)',
+			}}>
+				<Box sx={{ flexShrink: 0, mt: 0.25, color: 'primary.main' }}>
+					<InfoOutlinedIcon sx={{ fontSize: 20 }} />
+				</Box>
+				<Typography sx={{ fontSize: '0.875rem', color: 'text.secondary', lineHeight: 1.5 }}>
 					Funds are not exchanged through the Squares platform. Create a message telling your participants how to pay
 					for squares. If you use Venmo, make it easy by providing your username.
 				</Typography>
-			</DialogContentText>
+			</Box>
 
 			<TextField
 				multiline
@@ -34,7 +44,7 @@ export default function ManagePaymentInfoContent({ paymentInfoData, onDataChange
 				placeholder='E.g., Please pay by...'
 				helperText='Optional. Your message will be displayed to participants upon loading your board.'
 				value={financeMessage}
-				sx={{ margin: '1em 0', textarea: { fontSize: '14px !important' } }}
+				sx={{ textarea: { fontSize: '14px !important' } }}
 				onChange={(e) => handleDataChange('financeMessage', e.target.value || '')}
 				InputProps={{
 					startAdornment: (
