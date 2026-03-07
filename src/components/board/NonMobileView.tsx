@@ -16,8 +16,9 @@ import PaymentLink from './PaymentLink';
 
 interface NonMobileViewProps {
     id: string;
-    initials: string;
-    setInitials: (initials: string) => void;
+    symbol: string;
+    name: string;
+    setSymbol: (symbol: string) => void;
     boardName: string;
     setSnackbarMessage: (msg: string) => void;
     getLatestBoardData: () => Promise<void>;
@@ -27,6 +28,7 @@ interface NonMobileViewProps {
     setView: (view: string) => void;
     boardData: any;
     squareMap: Record<string, number>;
+    symbolNames: Record<string, string>;
     anchor?: string;
     boardUser: any;
     setShowPaymentDialog: (show: boolean) => void;
@@ -40,8 +42,9 @@ type PanelTab = 'summary' | 'numbers' | 'results' | 'admin';
 
 export default function NonMobileView({
     id,
-    initials,
-    setInitials,
+    symbol,
+    name,
+    setSymbol,
     boardName,
     setSnackbarMessage,
     getLatestBoardData,
@@ -51,6 +54,7 @@ export default function NonMobileView({
     setView,
     boardData,
     squareMap,
+    symbolNames,
     anchor,
     boardUser,
     setShowPaymentDialog,
@@ -64,8 +68,8 @@ export default function NonMobileView({
     const [activeTab, setActiveTab] = useState<PanelTab>(anchor === 'results' ? 'results' : 'summary');
     const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null);
 
-    const handlePlayerClick = useCallback((playerInitials: string) => {
-        setSelectedPlayer(playerInitials);
+    const handlePlayerClick = useCallback((playerSymbol: string) => {
+        setSelectedPlayer(playerSymbol);
         setActiveTab('numbers');
     }, []);
 
@@ -103,8 +107,8 @@ export default function NonMobileView({
                             hasPaid={hasPaid}
                             setShowPaymentDialog={setShowPaymentDialog}
                             squarePrice={boardData.squarePrice}
-                            initials={initials}
-                            squareCount={squareMap[initials] || 0}
+                            symbol={symbol}
+                            squareCount={squareMap[symbol] || 0}
                             variant="panel"
                         />
                     </Box>
@@ -154,8 +158,9 @@ export default function NonMobileView({
                     {activeTab === 'summary' && (
                         <SummaryPanel
                             boardData={boardData}
-                            initials={initials}
+                            symbol={symbol}
                             squareMap={squareMap}
+                            symbolNames={symbolNames}
                             onRefresh={getLatestBoardData}
                             onPlayerClick={handlePlayerClick}
                         />
@@ -164,8 +169,9 @@ export default function NonMobileView({
                     {activeTab === 'numbers' && (
                         <NumbersPanel
                             boardData={boardData}
-                            initials={initials}
+                            symbol={symbol}
                             squareMap={squareMap}
+                            symbolNames={symbolNames}
                             onRefresh={getLatestBoardData}
                             selectedPlayer={selectedPlayer}
                         />
@@ -174,7 +180,8 @@ export default function NonMobileView({
                     {activeTab === 'results' && (
                         <ResultsPanel
                             boardData={boardData}
-                            initials={initials}
+                            symbol={symbol}
+                            symbolNames={symbolNames}
                             anchor={anchor}
                             onRefresh={getLatestBoardData}
                         />
@@ -247,7 +254,8 @@ export default function NonMobileView({
                 )}
 
                 <SquaresGrid
-                    initials={initials}
+                    symbol={symbol}
+                    name={name}
                     onUpdate={setBoardData}
                     setSnackbarMessage={setSnackbarMessage}
                     highlightColor={highlightColor}

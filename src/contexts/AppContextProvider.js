@@ -15,18 +15,18 @@ const AppContextProvider = ({ children }) => {
 		}
 	}, []);
 
-	const updateSubscriptions = (initials, phoneNumber) => {
+	const updateSubscriptions = (symbol, phoneNumber) => {
 		const { id } = boardData;
 		subscriptions[id] = subscriptions[id] || {};
-		subscriptions[id][initials] = phoneNumber;
+		subscriptions[id][symbol] = phoneNumber;
 		localStorage.setItem('squares-subscriptions', JSON.stringify(subscriptions));
 		setSubscriptions({ ...subscriptions });
 	};
 
-	// ToDo: Build this into boardUser once initials are handled
-	const getSubscribedNumber = (initials) => {
+	// ToDo: Build this into boardUser once symbol identity is handled
+	const getSubscribedNumber = (symbol) => {
 		const { id } = boardData;
-		return subscriptions?.[id]?.[initials];
+		return subscriptions?.[id]?.[symbol];
 	};
 
 	const handleBoardDataChange = (updatedData) => {
@@ -90,7 +90,7 @@ const AppContextProvider = ({ children }) => {
 		setBoardInsights({
 			remainingSquares: squareMap?.['_remaining'],
 			areNumbersSet: firstNumberSquare || firstNumberSquare === 0,
-			getClaimCount: (initials) => squareMap[initials] || 0,
+			getClaimCount: (symbol) => squareMap[symbol] || 0,
 		});
 	};
 

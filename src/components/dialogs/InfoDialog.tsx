@@ -10,6 +10,7 @@ import SmsContent from './content/SmsContent';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import TouchAppIcon from '@mui/icons-material/TouchApp';
+import BadgeIcon from '@mui/icons-material/Badge';
 
 import { useLocalStorage } from 'usehooks-ts';
 import AppContext from '@/contexts/AppContext';
@@ -21,16 +22,22 @@ interface InfoDialogProps {
     isIntro?: boolean;
 }
 
+// Detect if a string contains emoji characters
+const containsEmoji = (str: string) => /\p{Emoji_Presentation}|\p{Extended_Pictographic}/u.test(str);
+
 export default function InfoDialog({ onClose, isIntro }: InfoDialogProps) {
     const { boardData, updateSubscriptions } = useContext(AppContext);
     const { id, boardName, squarePrice, maxSquares, financeMessage } = boardData;
 
-    const [initials, setInitials] = useLocalStorage('squares-initials', '');
-    const [initialsUnderChange, setInitialsUnderChange] = useState(initials);
+    const [symbol, setSymbol] = useLocalStorage('squares-symbol', '');
+    const [name, setName] = useLocalStorage('squares-name', '');
+    const symbolNames: Record<string, string> = boardData.players || {};
+    const [symbolUnderChange, setSymbolUnderChange] = useState(symbol);
+    const [nameUnderChange, setNameUnderChange] = useState(name);
     const [phoneNumber, setPhoneNumber] = useState('');
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [storedNumber, setStoredNumber] = useState('');
-    const [errors, setErrors] = useState<{ initials?: boolean; phoneNumber?: boolean }>({});
+    const [errors, setErrors] = useState<{ symbol?: boolean; name?: boolean; symbolTaken?: boolean; phoneNumber?: boolean }>({});
     const [stepIndex, setStepIndex] = useState(0);
 
     const phoneIsValidOrEmpty = (value: string) => {
@@ -45,15 +52,32 @@ export default function InfoDialog({ onClose, isIntro }: InfoDialogProps) {
         setPhoneNumber(number);
     };
 
-    const handleInitialsChange = (value: string) => {
-        setErrors({ ...errors, initials: false });
-        setInitialsUnderChange(value.toUpperCase());
+    const handleSymbolChange = (value: string) => {
+        setErrors({ ...errors, symbol: false, symbolTaken: false });
+        if (containsEmoji(value)) {
+            const emojiMatch = value.match(/\p{Emoji_Presentation}|\p{Extended_Pictographic}/u);
+            setSymbolUnderChange(emojiMatch ? emojiMatch[0] : value);
+        } else {
+            setSymbolUnderChange(value.toUpperCase().slice(0, 3));
+        }
+    };
+
+    const handleNameChange = (value: string) => {
+        setErrors({ ...errors, name: false });
+        setNameUnderChange(value);
     };
 
     const handleSmsSave = async () => {
         const trimmed = phoneNumber.replace(/\s/g, '');
         await subscribeNumberToBoard({ id, boardName, phoneNumber: trimmed });
-        updateSubscriptions(initials, trimmed);
+        updateSubscriptions(symbol, trimmed);
+    };
+
+    // Check if symbol is taken by a different name
+    const isSymbolTaken = (sym: string, nm: string): boolean => {
+        if (!sym || !nm) return false;
+        const existingName = symbolNames[sym];
+        return !!existingName && existingName !== nm;
     };
 
     /* ─── Steps ───────────────────────────────────────────────── */
@@ -68,16 +92,41 @@ export default function InfoDialog({ onClose, isIntro }: InfoDialogProps) {
                         The platform for hosting your Squares competitions online.
                     </Typography>
                     <Typography sx={{ color: 'text.secondary', lineHeight: 1.6 }}>
-                        Get started by entering your initials.
+                        Get started by entering your info below.
                     </Typography>
                     <TextField
-                        error={errors.initials}
-                        placeholder="Your Initials"
+                        error={errors.name}
+                        placeholder="Your Name"
                         size="small"
                         fullWidth
-                        value={initialsUnderChange}
-                        onChange={(e) => handleInitialsChange(e.target.value)}
-                        helperText={errors.initials ? 'Your initials are required.' : ''}
+                        value={nameUnderChange}
+                        onChange={(e) => handleNameChange(e.target.value)}
+                        helperText={errors.name ? 'Your name is required.' : ''}
+                        sx={{
+                            '& .MuiOutlinedInput-root': { borderRadius: '12px' },
+                        }}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <BadgeIcon color="primary" />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                    <TextField
+                        error={errors.symbol || errors.symbolTaken}
+                        placeholder="Your Symbol"
+                        size="small"
+                        fullWidth
+                        value={symbolUnderChange}
+                        onChange={(e) => handleSymbolChange(e.target.value)}
+                        helperText={
+                            errors.symbol
+                                ? 'A symbol is required.'
+                                : errors.symbolTaken
+                                    ? `This symbol is already used by ${symbolNames[symbolUnderChange]}.`
+                                    : 'Up to 3 letters (e.g. your initials) or a single emoji.'
+                        }
                         sx={{
                             '& .MuiOutlinedInput-root': { borderRadius: '12px' },
                         }}
@@ -92,7 +141,7 @@ export default function InfoDialog({ onClose, isIntro }: InfoDialogProps) {
                     <SmsContent
                         error={errors.phoneNumber}
                         showHelper={true}
-                        initials={initialsUnderChange}
+                        symbol={symbolUnderChange}
                         phoneNumber={phoneNumber}
                         onChange={handlePhoneNumberChange}
                         onIsSubscribed={setStoredNumber}
@@ -142,7 +191,7 @@ export default function InfoDialog({ onClose, isIntro }: InfoDialogProps) {
                             <Box sx={ruleBullet(1)}>1</Box>
                             <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.6, pt: 0.25 }}>
                                 Tap any open square to <strong>claim&nbsp;it</strong> with your
-                                initials at <strong>${squarePrice}</strong> per square.
+                                symbol at <strong>${squarePrice}</strong> per square.
                                 {maxSquares
                                     ? <> You may claim up to <strong>{maxSquares}</strong> squares.</>
                                     : ''}{' '}
@@ -191,14 +240,17 @@ export default function InfoDialog({ onClose, isIntro }: InfoDialogProps) {
         if (direction === 1) {
             if (currentStep.sms) {
                 const newErrors = {
-                    initials: !Boolean(initialsUnderChange),
+                    symbol: !Boolean(symbolUnderChange),
+                    name: !Boolean(nameUnderChange.trim()),
+                    symbolTaken: isSymbolTaken(symbolUnderChange, nameUnderChange.trim()),
                     phoneNumber: !phoneIsValidOrEmpty(phoneNumber),
                 };
                 if (Object.values(newErrors).some((value) => value)) {
                     setErrors(newErrors);
                     return;
                 }
-                setInitials(initialsUnderChange);
+                setSymbol(symbolUnderChange);
+                setName(nameUnderChange.trim());
                 if (phoneNumber) {
                     await handleSmsSave();
                 }
@@ -243,4 +295,3 @@ export default function InfoDialog({ onClose, isIntro }: InfoDialogProps) {
         </StyledDialog>
     );
 }
-

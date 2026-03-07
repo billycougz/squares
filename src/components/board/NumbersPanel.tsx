@@ -1,16 +1,17 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { Box, ButtonBase, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, useMediaQuery } from '@mui/material';
+import { Box, ButtonBase, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography, useMediaQuery } from '@mui/material';
 
 interface NumbersPanelProps {
     boardData: any;
-    initials: string;
+    symbol: string;
     squareMap: Record<string, number>;
+    symbolNames: Record<string, string>;
     onRefresh: () => Promise<void>;
     selectedPlayer?: string | null;
 }
 
-export default function NumbersPanel({ boardData, initials, squareMap, onRefresh, selectedPlayer }: NumbersPanelProps) {
+export default function NumbersPanel({ boardData, symbol, squareMap, symbolNames, onRefresh, selectedPlayer }: NumbersPanelProps) {
     const isMobileWidth = useMediaQuery('(max-width: 600px)');
     const isMobileHeight = useMediaQuery('(max-height: 600px)');
     const isMobile = isMobileWidth || isMobileHeight;
@@ -18,7 +19,7 @@ export default function NumbersPanel({ boardData, initials, squareMap, onRefresh
     const horizontalCode = teams?.horizontal?.code || 'H';
     const verticalCode = teams?.vertical?.code || 'V';
 
-    const [activePlayer, setActivePlayer] = useState<string>(selectedPlayer || initials || '');
+    const [activePlayer, setActivePlayer] = useState<string>(selectedPlayer || symbol || '');
     const chipRowRef = useRef<HTMLDivElement>(null);
     const chipRefs = useRef<Record<string, HTMLElement | null>>({});
 
@@ -79,7 +80,7 @@ export default function NumbersPanel({ boardData, initials, squareMap, onRefresh
     };
 
     const playerNumbers = activePlayer ? getPlayerNumbers(activePlayer) : [];
-    const isUser = activePlayer === initials;
+    const isUser = activePlayer === symbol;
 
     const TableHeader = ({ label, align = 'center' }: { label: string; align?: 'center' | 'left' | 'right' }) => (
         <TableCell align={align} sx={{ fontWeight: 'bold', color: 'text.secondary' }}>
@@ -124,7 +125,7 @@ export default function NumbersPanel({ boardData, initials, squareMap, onRefresh
                     {!activePlayer && chipPlayers.length === 0 ? (
                         <Box sx={{ py: 6, px: 3, textAlign: 'center' }}>
                             <Typography color="text.secondary">
-                                Please enter your initials above to see your numbers.
+                                Please enter your symbol above to see your numbers.
                             </Typography>
                         </Box>
                     ) : (
@@ -145,80 +146,90 @@ export default function NumbersPanel({ boardData, initials, squareMap, onRefresh
                             >
                                 {chipPlayers.map((player) => {
                                     const isActive = player === activePlayer;
-                                    const isSelf = player === initials;
+                                    const isSelf = player === symbol;
                                     const count = squareMap[player] || 0;
+                                    const playerName = symbolNames[player];
                                     return (
-                                        <ButtonBase
+                                        <Tooltip
                                             key={player}
-                                            ref={(el: HTMLElement | null) => { chipRefs.current[player] = el; }}
-                                            onClick={() => setActivePlayer(player)}
-                                            sx={{
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                alignItems: 'center',
-                                                gap: 0.5,
-                                                flexShrink: 0,
-                                                borderRadius: 2,
-                                                p: 0.5,
-                                                transition: 'transform 0.15s ease',
-                                                '&:hover': {
-                                                    transform: 'scale(1.05)',
-                                                },
-                                            }}
+                                            title={playerName || ''}
+                                            arrow
+                                            disableHoverListener={!playerName}
+                                            enterTouchDelay={0}
                                         >
-                                            {/* Ring + circle */}
-                                            <Box
+                                            <ButtonBase
+                                                ref={(el: HTMLElement | null) => { chipRefs.current[player] = el; }}
+                                                onClick={() => setActivePlayer(player)}
                                                 sx={{
-                                                    width: 48,
-                                                    height: 48,
-                                                    borderRadius: '50%',
                                                     display: 'flex',
+                                                    flexDirection: 'column',
                                                     alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    border: '2.5px solid',
-                                                    borderColor: isActive
-                                                        ? (isSelf ? 'primary.main' : 'grey.700')
-                                                        : 'transparent',
-                                                    transition: 'border-color 0.2s ease',
-                                                    p: '3px',
+                                                    gap: 0.5,
+                                                    flexShrink: 0,
+                                                    borderRadius: 2,
+                                                    p: 0.5,
+                                                    transition: 'transform 0.15s ease',
+                                                    '&:hover': {
+                                                        transform: 'scale(1.05)',
+                                                    },
                                                 }}
                                             >
+                                                {/* Ring + circle */}
                                                 <Box
                                                     sx={{
-                                                        width: '100%',
-                                                        height: '100%',
+                                                        width: 48,
+                                                        height: 48,
                                                         borderRadius: '50%',
                                                         display: 'flex',
                                                         alignItems: 'center',
                                                         justifyContent: 'center',
-                                                        bgcolor: isActive
-                                                            ? (isSelf ? 'primary.main' : 'grey.800')
-                                                            : (isSelf ? 'primary.light' : 'grey.200'),
-                                                        color: isActive
-                                                            ? 'white'
-                                                            : (isSelf ? 'white' : 'grey.700'),
-                                                        fontSize: player.length > 3 ? '0.55rem' : player.length > 2 ? '0.6rem' : '0.7rem',
-                                                        fontWeight: 800,
-                                                        letterSpacing: '-0.02em',
-                                                        transition: 'all 0.2s ease',
+                                                        border: '2.5px solid',
+                                                        borderColor: isActive
+                                                            ? (isSelf ? 'primary.main' : 'grey.700')
+                                                            : 'transparent',
+                                                        transition: 'border-color 0.2s ease',
+                                                        p: '3px',
                                                     }}
                                                 >
-                                                    {player}
+                                                    <Box
+                                                        sx={{
+                                                            width: '100%',
+                                                            height: '100%',
+                                                            borderRadius: '50%',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            bgcolor: isActive
+                                                                ? (isSelf ? 'primary.main' : 'grey.800')
+                                                                : (isSelf ? 'primary.light' : 'grey.200'),
+                                                            color: isActive
+                                                                ? 'white'
+                                                                : (isSelf ? 'white' : 'grey.700'),
+                                                            fontSize: /\p{Emoji_Presentation}|\p{Extended_Pictographic}/u.test(player)
+                                                                ? '1.2rem'
+                                                                : player.length > 2 ? '0.7rem' : '0.8rem',
+                                                            fontWeight: 700,
+                                                            letterSpacing: '-0.02em',
+                                                            transition: 'all 0.2s ease',
+                                                        }}
+                                                    >
+                                                        {player}
+                                                    </Box>
                                                 </Box>
-                                            </Box>
-                                            {/* Count label */}
-                                            <Typography
-                                                variant='caption'
-                                                sx={{
-                                                    fontSize: '0.65rem',
-                                                    fontWeight: isActive ? 700 : 600,
-                                                    color: isActive ? 'text.primary' : 'text.secondary',
-                                                    lineHeight: 1,
-                                                }}
-                                            >
-                                                {count}
-                                            </Typography>
-                                        </ButtonBase>
+                                                {/* Count label */}
+                                                <Typography
+                                                    variant='caption'
+                                                    sx={{
+                                                        fontSize: '0.6rem',
+                                                        fontWeight: isActive ? 700 : 600,
+                                                        color: isActive ? 'text.primary' : 'text.secondary',
+                                                        lineHeight: 1,
+                                                    }}
+                                                >
+                                                    {count}
+                                                </Typography>
+                                            </ButtonBase>
+                                        </Tooltip>
                                     );
                                 })}
                             </Box>
@@ -233,7 +244,7 @@ export default function NumbersPanel({ boardData, initials, squareMap, onRefresh
                             ) : !squareMap[activePlayer] ? (
                                 <Box sx={{ py: 5, px: 3, textAlign: 'center' }}>
                                     <Typography color="text.secondary" variant="body2">
-                                        {isUser ? "You haven't claimed any squares yet." : `${activePlayer} hasn't claimed any squares yet.`}
+                                        {isUser ? "You haven't claimed any squares yet." : `${symbolNames[activePlayer] || activePlayer} hasn't claimed any squares yet.`}
                                     </Typography>
                                 </Box>
                             ) : (

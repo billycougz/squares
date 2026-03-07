@@ -23,9 +23,11 @@ interface MobileViewProps {
     setView: (view: string) => void;
     setSnackbarMessage: (msg: string) => void;
     boardData: any;
-    initials: string;
-    setInitials: (initials: string) => void;
+    symbol: string;
+    name: string;
+    setSymbol: (symbol: string) => void;
     squareMap: Record<string, number>;
+    symbolNames: Record<string, string>;
     getLatestBoardData: () => Promise<void>;
     anchor?: string;
     id: string;
@@ -46,9 +48,11 @@ export default function MobileView({
     setView,
     setSnackbarMessage,
     boardData,
-    initials,
-    setInitials,
+    symbol,
+    name,
+    setSymbol,
     squareMap,
+    symbolNames,
     getLatestBoardData,
     anchor,
     id,
@@ -68,8 +72,8 @@ export default function MobileView({
     const isDataView = ['players', 'results', 'numbers', 'admin'].includes(view);
     const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null);
 
-    const handlePlayerClick = useCallback((playerInitials: string) => {
-        setSelectedPlayer(playerInitials);
+    const handlePlayerClick = useCallback((playerSymbol: string) => {
+        setSelectedPlayer(playerSymbol);
         setView('numbers');
     }, [setView]);
 
@@ -116,8 +120,9 @@ export default function MobileView({
                         <Grid size={{ xs: 12 }}>
                             <SummaryPanel
                                 boardData={boardData}
-                                initials={initials}
+                                symbol={symbol}
                                 squareMap={squareMap}
+                                symbolNames={symbolNames}
                                 onRefresh={getLatestBoardData}
                                 onPlayerClick={handlePlayerClick}
                             />
@@ -128,8 +133,9 @@ export default function MobileView({
                         <Grid size={{ xs: 12 }}>
                             <NumbersPanel
                                 boardData={boardData}
-                                initials={initials}
+                                symbol={symbol}
                                 squareMap={squareMap}
+                                symbolNames={symbolNames}
                                 onRefresh={getLatestBoardData}
                                 selectedPlayer={selectedPlayer}
                             />
@@ -140,7 +146,8 @@ export default function MobileView({
                         <Grid size={{ xs: 12 }}>
                             <ResultsPanel
                                 boardData={boardData}
-                                initials={initials}
+                                symbol={symbol}
+                                symbolNames={symbolNames}
                                 anchor={anchor}
                                 onRefresh={getLatestBoardData}
                             />
@@ -172,8 +179,8 @@ export default function MobileView({
                                 hasPaid={hasPaid}
                                 setShowPaymentDialog={setShowPaymentDialog}
                                 squarePrice={boardData.squarePrice}
-                                initials={initials}
-                                squareCount={squareMap[initials] || 0}
+                                symbol={symbol}
+                                squareCount={squareMap[symbol] || 0}
                                 variant="banner"
                             />
                             {isAdmin && (
@@ -229,7 +236,8 @@ export default function MobileView({
                             )}
                         </Box>
                         <SquaresGrid
-                            initials={initials}
+                            symbol={symbol}
+                            name={name}
                             onUpdate={setBoardData}
                             setSnackbarMessage={setSnackbarMessage}
                             highlightColor={highlightColor}
@@ -245,4 +253,3 @@ export default function MobileView({
         </>
     );
 }
-

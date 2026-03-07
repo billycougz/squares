@@ -6,7 +6,7 @@ import VerifiedIcon from '@mui/icons-material/Verified';
 import AppContext from '@/contexts/AppContext';
 
 interface SmsContentProps {
-	initials: string;
+	symbol: string;
 	onChange: (value: string) => void;
 	onIsSubscribed: (value: string) => void;
 	phoneNumber: string;
@@ -14,10 +14,10 @@ interface SmsContentProps {
 	error?: boolean;
 }
 
-export default function SmsContent({ initials, onChange, onIsSubscribed, phoneNumber, showHelper, error }: SmsContentProps) {
+export default function SmsContent({ symbol, onChange, onIsSubscribed, phoneNumber, showHelper, error }: SmsContentProps) {
 	const { getSubscribedNumber } = useContext(AppContext);
 
-	const subscribedNumber = getSubscribedNumber(initials);
+	const subscribedNumber = getSubscribedNumber(symbol);
 
 	useEffect(() => {
 		if (subscribedNumber) {

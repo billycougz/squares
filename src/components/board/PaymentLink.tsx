@@ -7,7 +7,7 @@ interface PaymentLinkProps {
     hasPaid: boolean;
     setShowPaymentDialog: (show: boolean) => void;
     squarePrice?: number;
-    initials?: string;
+    symbol?: string;
     squareCount?: number;
     variant?: 'banner' | 'panel';
 }
@@ -18,7 +18,7 @@ export default function PaymentLink({
     hasPaid,
     setShowPaymentDialog,
     squarePrice,
-    initials,
+    symbol,
     squareCount = 0,
     variant = 'banner',
 }: PaymentLinkProps) {

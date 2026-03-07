@@ -1,7 +1,7 @@
 'use client';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Snackbar, useMediaQuery, useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { useDocumentTitle, useLocalStorage } from 'usehooks-ts';
 import { loadBoard, subscribeNumberToBoard } from '@/lib/api';
 import AppContext from '@/contexts/AppContext';
@@ -26,7 +26,8 @@ export default function SquaresPage() {
     const { id, gridData, boardName, results, anchor, venmoUsername } = boardData;
     const { isAdmin } = boardUser;
 
-    const [initials, setInitials] = useLocalStorage('squares-initials', '');
+    const [symbol, setSymbol] = useLocalStorage('squares-symbol', '');
+    const [name, setName] = useLocalStorage('squares-name', '');
     const [view, setView] = useState('board');
     const [clickMode, setClickMode] = useState<'select' | 'remove' | 'result' | 'numbers' | 'finances' | 'update'>('select');
     const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -43,6 +44,16 @@ export default function SquaresPage() {
     const isMobile = hasMobileHeight || hasMobileWidth;
 
     useDocumentTitle(`${boardName}`);
+
+    // Derive symbol→name lookup from server-side players map
+    const symbolNames = useMemo(() => {
+        const players = (boardData.players || {}) as Record<string, string>;
+        // Ensure current user's symbol→name is in the map
+        if (symbol && name) {
+            return { ...players, [symbol]: name };
+        }
+        return players;
+    }, [boardData.players, symbol, name]);
 
     // Sync hasPaid state when board changes
     useEffect(() => {
@@ -66,7 +77,7 @@ export default function SquaresPage() {
             const relevantResults = results.filter((result: any) => !!result.winner);
             if (relevantResults.length > 0) {
                 const { winner } = relevantResults[relevantResults.length - 1];
-                if (winner === initials) {
+                if (winner === symbol) {
                     setSnackbarMessage('Congratulations, you won the latest squares period!');
                 }
             }
@@ -78,11 +89,11 @@ export default function SquaresPage() {
         if (boardUser.isAdmin && !boardData.adminIntroComplete) {
             setShowAdminIntroDialog(true);
             return true;
-        } else if (!initials) {
+        } else if (!symbol) {
             setShowInfoDialog({ intro: true });
             return true;
-        } else if (!boardInsights?.getClaimCount(initials)) {
-            const isSubscribed = Boolean(getSubscribedNumber(initials));
+        } else if (!boardInsights?.getClaimCount(symbol)) {
+            const isSubscribed = Boolean(getSubscribedNumber(symbol));
             setShowInfoDialog({ intro: !isSubscribed });
             return true;
         }
@@ -161,7 +172,7 @@ export default function SquaresPage() {
 
     const handleSmsSave = async ({ phoneNumber }: { phoneNumber: string }) => {
         const { msg } = await subscribeNumberToBoard({ id, boardName, phoneNumber: phoneNumber.replace(/\s/g, '') });
-        updateSubscriptions(initials, phoneNumber);
+        updateSubscriptions(symbol, phoneNumber);
         setSnackbarMessage(msg);
         setIsSmsDialogOpen(false);
     };
@@ -176,8 +187,11 @@ export default function SquaresPage() {
                     onInfoClick={() => setShowInfoDialog({ intro: false })}
                     onRefresh={getLatestBoardData}
                     onSelectBoard={handleSelectBoard}
-                    initials={initials}
-                    onInitialsChange={setInitials}
+                    symbol={symbol}
+                    name={name}
+                    onSymbolChange={setSymbol}
+                    onNameChange={setName}
+                    symbolNames={symbolNames}
                     onSmsClick={() => setIsSmsDialogOpen(true)}
                     venmoUsername={venmoUsername}
                     hasPaid={hasPaid}
@@ -222,7 +236,7 @@ export default function SquaresPage() {
                     onSave={handleSmsSave}
                     onClose={() => setIsSmsDialogOpen(false)}
                     boardName={boardName}
-                    initials={initials}
+                    symbol={symbol}
                 />
             )}
 
@@ -232,9 +246,11 @@ export default function SquaresPage() {
                     setView={setView}
                     setSnackbarMessage={setSnackbarMessage}
                     boardData={boardData}
-                    initials={initials}
-                    setInitials={setInitials}
+                    symbol={symbol}
+                    name={name}
+                    setSymbol={setSymbol}
                     squareMap={squareMap}
+                    symbolNames={symbolNames}
                     getLatestBoardData={getLatestBoardData}
                     anchor={anchor}
                     id={id}
@@ -252,8 +268,9 @@ export default function SquaresPage() {
             ) : (
                 <NonMobileView
                     id={id}
-                    initials={initials}
-                    setInitials={setInitials}
+                    symbol={symbol}
+                    name={name}
+                    setSymbol={setSymbol}
                     boardName={boardName}
                     setSnackbarMessage={setSnackbarMessage}
                     getLatestBoardData={getLatestBoardData}
@@ -263,6 +280,7 @@ export default function SquaresPage() {
                     setView={setView}
                     boardData={boardData}
                     squareMap={squareMap}
+                    symbolNames={symbolNames}
                     anchor={anchor}
                     boardUser={boardUser}
                     setShowPaymentDialog={setShowPaymentDialog}

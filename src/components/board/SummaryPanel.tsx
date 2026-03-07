@@ -1,17 +1,18 @@
 'use client';
 import { useState } from 'react';
-import { Avatar, Box, Card, CardContent, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Typography, useMediaQuery } from '@mui/material';
+import { Avatar, Box, Card, CardContent, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Tooltip, Typography, useMediaQuery } from '@mui/material';
 import { AttachMoney, GridOn, People } from '@mui/icons-material';
 
 interface SummaryPanelProps {
     boardData: any;
-    initials: string;
+    symbol: string;
     squareMap: Record<string, number>;
+    symbolNames: Record<string, string>;
     onRefresh: () => Promise<void>;
-    onPlayerClick?: (playerInitials: string) => void;
+    onPlayerClick?: (playerSymbol: string) => void;
 }
 
-export default function SummaryPanel({ boardData, initials, squareMap, onRefresh, onPlayerClick }: SummaryPanelProps) {
+export default function SummaryPanel({ boardData, symbol, squareMap, symbolNames, onRefresh, onPlayerClick }: SummaryPanelProps) {
     const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' }>({ key: 'player', direction: 'asc' });
     const isMobileWidth = useMediaQuery('(max-width: 600px)');
     const isMobileHeight = useMediaQuery('(max-height: 600px)');
@@ -49,7 +50,10 @@ export default function SummaryPanel({ boardData, initials, squareMap, onRefresh
         .filter((key) => key !== '_remaining')
         .sort((a, b) => {
             if (sortConfig.key === 'player') {
-                return sortConfig.direction === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
+                // Sort by name if available, fall back to symbol
+                const nameA = symbolNames[a] || a;
+                const nameB = symbolNames[b] || b;
+                return sortConfig.direction === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
             }
             const valA = squareMap[a];
             const valB = squareMap[b];
@@ -70,9 +74,9 @@ export default function SummaryPanel({ boardData, initials, squareMap, onRefresh
         </TableCell>
     );
 
-    const handleRowClick = (playerInitials: string) => {
+    const handleRowClick = (playerSymbol: string) => {
         if (onPlayerClick) {
-            onPlayerClick(playerInitials);
+            onPlayerClick(playerSymbol);
         }
     };
 
@@ -135,15 +139,16 @@ export default function SummaryPanel({ boardData, initials, squareMap, onRefresh
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {sortedPlayers.map((playerInitials) => {
-                                const count = squareMap[playerInitials];
+                            {sortedPlayers.map((playerSymbol) => {
+                                const count = squareMap[playerSymbol];
                                 const amount = squarePrice ? count * squarePrice : 0;
-                                const isUser = playerInitials === initials;
+                                const isUser = playerSymbol === symbol;
+                                const playerName = symbolNames[playerSymbol];
 
                                 return (
                                     <TableRow
-                                        key={playerInitials}
-                                        onClick={() => handleRowClick(playerInitials)}
+                                        key={playerSymbol}
+                                        onClick={() => handleRowClick(playerSymbol)}
                                         sx={{
                                             bgcolor: isUser ? 'action.selected' : 'inherit',
                                             transition: 'background-color 0.2s',
@@ -156,22 +161,24 @@ export default function SummaryPanel({ boardData, initials, squareMap, onRefresh
                                     >
                                         <TableCell component="th" scope="row">
                                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                <Avatar
-                                                    variant='rounded'
-                                                    sx={{
-                                                        width: 32,
-                                                        height: 32,
-                                                        fontSize: '0.75rem',
-                                                        bgcolor: isUser ? 'primary.main' : 'grey.300',
-                                                        fontWeight: 'bold',
-                                                        color: isUser ? 'white' : 'grey.700',
-                                                        mr: 2
-                                                    }}
-                                                >
-                                                    {playerInitials}
-                                                </Avatar>
+                                                <Tooltip title={playerSymbol} arrow>
+                                                    <Avatar
+                                                        variant='rounded'
+                                                        sx={{
+                                                            width: 32,
+                                                            height: 32,
+                                                            fontSize: /\p{Emoji_Presentation}|\p{Extended_Pictographic}/u.test(playerSymbol) ? '1.0rem' : '0.75rem',
+                                                            bgcolor: isUser ? 'primary.main' : 'grey.300',
+                                                            fontWeight: 500,
+                                                            color: isUser ? 'white' : 'grey.700',
+                                                            mr: 2
+                                                        }}
+                                                    >
+                                                        {playerSymbol}
+                                                    </Avatar>
+                                                </Tooltip>
                                                 <Typography variant="body2" fontWeight="600">
-                                                    {playerInitials}
+                                                    {playerName || playerSymbol}
                                                 </Typography>
                                             </Box>
                                         </TableCell>

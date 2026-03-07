@@ -8,11 +8,11 @@ interface SmsDialogProps {
 	open: boolean;
 	onClose: () => void;
 	onSave: (params: { phoneNumber: string }) => void;
-	initials: string;
+	symbol: string;
 	boardName?: string;
 }
 
-export default function SmsDialog({ open, onClose, onSave, initials, boardName }: SmsDialogProps) {
+export default function SmsDialog({ open, onClose, onSave, symbol, boardName }: SmsDialogProps) {
 	const [phoneNumber, setPhoneNumber] = useState('');
 	const [storedNumber, setStoredNumber] = useState('');
 
@@ -32,7 +32,7 @@ export default function SmsDialog({ open, onClose, onSave, initials, boardName }
 			}}
 		>
 			<SmsContent
-				initials={initials}
+				symbol={symbol}
 				phoneNumber={phoneNumber}
 				onChange={setPhoneNumber}
 				onIsSubscribed={setStoredNumber}

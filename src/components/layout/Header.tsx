@@ -15,8 +15,11 @@ interface CustomHeaderProps {
     onInfoClick: () => void;
     onRefresh?: () => void;
     onSelectBoard: (board: any) => void;
-    initials: string;
-    onInitialsChange: (initials: string) => void;
+    symbol: string;
+    name: string;
+    onSymbolChange: (symbol: string) => void;
+    onNameChange: (name: string) => void;
+    symbolNames: Record<string, string>;
     onSmsClick: () => void;
     venmoUsername?: string;
     hasPaid: boolean;
@@ -37,8 +40,11 @@ export default function CustomHeader({
     onInfoClick,
     onRefresh,
     onSelectBoard,
-    initials,
-    onInitialsChange,
+    symbol,
+    name,
+    onSymbolChange,
+    onNameChange,
+    symbolNames,
     onSmsClick,
     venmoUsername,
     hasPaid,
@@ -90,8 +96,11 @@ export default function CustomHeader({
                         onClose={() => setMenuAnchor(null)}
                         onInfoClick={onInfoClick}
                         onMyBoardsClick={() => setShowMyBoardsDialog(true)}
-                        initials={initials}
-                        onInitialsChange={onInitialsChange}
+                        symbol={symbol}
+                        name={name}
+                        onSymbolChange={onSymbolChange}
+                        onNameChange={onNameChange}
+                        symbolNames={symbolNames}
                         onSmsClick={onSmsClick}
                         venmoUsername={venmoUsername}
                         hasPaid={hasPaid}

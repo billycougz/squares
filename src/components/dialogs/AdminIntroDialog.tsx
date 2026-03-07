@@ -25,6 +25,7 @@ import GroupsIcon from '@mui/icons-material/Groups';
 import Grid4x4Icon from '@mui/icons-material/Grid4x4';
 import PaymentsIcon from '@mui/icons-material/Payments';
 import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
+import BadgeIcon from '@mui/icons-material/Badge';
 import { useLocalStorage } from 'usehooks-ts';
 import StyledDialog, { StepActions } from './StyledDialog';
 import { getSportConfig, getPeriodTypeLabel } from '@/lib/sportConfig';
@@ -81,6 +82,9 @@ function CheckItem({ icon, text }: { icon: React.ReactNode; text: string }) {
 	);
 }
 
+// Detect if a string contains emoji characters
+const containsEmoji = (str: string) => /\p{Emoji_Presentation}|\p{Extended_Pictographic}/u.test(str);
+
 export default function AdminMessageDialog({ onClose, setSnackbarMessage }: AdminMessageDialogProps) {
 	const { boardData, setBoardData, updateSubscriptions, boardUser } = useContext(AppContext);
 	const {
@@ -105,8 +109,11 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }: Admi
 		reversePercent,
 	});
 
-	const [initials, setInitials] = useLocalStorage('squares-initials', '');
-	const [initialsUnderChange, setInitialsUnderChange] = useState(initials);
+	const [symbol, setSymbol] = useLocalStorage('squares-symbol', '');
+	const [name, setName] = useLocalStorage('squares-name', '');
+	const symbolNames: Record<string, string> = boardData.players || {};
+	const [symbolUnderChange, setSymbolUnderChange] = useState(symbol);
+	const [nameUnderChange, setNameUnderChange] = useState(name);
 	const [phoneNumber, setPhoneNumber] = useState('');
 	const [errors, setErrors] = useState<Record<string, boolean>>({});
 	const [stepIndex, setStepIndex] = useState(0);
@@ -122,9 +129,26 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }: Admi
 		setSnackbarMessage('Participant link copied to clipboard.');
 	};
 
-	const handleInitialsChange = (value: string) => {
-		setErrors({ ...errors, initials: false });
-		setInitialsUnderChange(value.toUpperCase());
+	const handleSymbolChange = (value: string) => {
+		setErrors({ ...errors, symbol: false, symbolTaken: false });
+		if (containsEmoji(value)) {
+			const emojiMatch = value.match(/\p{Emoji_Presentation}|\p{Extended_Pictographic}/u);
+			setSymbolUnderChange(emojiMatch ? emojiMatch[0] : value);
+		} else {
+			setSymbolUnderChange(value.toUpperCase().slice(0, 3));
+		}
+	};
+
+	const handleNameChange = (value: string) => {
+		setErrors({ ...errors, name: false });
+		setNameUnderChange(value);
+	};
+
+	// Check if symbol is taken by a different name
+	const isSymbolTaken = (sym: string, nm: string): boolean => {
+		if (!sym || !nm) return false;
+		const existingName = symbolNames[sym];
+		return !!existingName && existingName !== nm;
 	};
 
 	/* ─── Step content ────────────────────────────────────────── */
@@ -132,7 +156,7 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }: Admi
 		{
 			title: 'Welcome To Squares',
 			titleIcon: <DashboardIcon sx={{ fontSize: 20 }} />,
-			updateInitials: true,
+			updateIdentity: true,
 			content: (
 				<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
 					<Typography sx={{ color: 'text.secondary', lineHeight: 1.6 }}>
@@ -142,13 +166,38 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }: Admi
 						Get started by entering your info below.
 					</Typography>
 					<TextField
-						error={errors.initials}
-						placeholder="Your Initials"
+						error={errors.name}
+						placeholder="Your Name"
 						size="small"
 						fullWidth
-						value={initialsUnderChange}
-						onChange={(e) => handleInitialsChange(e.target.value)}
-						helperText={errors.initials ? 'Your initials are required.' : ''}
+						value={nameUnderChange}
+						onChange={(e) => handleNameChange(e.target.value)}
+						helperText={errors.name ? 'Your name is required.' : ''}
+						sx={{
+							'& .MuiOutlinedInput-root': { borderRadius: '12px' },
+						}}
+						InputProps={{
+							startAdornment: (
+								<InputAdornment position="start">
+									<BadgeIcon color="primary" />
+								</InputAdornment>
+							),
+						}}
+					/>
+					<TextField
+						error={errors.symbol || errors.symbolTaken}
+						placeholder="Your Symbol"
+						size="small"
+						fullWidth
+						value={symbolUnderChange}
+						onChange={(e) => handleSymbolChange(e.target.value)}
+						helperText={
+							errors.symbol
+								? 'A symbol is required.'
+								: errors.symbolTaken
+									? `This symbol is already used by ${symbolNames[symbolUnderChange]}.`
+									: 'Up to 3 letters (e.g. your initials) or a single emoji.'
+						}
 						sx={{
 							'& .MuiOutlinedInput-root': { borderRadius: '12px' },
 						}}
@@ -212,7 +261,7 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }: Admi
 					</Box>
 
 					<Typography variant="body2" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
-						You are the only person who can remove initials from a square.
+						You are the only person who can remove a symbol from a square.
 					</Typography>
 				</Box>
 			),
@@ -277,7 +326,7 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }: Admi
 					<ContentCard icon={<DashboardIcon sx={{ fontSize: 20 }} />}>
 						<Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>To Play</Typography>
 						<Typography variant="body2" sx={{ color: 'text.secondary' }}>
-							Tap any square to instantly claim it with your initials.
+							Tap any square to instantly claim it with your symbol.
 						</Typography>
 					</ContentCard>
 
@@ -325,13 +374,18 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }: Admi
 			if (steps[stepIndex].isFinance) {
 				const { Item } = await updateBoard({ id, boardName, operation: 'finances', value: financeData });
 				setBoardData({ ...Item });
-			} else if (steps[stepIndex].updateInitials) {
-				const newErrors = { initials: !Boolean(initialsUnderChange) };
+			} else if (steps[stepIndex].updateIdentity) {
+				const newErrors: Record<string, boolean> = {
+					symbol: !Boolean(symbolUnderChange),
+					name: !Boolean(nameUnderChange.trim()),
+					symbolTaken: isSymbolTaken(symbolUnderChange, nameUnderChange.trim()),
+				};
 				if (Object.values(newErrors).some((v) => v)) {
 					setErrors(newErrors);
 					return;
 				}
-				setInitials(initialsUnderChange);
+				setSymbol(symbolUnderChange);
+				setName(nameUnderChange.trim());
 			}
 		}
 		setStepIndex(stepIndex + direction);
@@ -343,7 +397,7 @@ export default function AdminMessageDialog({ onClose, setSnackbarMessage }: Admi
 		if (phoneNumber && phoneNumber.length >= 12) {
 			try {
 				await setAdminPhone({ id, phoneNumber });
-				updateSubscriptions(initials, phoneNumber);
+				updateSubscriptions(symbol, phoneNumber);
 			} catch (e) {
 				console.error('Failed to set admin phone:', e);
 			}

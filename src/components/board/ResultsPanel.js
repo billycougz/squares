@@ -1,8 +1,8 @@
 'use client';
-import { Avatar, Box, Card, CardContent, Chip, Divider, Grid, IconButton, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { Avatar, Box, Card, CardContent, Chip, Divider, Grid, IconButton, Tooltip, Typography, useMediaQuery, useTheme } from '@mui/material';
 import { EmojiEvents, AttachMoney, SportsScore } from '@mui/icons-material';
 
-export default function ResultsPanel({ boardData, initials, anchor, onRefresh }) {
+export default function ResultsPanel({ boardData, symbol, symbolNames = {}, anchor, onRefresh }) {
 	const { squarePrice, results, teams, payoutSliderValues, retainAmount = 0 } = boardData;
 	const theme = useTheme();
 	const isMobileWidth = useMediaQuery('(max-width: 600px)');
@@ -25,7 +25,8 @@ export default function ResultsPanel({ boardData, initials, anchor, onRefresh })
 		const isFinal = quarter === 'Q4' || quarter === 'Final';
 		const displayPeriod = isFinal ? 'FINAL' : quarter.replace('Q', '').replace('H', '');
 		const periodTypeLabel = quarter.startsWith('H') ? 'HALF' : quarter.startsWith('Q') ? 'QTR' : '';
-		const isWinner = winner === initials;
+		const isWinner = winner === symbol;
+		const winnerName = winner ? symbolNames[winner] : undefined;
 
 		return (
 			<Box sx={{ position: 'relative' }}>
@@ -97,19 +98,28 @@ export default function ResultsPanel({ boardData, initials, anchor, onRefresh })
 								{/* Winner & Payout */}
 								<Box sx={{ textAlign: 'right', flexShrink: 0 }}>
 									<Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0.5 }}>
-										<Box
-											sx={{
-												display: 'flex',
-												alignItems: 'center',
-												gap: 0.5,
-												color: winner ? 'secondary.main' : 'text.disabled',
-											}}
-										>
-											{winner && <EmojiEvents fontSize='small' />}
-											<Typography variant='body2' fontWeight='700' sx={{ textTransform: 'uppercase' }}>
-												{winner || 'TBD'}
-											</Typography>
-										</Box>
+										<Tooltip title={winnerName || ''} arrow disableHoverListener={!winnerName}>
+											<Box
+												sx={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: 0.5,
+													color: winner ? 'secondary.main' : 'text.disabled',
+												}}
+											>
+												{winner && <EmojiEvents fontSize='small' />}
+												<Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+													{winnerName && (
+														<Typography variant='caption' fontWeight='700' sx={{ lineHeight: 1.2 }}>
+															{winnerName}
+														</Typography>
+													)}
+													<Typography variant='body2' fontWeight='700' sx={{ textTransform: 'uppercase', fontSize: winnerName ? '0.7rem' : undefined, color: winnerName ? 'text.secondary' : undefined }}>
+														{winner || 'TBD'}
+													</Typography>
+												</Box>
+											</Box>
+										</Tooltip>
 										{squarePrice && (
 											<Chip
 												icon={<AttachMoney sx={{ '&&': { fontSize: 16 } }} />}

@@ -11,7 +11,11 @@ import {
     Box,
     TextField,
     useTheme,
-    alpha
+    alpha,
+    IconButton,
+    Button,
+    Collapse,
+    InputAdornment,
 } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
@@ -19,27 +23,40 @@ import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import SmsIcon from '@mui/icons-material/Sms';
+import EditIcon from '@mui/icons-material/Edit';
+import BadgeIcon from '@mui/icons-material/Badge';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
 
 interface HeaderMenuProps {
     anchorEl: null | HTMLElement;
     onClose: () => void;
     onInfoClick: () => void;
     onMyBoardsClick: () => void;
-    initials: string;
-    onInitialsChange: (initials: string) => void;
+    symbol: string;
+    name: string;
+    onSymbolChange: (symbol: string) => void;
+    onNameChange: (name: string) => void;
+    symbolNames: Record<string, string>;
     onSmsClick: () => void;
     venmoUsername?: string;
     hasPaid: boolean;
     isAdmin: boolean;
 }
 
+// Detect if a string contains emoji characters
+const containsEmoji = (str: string) => /\p{Emoji_Presentation}|\p{Extended_Pictographic}/u.test(str);
+
 export default function HeaderMenu({
     anchorEl,
     onClose,
     onInfoClick,
     onMyBoardsClick,
-    initials,
-    onInitialsChange,
+    symbol,
+    name,
+    onSymbolChange,
+    onNameChange,
+    symbolNames,
     onSmsClick,
     venmoUsername,
     hasPaid,
@@ -47,24 +64,80 @@ export default function HeaderMenu({
 }: HeaderMenuProps) {
     const theme = useTheme();
     const open = Boolean(anchorEl);
-    const [initialsUnderChange, setInitialsUnderChange] = React.useState(initials);
 
+    // Edit mode state
+    const [isEditing, setIsEditing] = React.useState(false);
+    const [editSymbol, setEditSymbol] = React.useState(symbol);
+    const [editName, setEditName] = React.useState(name);
+    const [errors, setErrors] = React.useState<{ symbol?: boolean; name?: boolean; symbolTaken?: string }>({});
+
+    // Reset edit fields when menu opens
     React.useEffect(() => {
-        setInitialsUnderChange(initials);
-    }, [initials]);
+        if (open) {
+            setEditSymbol(symbol);
+            setEditName(name);
+            setIsEditing(false);
+            setErrors({});
+        }
+    }, [open, symbol, name]);
 
-    const handleInitialsBlur = () => {
-        if (initialsUnderChange !== initials) {
-            onInitialsChange(initialsUnderChange);
+    const handleSymbolInputChange = (value: string) => {
+        setErrors((prev) => ({ ...prev, symbol: false, symbolTaken: undefined }));
+        if (containsEmoji(value)) {
+            const emojiMatch = value.match(/\p{Emoji_Presentation}|\p{Extended_Pictographic}/u);
+            setEditSymbol(emojiMatch ? emojiMatch[0] : value);
+        } else {
+            setEditSymbol(value.toUpperCase().slice(0, 3));
         }
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === ' ') {
-            e.stopPropagation();
+    const handleNameInputChange = (value: string) => {
+        setErrors((prev) => ({ ...prev, name: false }));
+        setEditName(value);
+    };
+
+    const handleSave = () => {
+        const trimmedName = editName.trim();
+        const newErrors: { symbol?: boolean; name?: boolean; symbolTaken?: string } = {};
+
+        if (!editSymbol) newErrors.symbol = true;
+        if (!trimmedName) newErrors.name = true;
+
+        // Check uniqueness: is this symbol already taken by a different name?
+        if (editSymbol && trimmedName) {
+            const existingName = symbolNames[editSymbol];
+            if (existingName && existingName !== trimmedName) {
+                newErrors.symbolTaken = existingName;
+            }
         }
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
+
+        // Update local identity (server will pick up mapping on next square selection)
+        onSymbolChange(editSymbol);
+        onNameChange(trimmedName);
+        setIsEditing(false);
+    };
+
+    const handleCancelEdit = () => {
+        setEditSymbol(symbol);
+        setEditName(name);
+        setErrors({});
+        setIsEditing(false);
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        // Stop ALL key events from bubbling to Menu
+        // (Menu intercepts letter keys for typeahead navigation, stealing focus from TextFields)
+        e.stopPropagation();
         if (e.key === 'Enter') {
-            (e.target as HTMLInputElement).blur();
+            handleSave();
+        }
+        if (e.key === 'Escape') {
+            handleCancelEdit();
         }
     };
 
@@ -122,30 +195,177 @@ export default function HeaderMenu({
         >
             {/* ── Profile ── */}
             <Box sx={{ px: 2, pt: 2, pb: 1.5 }}>
-                <Box sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1.5,
-                    bgcolor: alpha(theme.palette.primary.main, 0.06),
-                    p: 1.5,
-                    borderRadius: '10px',
-                    border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`
-                }}>
-                    <AccountCircle sx={{ color: theme.palette.primary.main, fontSize: 28 }} />
-                    <TextField
-                        placeholder="Initials"
-                        size="small"
-                        variant="standard"
-                        InputProps={{
-                            disableUnderline: true,
-                            sx: { fontWeight: 700, fontSize: '0.9rem' }
+                <Box
+                    sx={{
+                        bgcolor: alpha(theme.palette.primary.main, 0.06),
+                        borderRadius: '10px',
+                        border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                        overflow: 'hidden',
+                        transition: 'all 0.2s ease',
+                    }}
+                >
+                    {/* Read-only profile display */}
+                    <Box
+                        onClick={() => !isEditing && setIsEditing(true)}
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1.5,
+                            p: 1.5,
+                            cursor: isEditing ? 'default' : 'pointer',
+                            '&:hover': !isEditing ? {
+                                bgcolor: alpha(theme.palette.primary.main, 0.04),
+                            } : {},
                         }}
-                        value={initialsUnderChange}
-                        onChange={(e) => setInitialsUnderChange(e.target.value.toUpperCase())}
-                        onBlur={handleInitialsBlur}
-                        onKeyDown={handleKeyDown}
-                        sx={{ flexGrow: 1 }}
-                    />
+                    >
+                        <AccountCircle sx={{ color: theme.palette.primary.main, fontSize: 28, flexShrink: 0 }} />
+                        <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                            {(name || symbol) ? (
+                                <>
+                                    <Typography
+                                        variant="body2"
+                                        sx={{
+                                            fontWeight: 700,
+                                            fontSize: '0.85rem',
+                                            lineHeight: 1.2,
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap',
+                                        }}
+                                    >
+                                        {name || symbol}
+                                    </Typography>
+                                    {name && symbol && (
+                                        <Typography
+                                            variant="caption"
+                                            sx={{
+                                                fontWeight: 600,
+                                                fontSize: '0.7rem',
+                                                color: 'text.secondary',
+                                                lineHeight: 1.2,
+                                            }}
+                                        >
+                                            {symbol}
+                                        </Typography>
+                                    )}
+                                </>
+                            ) : (
+                                <Typography
+                                    variant="body2"
+                                    sx={{ color: 'text.secondary', fontStyle: 'italic', fontSize: '0.85rem' }}
+                                >
+                                    Tap to set your identity
+                                </Typography>
+                            )}
+                        </Box>
+                        {!isEditing && (
+                            <EditIcon
+                                sx={{
+                                    fontSize: 16,
+                                    color: 'text.disabled',
+                                    flexShrink: 0,
+                                }}
+                            />
+                        )}
+                    </Box>
+
+                    {/* Expandable edit form */}
+                    <Collapse in={isEditing}>
+                        <Box
+                            sx={{
+                                px: 1.5,
+                                pb: 1.5,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 1.25,
+                                borderTop: `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
+                                pt: 1.5,
+                            }}
+                        >
+                            <TextField
+                                placeholder="Your Name"
+                                size="small"
+                                fullWidth
+                                error={errors.name}
+                                value={editName}
+                                onChange={(e) => handleNameInputChange(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                                helperText={errors.name ? 'Name is required.' : ''}
+                                sx={{
+                                    '& .MuiOutlinedInput-root': { borderRadius: '8px', fontSize: '0.85rem' },
+                                    '& .MuiFormHelperText-root': { mx: 0.5, mt: 0.5 },
+                                }}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <BadgeIcon sx={{ fontSize: 18, color: 'primary.main' }} />
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                            <TextField
+                                placeholder="Your Symbol"
+                                size="small"
+                                fullWidth
+                                error={errors.symbol || !!errors.symbolTaken}
+                                value={editSymbol}
+                                onChange={(e) => handleSymbolInputChange(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                                helperText={
+                                    errors.symbol
+                                        ? 'Symbol is required.'
+                                        : errors.symbolTaken
+                                            ? `Already used by ${errors.symbolTaken}.`
+                                            : 'Initials or emoji'
+                                }
+                                sx={{
+                                    '& .MuiOutlinedInput-root': { borderRadius: '8px', fontSize: '0.85rem' },
+                                    '& .MuiFormHelperText-root': { mx: 0.5, mt: 0.5 },
+                                }}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <AccountCircle sx={{ fontSize: 18, color: 'primary.main' }} />
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                            <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                                <Button
+                                    size="small"
+                                    onClick={handleCancelEdit}
+                                    sx={{
+                                        textTransform: 'none',
+                                        fontWeight: 600,
+                                        fontSize: '0.75rem',
+                                        borderRadius: '8px',
+                                        minWidth: 0,
+                                        px: 1.5,
+                                        color: 'text.secondary',
+                                    }}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    size="small"
+                                    variant="contained"
+                                    onClick={handleSave}
+                                    sx={{
+                                        textTransform: 'none',
+                                        fontWeight: 700,
+                                        fontSize: '0.75rem',
+                                        borderRadius: '8px',
+                                        minWidth: 0,
+                                        px: 2,
+                                        boxShadow: 'none',
+                                        '&:hover': { boxShadow: 'none' },
+                                    }}
+                                >
+                                    Save
+                                </Button>
+                            </Box>
+                        </Box>
+                    </Collapse>
                 </Box>
             </Box>
 

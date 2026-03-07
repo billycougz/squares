@@ -40,7 +40,7 @@ interface Board {
     payoutSliderValues: number[];
     results: Result[];
     version: number;
-    players: Record<string, unknown>;
+    players: Record<string, string>;
     createdAt: number;
     lastUpdated: number;
     adminIntroComplete?: boolean;
@@ -173,14 +173,33 @@ export const BoardService = {
 
     /**
      * selectSquare
+     *
+     * Name is bundled here (not a separate endpoint) to avoid amplifying the
+     * read-modify-write race condition in BoardModel.update(). See BACKLOG.md
+     * for the full rationale and DynamoDB UpdateExpression migration plan.
      */
-    selectSquare: async (id: string, row: number, col: number, value: string) => {
+    selectSquare: async (id: string, row: number, col: number, value: string, name?: string) => {
         const board = await BoardModel.findById(id) as Board | null;
         if (!board) throw new Error('Board not found');
+
+        // Validate symbol-name uniqueness
+        if (name && board.players) {
+            const existingName = board.players[value];
+            if (existingName && existingName !== name) {
+                throw new Error(`SYMBOL_CONFLICT:${existingName}`);
+            }
+        }
 
         // Check if already taken
         if (!board.gridData[row][col]) {
             board.gridData[row][col] = value;
+
+            // Store the symbol→name mapping
+            if (name) {
+                if (!board.players) board.players = {};
+                board.players[value] = name;
+            }
+
             await BoardModel.update(board);
         }
         return board;
@@ -246,7 +265,10 @@ export const BoardService = {
         const periodLabel = periodKey === 'Final' ? 'Final' : periodKey;
 
         const boardDeepLink = encodeURI(`${appConfig.baseUrl}?id=${id}&anchor=results`);
-        const smsMessage = `The ${periodLabel} Squares results for ${board.boardName} are in. With a score of ${board.teams.horizontal.name}: ${scores.horizontal}, ${board.teams.vertical.name}: ${scores.vertical}, the win goes to ${winner}!\n\nTap the following link to open your Squares board. ${boardDeepLink}`;
+        const rawWinnerName = board.players?.[winner];
+        const winnerName = rawWinnerName && typeof rawWinnerName === 'string' ? rawWinnerName : null;
+        const winnerDisplay = winnerName ? `${winnerName} (${winner})` : winner;
+        const smsMessage = `The ${periodLabel} Squares results for ${board.boardName} are in. With a score of ${board.teams.horizontal.name}: ${scores.horizontal}, ${board.teams.vertical.name}: ${scores.vertical}, the win goes to ${winnerDisplay}!\n\nTap the following link to open your Squares board. ${boardDeepLink}`;
 
         try {
             await NotificationService.publishMessage(smsMessage, id);

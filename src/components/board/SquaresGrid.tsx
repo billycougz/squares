@@ -34,7 +34,7 @@ interface BoardData {
 interface BoardInsights {
     remainingSquares: number;
     areNumbersSet: boolean;
-    getClaimCount: (initials: string) => number;
+    getClaimCount: (symbol: string) => number;
 }
 
 interface AppContextType {
@@ -43,7 +43,8 @@ interface AppContextType {
 }
 
 interface SquaresGridProps {
-    initials: string;
+    symbol: string;
+    name: string;
     setSnackbarMessage: (message: string) => void;
     onUpdate: (board: BoardData) => void;
     highlightColor: string;
@@ -51,7 +52,7 @@ interface SquaresGridProps {
     sx?: SxProps<Theme>;
 }
 
-export default function SquaresGrid({ initials, setSnackbarMessage, onUpdate, highlightColor, clickMode, sx = [] }: SquaresGridProps) {
+export default function SquaresGrid({ symbol, name, setSnackbarMessage, onUpdate, highlightColor, clickMode, sx = [] }: SquaresGridProps) {
     const theme = useTheme();
     const { boardData, boardInsights } = useContext(AppContext) as AppContextType;
     const [scale, setScale] = useState(1);
@@ -69,25 +70,37 @@ export default function SquaresGrid({ initials, setSnackbarMessage, onUpdate, hi
             // Already selected square
             return;
         }
-        if (clickMode === 'select' && !initials) {
-            setSnackbarMessage('Please enter your initials before selecting a square.');
+        if (clickMode === 'select' && !symbol) {
+            setSnackbarMessage('Please enter your symbol before selecting a square.');
             return;
         }
-        const currentInitialsCount = boardInsights.getClaimCount(initials);
-        if (clickMode === 'select' && maxSquares && currentInitialsCount === maxSquares) {
+        if (clickMode === 'select' && !name) {
+            setSnackbarMessage('Please enter your name before selecting a square.');
+            return;
+        }
+        const currentClaimCount = boardInsights.getClaimCount(symbol);
+        if (clickMode === 'select' && maxSquares && currentClaimCount === maxSquares) {
             setSnackbarMessage("You've reached the square limit.");
             return;
         }
-        const value = clickMode === 'remove' ? null : initials;
-        const { Item } = await updateBoard({ id, boardName, row, col, operation: clickMode, value });
+        const value = clickMode === 'remove' ? null : symbol;
+        const result = await updateBoard({ id, boardName, row, col, operation: clickMode, value, ...(clickMode === 'select' && { name }) });
+
+        // Handle symbol conflict (409)
+        if (result.error === 'symbol_conflict') {
+            setSnackbarMessage(`Symbol "${symbol}" is already used by ${result.existingName}.`);
+            return;
+        }
+
+        const { Item } = result;
         if (clickMode === 'remove') {
             setSnackbarMessage('Square removed.');
         }
         if (clickMode === 'select') {
-            if (Item.gridData[row][col] !== initials) {
+            if (Item.gridData[row][col] !== symbol) {
                 setSnackbarMessage('This square was taken by another player.');
             } else {
-                const personalTotal = currentInitialsCount + 1;
+                const personalTotal = currentClaimCount + 1;
                 const financeMsg = squarePrice ? ` and owe $${personalTotal * squarePrice}` : '';
                 setSnackbarMessage(`You now have ${personalTotal} squares${financeMsg}.`);
             }
@@ -105,7 +118,7 @@ export default function SquaresGrid({ initials, setSnackbarMessage, onUpdate, hi
         if (resultMap[row]?.[col]) {
             return theme.palette.success.light;
         }
-        if (gridData[row][col] === initials) {
+        if (gridData[row][col] === symbol) {
             return highlightColor;
         }
         return '';

@@ -34,14 +34,14 @@ export const updateBoard = async (updateData: UpdateBoardParams) => {
 		return MOCK.updateBoard(updateData);
 	}
 
-	const { id, operation, value, row, col, scores } = updateData;
+	const { id, operation, value, row, col, scores, name } = updateData;
 	let url = `${API_BASE}/${id}`;
 
 	try {
 		let response;
 		switch (operation) {
 			case 'select':
-				response = await axios.post(`${url}/squares`, { row, col, value });
+				response = await axios.post(`${url}/squares`, { row, col, value, name });
 				break;
 			case 'remove':
 				// utilizing DELETE with body
